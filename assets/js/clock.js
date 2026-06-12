@@ -1,38 +1,16 @@
-import { Utils } from "./utils.js";
-
-export const Clock = {
-
-    start() {
-
-        this.update();
-
-        setInterval(() => {
-            this.update();
-        }, 1000);
-
-    },
-
-    update() {
-
-        const element =
-            document.getElementById("clock");
-
-        if (!element) return;
-
+// assets/js/clock.js
+export function initClock() {
+    const clockElement = document.getElementById('clock');
+    
+    function updateClock() {
         const now = new Date();
-
-        const hours =
-            Utils.pad(now.getHours());
-
-        const minutes =
-            Utils.pad(now.getMinutes());
-
-        const seconds =
-            Utils.pad(now.getSeconds());
-
-        element.textContent =
-            `${hours}:${minutes}:${seconds}`;
-
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        clockElement.textContent = `${hours}:${minutes}:${seconds}`;
     }
 
-};
+    setInterval(updateClock, 1000);
+    updateClock(); // تشغيل فوري
+}
