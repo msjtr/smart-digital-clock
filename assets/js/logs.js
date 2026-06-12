@@ -1,8 +1,37 @@
-export const QR = {
+import { Storage } from "./storage.js";
 
-    generate(text) {
+export const Logs = {
 
-        return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(text)}`;
+    add(action) {
+
+        const logs =
+            Storage.load(
+                "logs",
+                []
+            );
+
+        logs.push({
+
+            action,
+
+            date:
+                new Date().toISOString()
+
+        });
+
+        Storage.save(
+            "logs",
+            logs
+        );
+
+    },
+
+    getAll() {
+
+        return Storage.load(
+            "logs",
+            []
+        );
 
     }
 
