@@ -1,0 +1,19 @@
+{
+  "clockFormat": "24",
+  "showSeconds": true,
+  "showClock": true,
+  "showDate": true,
+  "showWeather": true,
+  "showPrayer": true,
+  "showMessages": true,
+  "showOccasion": true,
+  "showCountdown": true,
+  "showContent": true,
+  "showNewsTicker": true,
+  "showUniversityLogo": true,
+  "showCollegeLogo": true,
+  "theme": "dark",
+  "projectorMode": false,
+  "language": "ar",
+  "messageDuration": 5
+}
