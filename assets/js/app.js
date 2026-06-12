@@ -11,62 +11,67 @@ import { Weather } from "./weather.js";
 import { Prayers } from "./prayers.js";
 
 document.addEventListener(
-"DOMContentLoaded",
-initializeApp
+    "DOMContentLoaded",
+    initializeApp
 );
 
 function initializeApp() {
 
-```
-console.log(
-    "Smart Digital Clock Started"
-);
+    console.log("Smart Digital Clock Started");
 
-// الوقت
-Clock.start();
+    try {
 
-// التاريخ
-DateManager.update();
+        Clock.start();
 
-// الإعدادات
-Settings.init();
+        DateManager.update();
 
-// التخطيط الذكي
-Layouts.init();
+        Settings.init();
 
-// الثيمات
-Themes.load();
+        if (typeof Layouts.init === "function") {
+            Layouts.init();
+        }
 
-// الشعارات
-Logos.loadUniversity();
+        if (typeof Themes.load === "function") {
+            Themes.load();
+        }
 
-if (
-    typeof Logos.loadCollege ===
-    "function"
-) {
-    Logos.loadCollege();
-}
+        if (typeof Logos.loadUniversity === "function") {
+            Logos.loadUniversity();
+        }
 
-// الرسائل
-Messages.init();
+        if (typeof Logos.loadCollege === "function") {
+            Logos.loadCollege();
+        }
 
-// المناسبات
-Occasions.init();
+        if (typeof Messages.init === "function") {
+            Messages.init();
+        }
 
-// العد التنازلي
-Countdown.init();
+        if (typeof Occasions.init === "function") {
+            Occasions.init();
+        }
 
-// مؤقت تجريبي لمدة ساعة
-Countdown.start(
-    new Date(
-        Date.now() + 3600000
-    )
-);
+        if (typeof Countdown.init === "function") {
+            Countdown.init();
+        }
 
-// الطقس
-Weather.init();
+        if (typeof Weather.init === "function") {
+            Weather.init();
+        }
 
-// أوقات الصلاة
-Prayers.init();
+        if (typeof Prayers.init === "function") {
+            Prayers.init();
+        }
+
+        console.log("Application Loaded");
+
+    } catch (error) {
+
+        console.error(
+            "Initialization Error:",
+            error
+        );
+
+    }
 
 }
