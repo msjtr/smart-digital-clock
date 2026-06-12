@@ -1,17 +1,334 @@
-<header></header>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
-<main>
-  <section id="occasion"></section>
+<head>
 
-  <section id="clock"></section>
+    <meta charset="UTF-8">
 
-  <section id="info"></section>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-  <section id="messages"></section>
+    <title>
+        الساعة الرقمية الذكية
+    </title>
 
-  <section id="content-viewer"></section>
-</main>
+    <link rel="stylesheet"
+          href="assets/css/style.css">
 
-<footer></footer>
+</head>
 
-<aside id="settings-panel"></aside>
+<body>
+
+    <!-- القائمة الجانبية -->
+
+    <aside id="sidebar">
+
+        <div class="sidebar-header">
+
+            <h2>القائمة</h2>
+
+        </div>
+
+        <ul>
+
+            <li>الرئيسية</li>
+
+            <li>الرسائل</li>
+
+            <li>المناسبات</li>
+
+            <li>المحتوى</li>
+
+            <li>الجداول</li>
+
+            <li>العد التنازلي</li>
+
+            <li>الإعدادات</li>
+
+            <li>السجلات</li>
+
+            <li>النسخ الاحتياطي</li>
+
+        </ul>
+
+    </aside>
+
+    <!-- الهيدر -->
+
+    <header>
+
+        <div class="logo-section">
+
+            <img
+                id="universityLogo"
+                src="assets/images/logos/university-logo.png"
+                alt="شعار الجامعة">
+
+            <div>
+
+                <h1>
+                    الساعة الرقمية الذكية
+                </h1>
+
+                <p>
+                    جامعة حائل - كلية الشريعة والقانون
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="status-box">
+
+            <span id="connectionStatus">
+                متصل
+            </span>
+
+        </div>
+
+    </header>
+
+    <!-- المناسبة -->
+
+    <section id="occasionBox">
+
+        <h2>
+            🎉 المناسبة الحالية
+        </h2>
+
+        <p>
+            أهلاً بكم في كلية الشريعة والقانون
+        </p>
+
+    </section>
+
+    <!-- الساعة -->
+
+    <section id="clockSection">
+
+        <div id="clock">
+
+            00:00:00
+
+        </div>
+
+    </section>
+
+    <!-- التاريخ -->
+
+    <section id="dateSection">
+
+        <div class="date-card">
+
+            <h3>اليوم</h3>
+
+            <span id="dayName">
+
+                السبت
+
+            </span>
+
+        </div>
+
+        <div class="date-card">
+
+            <h3>التاريخ الهجري</h3>
+
+            <span id="hijriDate">
+
+                --
+
+            </span>
+
+        </div>
+
+        <div class="date-card">
+
+            <h3>التاريخ الميلادي</h3>
+
+            <span id="gregorianDate">
+
+                --
+
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- الطقس -->
+
+    <section id="weatherSection">
+
+        <h2>
+            الطقس
+        </h2>
+
+        <div id="weatherInfo">
+
+            <span>
+                ☀️ مشمس
+            </span>
+
+            <span>
+                36°
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- الصلاة -->
+
+    <section id="prayerSection">
+
+        <h2>
+            أوقات الصلاة
+        </h2>
+
+        <div id="prayerTimes">
+
+            <div>الفجر</div>
+
+            <div>الشروق</div>
+
+            <div>الظهر</div>
+
+            <div>العصر</div>
+
+            <div>المغرب</div>
+
+            <div>العشاء</div>
+
+        </div>
+
+    </section>
+
+    <!-- الرسائل -->
+
+    <section id="messagesSection">
+
+        <h2>
+            الرسائل
+        </h2>
+
+        <div id="messageDisplay">
+
+            أهلاً بكم في جامعة حائل
+
+        </div>
+
+    </section>
+
+    <!-- المحتوى -->
+
+    <section id="contentViewer">
+
+        <h2>
+            المحتوى المعروض
+        </h2>
+
+        <div id="contentArea">
+
+            لا يوجد محتوى حالياً
+
+        </div>
+
+    </section>
+
+    <!-- العد التنازلي -->
+
+    <section id="countdownSection">
+
+        <h2>
+            العد التنازلي
+        </h2>
+
+        <div id="countdown">
+
+            00:00:00
+
+        </div>
+
+    </section>
+
+    <!-- الأخبار -->
+
+    <footer id="newsTicker">
+
+        <marquee>
+
+            أهلاً بكم في نظام الساعة الرقمية الذكية - جامعة حائل - كلية الشريعة والقانون
+
+        </marquee>
+
+    </footer>
+
+    <!-- الإعدادات -->
+
+    <div id="settingsPanel">
+
+        <h2>
+
+            الإعدادات
+
+        </h2>
+
+        <div class="setting-item">
+
+            <label>
+
+                إظهار الساعة
+
+            </label>
+
+            <input type="checkbox"
+                   checked>
+
+        </div>
+
+        <div class="setting-item">
+
+            <label>
+
+                إظهار التاريخ
+
+            </label>
+
+            <input type="checkbox"
+                   checked>
+
+        </div>
+
+        <div class="setting-item">
+
+            <label>
+
+                إظهار الرسائل
+
+            </label>
+
+            <input type="checkbox"
+                   checked>
+
+        </div>
+
+        <div class="setting-item">
+
+            <label>
+
+                إظهار العد التنازلي
+
+            </label>
+
+            <input type="checkbox">
+
+        </div>
+
+    </div>
+
+    <script src="assets/js/app.js"></script>
+
+</body>
+
+</html>
