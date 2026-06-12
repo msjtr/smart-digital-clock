@@ -1,69 +1,18 @@
-
-export const DateManager = {
-
-    update() {
-
-        const now = new Date();
-
-        this.updateDay(now);
-
-        this.updateGregorian(now);
-
-        this.updateHijri(now);
-
-    },
-
-    updateDay(date) {
-
-        const element =
-            document.getElementById("dayName");
-
-        if (!element) return;
-
-        const days = [
-            "الأحد",
-            "الإثنين",
-            "الثلاثاء",
-            "الأربعاء",
-            "الخميس",
-            "الجمعة",
-            "السبت"
-        ];
-
-        element.textContent =
-            days[date.getDay()];
-
-    },
-
-    updateGregorian(date) {
-
-        const element =
-            document.getElementById("gregorianDate");
-
-        if (!element) return;
-
-        element.textContent =
-            date.toLocaleDateString("ar-SA");
-
-    },
-
-    updateHijri(date) {
-
-        const element =
-            document.getElementById("hijriDate");
-
-        if (!element) return;
-
-        element.textContent =
-            new Intl.DateTimeFormat(
-                "ar-SA-u-ca-islamic",
-                {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric"
-                }
-            ).format(date);
-
-    }
-
-};
+// assets/js/date.js
+export function initDate() {
+    const dayElement = document.getElementById('dayName');
+    const gregorianElement = document.getElementById('gregorianDate');
+    
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const now = new Date();
+    
+    dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    gregorianElement.textContent = now.toLocaleDateString('ar-SA', options);
+    
+    // ملاحظة: للتقويم الهجري، يُفضل استخدام Intl.DateTimeFormat
+    const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+        day: 'numeric', month: 'long', year: 'numeric'
+    }).format(now);
+    
+    document.getElementById('hijriDate').textContent = hijri;
+}
