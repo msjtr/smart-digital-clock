@@ -1,39 +1,27 @@
 export const Themes = {
 
-    current: "dark",
-
     set(theme) {
-
-        this.current = theme;
 
         document.body.setAttribute(
             "data-theme",
             theme
         );
 
-    },
-
-    dark() {
-
-        this.set("dark");
-
-    },
-
-    light() {
-
-        this.set("light");
+        localStorage.setItem(
+            "theme",
+            theme
+        );
 
     },
 
-    blue() {
+    load() {
 
-        this.set("blue");
+        const theme =
+            localStorage.getItem(
+                "theme"
+            ) || "dark";
 
-    },
-
-    green() {
-
-        this.set("green");
+        this.set(theme);
 
     }
 
