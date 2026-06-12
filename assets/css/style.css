@@ -1,0 +1,90 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0f172a;
+    color:#ffffff;
+    font-family:Cairo,sans-serif;
+    min-height:100vh;
+    padding:20px;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+#clock{
+    font-size:6rem;
+    text-align:center;
+    font-weight:bold;
+}
+
+#occasionBox,
+#messagesSection,
+#contentViewer,
+#countdownSection,
+#weatherSection,
+#prayerSection,
+#dateSection{
+    background:#1e293b;
+    border-radius:16px;
+    padding:20px;
+    margin-top:20px;
+}
+
+#messageDisplay{
+    font-size:1.5rem;
+    text-align:center;
+}
+
+#countdown{
+    font-size:3rem;
+    text-align:center;
+}
+
+#dateSection{
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.date-card{
+    background:#334155;
+    padding:15px;
+    border-radius:12px;
+    min-width:180px;
+    text-align:center;
+}
+
+#sidebar{
+    display:none;
+}
+
+#settingsPanel{
+    display:none;
+}
+
+footer{
+    margin-top:20px;
+    padding:15px;
+    background:#1e293b;
+    border-radius:12px;
+}
+
+@media(max-width:768px){
+
+    #clock{
+        font-size:3rem;
+    }
+
+    .date-card{
+        width:100%;
+    }
+}
