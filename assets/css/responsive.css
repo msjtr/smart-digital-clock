@@ -1,0 +1,71 @@
+@media (max-width:1200px){
+
+    #clock{
+
+        font-size:5rem;
+
+    }
+
+}
+
+@media (max-width:992px){
+
+    #dateSection{
+
+        flex-wrap:wrap;
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    header{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    #clock{
+
+        font-size:4rem;
+
+    }
+
+    #dateSection{
+
+        flex-direction:column;
+
+    }
+
+    .date-card{
+
+        width:100%;
+
+    }
+
+}
+
+@media (max-width:480px){
+
+    body{
+
+        padding:10px;
+
+    }
+
+    #clock{
+
+        font-size:2.5rem;
+
+    }
+
+    #countdown{
+
+        font-size:2rem;
+
+    }
+
+}
