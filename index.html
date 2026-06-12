@@ -4,6 +4,7 @@
 
 <head>
 
+```
 <meta charset="UTF-8">
 
 <meta name="viewport"
@@ -15,6 +16,10 @@
 <link rel="stylesheet" href="assets/css/themes.css">
 <link rel="stylesheet" href="assets/css/animations.css">
 <link rel="stylesheet" href="assets/css/responsive.css">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#2563eb">
 ```
 
 </head>
@@ -27,7 +32,7 @@
 <aside id="sidebar">
 
     <div class="sidebar-header">
-        <h2>القائمة</h2>
+        <h2>القائمة الرئيسية</h2>
     </div>
 
     <ul>
@@ -84,8 +89,9 @@
 
 <!-- المناسبة -->
 
-<section id="occasionBox"
-         class="widget fade-in">
+<section
+    id="occasionBox"
+    class="widget fade-in">
 
     <h2>🎉 المناسبة الحالية</h2>
 
@@ -97,8 +103,9 @@
 
 <!-- الساعة -->
 
-<section id="clockSection"
-         class="widget">
+<section
+    id="clockSection"
+    class="widget">
 
     <div id="clock">
         00:00:00
@@ -108,16 +115,15 @@
 
 <!-- التاريخ -->
 
-<section id="dateSection"
-         class="widget">
+<section
+    id="dateSection"
+    class="widget">
 
     <div class="date-card">
 
         <h3>اليوم</h3>
 
-        <span id="dayName">
-            --
-        </span>
+        <span id="dayName">--</span>
 
     </div>
 
@@ -125,9 +131,7 @@
 
         <h3>التاريخ الهجري</h3>
 
-        <span id="hijriDate">
-            --
-        </span>
+        <span id="hijriDate">--</span>
 
     </div>
 
@@ -135,9 +139,7 @@
 
         <h3>التاريخ الميلادي</h3>
 
-        <span id="gregorianDate">
-            --
-        </span>
+        <span id="gregorianDate">--</span>
 
     </div>
 
@@ -145,27 +147,27 @@
 
 <!-- الطقس -->
 
-<section id="weatherSection"
-         class="widget">
+<section
+    id="weatherSection"
+    class="widget">
 
     <h2>الطقس</h2>
 
     <div id="weatherInfo">
 
         <span>☀️</span>
-
         <span>36°</span>
-
         <span>حائل</span>
 
     </div>
 
 </section>
 
-<!-- الصلاة -->
+<!-- أوقات الصلاة -->
 
-<section id="prayerSection"
-         class="widget">
+<section
+    id="prayerSection"
+    class="widget">
 
     <h2>أوقات الصلاة</h2>
 
@@ -184,8 +186,9 @@
 
 <!-- الرسائل -->
 
-<section id="messagesSection"
-         class="widget">
+<section
+    id="messagesSection"
+    class="widget">
 
     <h2>الرسائل</h2>
 
@@ -199,8 +202,9 @@
 
 <!-- المحتوى -->
 
-<section id="contentViewer"
-         class="widget">
+<section
+    id="contentViewer"
+    class="widget">
 
     <h2>المحتوى المعروض</h2>
 
@@ -214,8 +218,9 @@
 
 <!-- العد التنازلي -->
 
-<section id="countdownSection"
-         class="widget">
+<section
+    id="countdownSection"
+    class="widget">
 
     <h2>العد التنازلي</h2>
 
@@ -227,7 +232,7 @@
 
 </section>
 
-<!-- شريط الأخبار -->
+<!-- الأخبار -->
 
 <footer id="newsTicker">
 
@@ -246,54 +251,68 @@
     <h2>الإعدادات</h2>
 
     <div class="setting-item">
-
-        <label>
-            إظهار الساعة
-        </label>
-
+        <label>إظهار الساعة</label>
         <input type="checkbox" checked>
-
     </div>
 
     <div class="setting-item">
-
-        <label>
-            إظهار التاريخ
-        </label>
-
+        <label>إظهار التاريخ</label>
         <input type="checkbox" checked>
-
     </div>
 
     <div class="setting-item">
-
-        <label>
-            إظهار الرسائل
-        </label>
-
+        <label>إظهار الرسائل</label>
         <input type="checkbox" checked>
-
     </div>
 
     <div class="setting-item">
-
-        <label>
-            إظهار العد التنازلي
-        </label>
-
+        <label>إظهار العد التنازلي</label>
         <input type="checkbox" checked>
-
     </div>
 
 </div>
 
-<button id="openSettingsBtn">
+<button
+    id="openSettingsBtn"
+    class="pulse">
+
     ⚙️ الإعدادات
+
 </button>
 
-<script type="module"
-        src="assets/js/app.js"></script>
+<script>
 
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                navigator.serviceWorker
+                    .register(
+                        "./service-worker.js"
+                    )
+                    .then(() => {
+
+                        console.log(
+                            "Service Worker Registered"
+                        );
+
+                    });
+
+            }
+        );
+
+    }
+
+</script>
+
+<script
+    type="module"
+    src="assets/js/app.js">
+
+</script>
+```
 
 </body>
 
