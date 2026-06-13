@@ -1,15 +1,9 @@
 // ============================================================================
-// Authentication Manager - (Password Only Version)
+// Authentication Manager - (نسخة الطوارئ المستقلة تماماً)
 // ============================================================================
 
-import { addLog } from "./logs.js";
-import { showNotification } from "./notifications.js";
-
-// كلمة المرور المعتمدة
-const ACCESS_PASSWORD = "123";
-
 export function initAuth() {
-    console.log("🔐 نظام الدخول نشط");
+    console.log("✅ ملف auth.js يعمل الآن بدون أي ارتباطات خارجية");
 
     const loginBtn = document.getElementById("loginBtn");
     const passwordInput = document.getElementById("adminPassword");
@@ -18,43 +12,54 @@ export function initAuth() {
     const dashboard = document.getElementById("adminDashboard");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // التحقق من الجلسة عند التحميل
+    const ACCESS_PASSWORD = "123";
+
+    // التحقق المباشر
     if (sessionStorage.getItem("is_admin_logged_in") === "true") {
         showDashboard(loginScreen, dashboard);
     }
 
-    // تسجيل الدخول (مع حماية التحقق من وجود الزر)
     if (loginBtn) {
-        loginBtn.addEventListener("click", () => {
-            const password = passwordInput?.value?.trim();
+        // إزالة أي أحداث سابقة لتجنب التكرار
+        loginBtn.onclick = null; 
+        
+        // ربط الزر بحدث النقر
+        loginBtn.onclick = function() {
+            console.log("تم الضغط على الزر!"); // رسالة تأكيد في الـ Console
+            
+            if (!passwordInput) return;
+            const password = passwordInput.value.trim();
 
             if (password === ACCESS_PASSWORD) {
+                console.log("كلمة المرور صحيحة، جاري فتح اللوحة...");
                 sessionStorage.setItem("is_admin_logged_in", "true");
-                
-                // سجل العملية (مع التعامل مع الأخطاء في حال فشل الاستيراد)
-                try { addLog("تسجيل دخول", "admin"); } catch (e) { console.warn("Log module not available"); }
-                try { showNotification("تم الدخول بنجاح", "success"); } catch (e) { console.warn("Notification module not available"); }
-                
                 showDashboard(loginScreen, dashboard);
             } else {
+                console.log("كلمة المرور خاطئة!");
                 if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                if (passwordInput) passwordInput.value = "";
+                passwordInput.value = "";
             }
-        });
+        };
+    } else {
+        console.error("❌ المتصفح لا يرى زر الدخول (loginBtn) في الصفحة!");
     }
 
     // تسجيل الخروج
-    logoutBtn?.addEventListener("click", () => {
-        sessionStorage.removeItem("is_admin_logged_in");
-        location.reload();
-    });
+    if (logoutBtn) {
+        logoutBtn.onclick = function() {
+            sessionStorage.removeItem("is_admin_logged_in");
+            location.reload();
+        };
+    }
 
-    // دعم زر Enter
-    passwordInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            loginBtn?.click();
-        }
-    });
+    // زر Enter
+    if (passwordInput) {
+        passwordInput.onkeypress = function(e) {
+            if (e.key === "Enter" && loginBtn) {
+                loginBtn.click();
+            }
+        };
+    }
 }
 
 function showDashboard(screen, dash) {
