@@ -1,370 +1,91 @@
 // ============================================================================
-// Content Manager
+// Content Manager - النسخة المحدثة (دعم السيرفر + المزامنة)
 // ============================================================================
 
-import {
-    fetchJsonData,
-    saveToLocal,
-    getFromLocal
-} from "./storage.js";
-
-import {
-    addLog
-} from "./logs.js";
+import { fetchJsonData, saveJsonData } from "./storage.js";
+import { addLog } from "./logs.js";
 
 let contentItems = [];
-
 let currentIndex = 0;
-
 let rotationTimer = null;
 
-// ============================================================================
-// تشغيل المحتوى
-// ============================================================================
-
 export async function initContent() {
-
-    const localContent =
-        getFromLocal(
-            "content"
-        );
-
-    if (
-        localContent &&
-        localContent.length
-    ) {
-
-        contentItems =
-            localContent;
-
-    } else {
-
-        const contentData =
-            await fetchJsonData(
-                "content"
-            );
-
-        contentItems =
-            contentData?.items || [];
-
-        saveToLocal(
-            "content",
-            contentItems
-        );
-
-    }
+    // 1. جلب البيانات من السيرفر (مع استخدام المحلي كاحتياطي)
+    const contentData = await fetchJsonData("content");
+    contentItems = Array.isArray(contentData) ? contentData : (contentData?.items || []);
 
     startRotation();
-
-    console.log(
-        "✅ تم تشغيل نظام المحتوى"
-    );
-
+    console.log("✅ تم تشغيل نظام المحتوى");
 }
 
-// ============================================================================
-// تدوير المحتوى
-// ============================================================================
+// 2. تحديث المحتوى من الخارج (عند استقبال أمر من الإدارة)
+export function updateContentList(newList) {
+    contentItems = newList;
+    currentIndex = 0; // إعادة الضبط عند تغيير القائمة
+    showContent();
+}
 
 function startRotation() {
-
-    if (
-        contentItems.length === 0
-    ) {
-
-        showEmpty();
-
-        return;
-
-    }
-
+    if (contentItems.length === 0) { showEmpty(); return; }
     showContent();
-
-    if (rotationTimer) {
-
-        clearInterval(
-            rotationTimer
-        );
-
-    }
-
-    rotationTimer =
-        setInterval(
-            nextContent,
-            10000
-        );
-
+    if (rotationTimer) clearInterval(rotationTimer);
+    
+    // التدوير كل 10 ثواني
+    rotationTimer = setInterval(nextContent, 10000);
 }
-
-// ============================================================================
-// التالي
-// ============================================================================
 
 function nextContent() {
-
-    currentIndex++;
-
-    if (
-        currentIndex >=
-        contentItems.length
-    ) {
-
-        currentIndex = 0;
-
-    }
-
+    currentIndex = (currentIndex + 1) % contentItems.length;
     showContent();
-
 }
-
-// ============================================================================
-// عرض المحتوى
-// ============================================================================
 
 function showContent() {
-
-    const area =
-        document.getElementById(
-            "contentArea"
-        );
-
+    const area = document.getElementById("contentArea");
     if (!area) return;
 
-    const item =
-        contentItems[
-            currentIndex
-        ];
-
-    if (!item) {
-
-        showEmpty();
-
-        return;
-
-    }
+    const item = contentItems[currentIndex];
+    if (!item) { showEmpty(); return; }
 
     area.innerHTML = "";
-
-    switch (
-        item.type
-    ) {
-
-        case "text":
-
-            area.innerHTML = `
-                <h3>${item.title || ""}</h3>
-                <p>${item.text || ""}</p>
-            `;
-
-            break;
-
+    
+    // دعم أنواع الملفات المرفوعة عبر السيرفر
+    switch (item.type) {
         case "image":
-
-            area.innerHTML = `
-                <img
-                    src="${item.url}"
-                    alt="${item.title || ''}"
-                    class="content-image">
-            `;
-
+            area.innerHTML = `<img src="${item.url}" class="content-image">`;
             break;
-
         case "video":
-
-            area.innerHTML = `
-                <video
-                    controls
-                    autoplay
-                    muted
-                    loop
-                    class="content-video">
-
-                    <source
-                        src="${item.url}">
-                </video>
-            `;
-
+            area.innerHTML = `<video autoplay muted loop class="content-video"><source src="${item.url}"></video>`;
             break;
-
         case "pdf":
-
-            area.innerHTML = `
-                <iframe
-                    src="${item.url}"
-                    class="content-pdf">
-                </iframe>
-            `;
-
+            area.innerHTML = `<iframe src="${item.url}" class="content-pdf"></iframe>`;
             break;
-
-        case "excel":
-
-            area.innerHTML = `
-                <div class="excel-placeholder">
-                    📊 ملف Excel
-                    <br>
-                    ${item.title || ""}
-                </div>
-            `;
-
-            break;
-
-        case "gif":
-
-            area.innerHTML = `
-                <img
-                    src="${item.url}"
-                    class="content-gif">
-            `;
-
-            break;
-
         default:
-
-            area.innerHTML = `
-                <p>
-                    نوع المحتوى غير مدعوم
-                </p>
-            `;
-
+            area.innerHTML = `<h3>${item.title || ""}</h3><p>${item.text || ""}</p>`;
     }
-
 }
-
-// ============================================================================
-// لا يوجد محتوى
-// ============================================================================
 
 function showEmpty() {
-
-    const area =
-        document.getElementById(
-            "contentArea"
-        );
-
-    if (!area) return;
-
-    area.innerHTML = `
-        <div class="empty-content">
-            لا يوجد محتوى حالياً
-        </div>
-    `;
-
+    const area = document.getElementById("contentArea");
+    if (area) area.innerHTML = `<div class="empty-content">لا يوجد محتوى حالياً</div>`;
 }
 
 // ============================================================================
-// إضافة محتوى
+// عمليات الحفظ (مرتبطة الآن بالسيرفر)
 // ============================================================================
 
-export function addContent(
-    item
-) {
-
-    contentItems.push(
-        item
-    );
-
-    saveContent();
-
-    addLog(
-        "إضافة محتوى",
-        item.title || item.type
-    );
-
+async function saveContent() {
+    // حفظ في السيرفر (ملف content.json)
+    await saveJsonData("content", contentItems);
 }
 
-// ============================================================================
-// تعديل محتوى
-// ============================================================================
-
-export function updateContent(
-    index,
-    item
-) {
-
-    if (
-        !contentItems[index]
-    ) return;
-
-    contentItems[index] =
-        item;
-
-    saveContent();
-
-    addLog(
-        "تعديل محتوى",
-        item.title || ""
-    );
-
+export async function addContent(item) {
+    contentItems.push(item);
+    await saveContent();
+    addLog("إضافة محتوى", item.title || item.type);
 }
 
-// ============================================================================
-// حذف محتوى
-// ============================================================================
-
-export function deleteContent(
-    index
-) {
-
-    if (
-        !contentItems[index]
-    ) return;
-
-    const deleted =
-        contentItems[index];
-
-    contentItems.splice(
-        index,
-        1
-    );
-
-    saveContent();
-
-    addLog(
-        "حذف محتوى",
-        deleted.title || ""
-    );
-
-}
-
-// ============================================================================
-// تثبيت محتوى
-// ============================================================================
-
-export function pinContent(
-    index
-) {
-
-    if (
-        !contentItems[index]
-    ) return;
-
-    currentIndex =
-        index;
-
-    showContent();
-
-}
-
-// ============================================================================
-// حفظ
-// ============================================================================
-
-function saveContent() {
-
-    saveToLocal(
-        "content",
-        contentItems
-    );
-
-}
-
-// ============================================================================
-// جلب جميع المحتويات
-// ============================================================================
-
-export function getContent() {
-
-    return contentItems;
-
+export async function deleteContent(index) {
+    const deleted = contentItems.splice(index, 1);
+    await saveContent();
+    addLog("حذف محتوى", deleted[0].title || "");
 }
