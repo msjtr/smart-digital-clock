@@ -75,5 +75,85 @@
 </div>
 
 <script type="module" src="./assets/js/app.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("✅ تم تشغيل السكربت المدمج بنجاح");
+
+        // 1. نظام تسجيل الدخول
+        const loginBtn = document.getElementById("loginBtn");
+        const passwordInput = document.getElementById("adminPassword");
+        const loginScreen = document.getElementById("loginScreen");
+        const dashboard = document.getElementById("adminDashboard");
+        const errorMsg = document.getElementById("loginError");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        // التحقق من الجلسة
+        if (sessionStorage.getItem("isAdminLoggedIn") === "true") {
+            loginScreen.style.display = "none";
+            dashboard.style.display = "flex";
+        }
+
+        // الدخول
+        if (loginBtn) {
+            loginBtn.addEventListener("click", () => {
+                if (passwordInput.value === "123") {
+                    sessionStorage.setItem("isAdminLoggedIn", "true");
+                    loginScreen.style.display = "none";
+                    dashboard.style.display = "flex";
+                } else {
+                    errorMsg.textContent = "كلمة المرور غير صحيحة!";
+                    passwordInput.value = "";
+                }
+            });
+        }
+
+        // دعم زر Enter
+        if (passwordInput) {
+            passwordInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") loginBtn.click();
+            });
+        }
+
+        // الخروج
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                sessionStorage.removeItem("isAdminLoggedIn");
+                location.reload();
+            });
+        }
+
+        // 2. نظام التبويبات (Tabs)
+        const tabs = document.querySelectorAll(".sidebar-menu li[data-tab]");
+        const panes = document.querySelectorAll(".tab-pane");
+        const pageTitle = document.querySelector(".page-title");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // إزالة التفعيل من الجميع
+                tabs.forEach(t => t.classList.remove("active"));
+                panes.forEach(p => {
+                    p.classList.remove("active");
+                    p.style.display = "none";
+                });
+
+                // تفعيل العنصر المضغوط
+                tab.classList.add("active");
+                const targetId = tab.getAttribute("data-tab");
+                const targetPane = document.getElementById(targetId);
+                
+                if (targetPane) {
+                    targetPane.classList.add("active");
+                    targetPane.style.display = "block";
+                }
+
+                // تغيير عنوان الصفحة
+                if (pageTitle) {
+                    pageTitle.textContent = tab.textContent.replace(/[^\u0600-\u06FF\s]/g, '').trim(); // إزالة الإيموجي من العنوان
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
