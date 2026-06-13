@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة إدارة الساعة الرقمية الذكية</title>
+    
+    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 <body class="admin-body">
 
 <div id="loginScreen" class="login-container">
     <div class="login-box">
+        <img src="assets/images/logos/university-logo.jpg" alt="Logo" style="width:120px; margin-bottom:15px;">
         <h2>تسجيل الدخول</h2>
-        <input type="text" id="adminUsername" placeholder="اسم المستخدم">
         <input type="password" id="adminPassword" placeholder="كلمة المرور">
-        <button id="loginBtn">تسجيل الدخول</button>
+        <button id="loginBtn">دخول</button>
         <div id="loginError" style="color:red; margin-top:10px;"></div>
     </div>
 </div>
@@ -22,6 +25,7 @@
 <div id="adminDashboard" class="admin-layout" style="display:none;">
     <aside class="admin-sidebar">
         <div class="sidebar-header">
+            <img src="assets/images/logos/college-logo.jpg" alt="College Logo" style="width:40px; border-radius:50%;">
             <h3>لوحة الإدارة</h3>
         </div>
         <ul class="sidebar-menu">
@@ -47,49 +51,22 @@
             <button id="logoutBtn">تسجيل الخروج</button>
         </header>
 
-        <section id="mainDashboard" class="tab-pane active">
-            <h2>الإحصائيات</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><h4>الرسائل</h4><span id="statMessages">0</span></div>
-                <div class="stat-card"><h4>المناسبات</h4><span id="statOccasions">0</span></div>
-                <div class="stat-card"><h4>المحتوى</h4><span id="statContent">0</span></div>
-                <div class="stat-card"><h4>العد التنازلي</h4><span id="statEvents">0</span></div>
-                <div class="stat-card"><h4>السجلات</h4><span id="statLogs">0</span></div>
-            </div>
-        </section>
-
-        <section id="displayManager" class="tab-pane">
-            <h2>إدارة العرض المباشر</h2>
-            <label><input type="checkbox" checked> إظهار الساعة</label><br>
-            <label><input type="checkbox" checked> إظهار التاريخ</label><br>
-            <button class="btn-primary">حفظ الإعدادات</button>
-        </section>
-
+        <section id="mainDashboard" class="tab-pane active"><h2>الإحصائيات</h2></section>
+        <section id="displayManager" class="tab-pane"><h2>إدارة العرض</h2></section>
         <section id="timeSettings" class="tab-pane"><h2>الوقت والتاريخ</h2></section>
-        <section id="messagesSettings" class="tab-pane"><h2>إدارة الرسائل</h2></section>
-        <section id="occasionsSettings" class="tab-pane"><h2>إدارة المناسبات</h2></section>
-        <section id="contentSettings" class="tab-pane"><h2>إدارة المحتوى</h2></section>
+        <section id="messagesSettings" class="tab-pane"><h2>الرسائل</h2></section>
+        <section id="occasionsSettings" class="tab-pane"><h2>المناسبات</h2></section>
+        <section id="contentSettings" class="tab-pane"><h2>المحتوى</h2></section>
         <section id="countdownSettings" class="tab-pane"><h2>العد التنازلي</h2></section>
         <section id="prayerWeatherSettings" class="tab-pane"><h2>الطقس والصلاة</h2></section>
         <section id="logosSettings" class="tab-pane"><h2>الشعارات و QR</h2></section>
         <section id="usersSettings" class="tab-pane"><h2>المستخدمون</h2></section>
-        <section id="logsSettings" class="tab-pane"><h2>سجلات النظام</h2></section>
+        <section id="logsSettings" class="tab-pane"><h2>السجلات</h2></section>
         <section id="backupSettings" class="tab-pane"><h2>النسخ الاحتياطي</h2></section>
-        <section id="systemSettings" class="tab-pane"><h2>إعدادات النظام</h2></section>
+        <section id="systemSettings" class="tab-pane"><h2>النظام</h2></section>
     </main>
 </div>
 
-<script type="module">
-    import { initAuth } from "./assets/js/auth.js";
-    import { initAdmin } from "./assets/js/admin.js";
-    import { initDashboard } from "./assets/js/dashboard.js";
-
-    document.addEventListener("DOMContentLoaded", () => {
-        initAuth();
-        initAdmin();
-        initDashboard();
-    });
-</script>
-
+<script type="module" src="./assets/js/app.js"></script>
 </body>
 </html>
