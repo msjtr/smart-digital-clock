@@ -1,253 +1,76 @@
 // ============================================================================
-// Storage Manager
-// إدارة التخزين المحلي والملفات
+// Storage Manager - مدير البيانات والتواصل مع السيرفر
 // ============================================================================
 
-import { handleError } from "./utils.js";
-
-// جلب ملف JSON
-
-export async function fetchJsonData(
-    fileName
-) {
-
+/**
+ * جلب البيانات من ملفات JSON في مجلد data
+ * @param {string} fileName - اسم الملف بدون الامتداد (مثال: 'settings')
+ */
+export async function fetchJsonData(fileName) {
     try {
-
-        const response =
-            await fetch(
-                `./data/${fileName}.json`
-            );
-
+        // إضافة طابع زمني لمنع المتصفح من تخزين النسخة القديمة (Cache)
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/data/${fileName}.json?v=${timestamp}`);
+        
         if (!response.ok) {
-
-            console.warn(
-                `تعذر تحميل ${fileName}.json`
-            );
-
-            return null;
-
+            throw new Error(`تعذر العثور على ملف ${fileName}.json`);
         }
-
-        const data =
-            await response.json();
-
-        return data;
-
+        
+        return await response.json();
     } catch (error) {
-
-        handleError(
-            `fetchJsonData:${fileName}`,
-            error
-        );
-
-        return null;
-
+        console.warn(`⚠️ تنبيه: خطأ في قراءة ${fileName}، سيتم استخدام البيانات المحلية إن وجدت.`, error);
+        
+        // محاولة القراءة من التخزين المحلي كخطة طوارئ
+        const localData = localStorage.getItem(`admin_${fileName}`);
+        return localData ? JSON.parse(localData) : null;
     }
-
 }
 
-// حفظ محلي
-
-export function saveToLocal(
-    key,
-    data
-) {
-
+/**
+ * إرسال البيانات للسيرفر لحفظها في ملفات JSON
+ * @param {string} fileName - اسم الملف بدون الامتداد
+ * @param {object} content - البيانات المراد حفظها
+ */
+export async function saveJsonData(fileName, content) {
     try {
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(data)
-        );
-
-        return true;
-
-    } catch (error) {
-
-        handleError(
-            "saveToLocal",
-            error
-        );
-
-        return false;
-
-    }
-
-}
-
-// قراءة محلية
-
-export function getFromLocal(
-    key
-) {
-
-    try {
-
-        const item =
-            localStorage.getItem(
-                key
-            );
-
-        return item
-            ? JSON.parse(item)
-            : null;
-
-    } catch (error) {
-
-        handleError(
-            "getFromLocal",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-// حذف عنصر
-
-export function removeFromLocal(
-    key
-) {
-
-    try {
-
-        localStorage.removeItem(
-            key
-        );
-
-        return true;
-
-    } catch (error) {
-
-        handleError(
-            "removeFromLocal",
-            error
-        );
-
-        return false;
-
-    }
-
-}
-
-// حفظ الإعدادات
-
-export function saveSettings(
-    settings
-) {
-
-    return saveToLocal(
-        "settings",
-        settings
-    );
-
-}
-
-// قراءة الإعدادات
-
-export function getSettings() {
-
-    return getFromLocal(
-        "settings"
-    );
-
-}
-
-// حفظ الرسائل
-
-export function saveMessages(
-    messages
-) {
-
-    return saveToLocal(
-        "messages",
-        messages
-    );
-
-}
-
-// قراءة الرسائل
-
-export function getMessages() {
-
-    return getFromLocal(
-        "messages"
-    );
-
-}
-
-// حفظ المناسبات
-
-export function saveOccasions(
-    occasions
-) {
-
-    return saveToLocal(
-        "occasions",
-        occasions
-    );
-
-}
-
-// قراءة المناسبات
-
-export function getOccasions() {
-
-    return getFromLocal(
-        "occasions"
-    );
-
-}
-
-// حفظ السجلات
-
-export function saveLogs(
-    logs
-) {
-
-    return saveToLocal(
-        "logs",
-        logs
-    );
-
-}
-
-// قراءة السجلات
-
-export function getLogs() {
-
-    return getFromLocal(
-        "logs"
-    );
-
-}
-
-// مزامنة الإعدادات
-
-export async function syncSettings() {
-
-    let settings =
-        getSettings();
-
-    if (!settings) {
-
-        settings =
-            await fetchJsonData(
-                "settings"
-            );
-
-        if (settings) {
-
-            saveSettings(
-                settings
-            );
-
+        const response = await fetch('/api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                filename: fileName, 
+                content: content 
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log(`💾 تم حفظ ${fileName}.json في السيرفر بنجاح`);
+            // حفظ نسخة احتياطية في التخزين المحلي
+            saveToLocal(fileName, content);
+            return true;
+        } else {
+            console.error(`❌ رفض السيرفر الحفظ:`, result.error);
+            return false;
         }
-
+    } catch (error) {
+        console.error(`❌ فشل الاتصال بالسيرفر أثناء حفظ ${fileName}:`, error);
+        // في حال انقطاع الإنترنت، نحفظ محلياً فقط
+        saveToLocal(fileName, content);
+        return false;
     }
+}
 
-    return settings;
-
+/**
+ * الحفظ المحلي الدائم (لضمان عمل النظام Offline)
+ */
+export function saveToLocal(key, data) {
+    try {
+        localStorage.setItem(`admin_${key}`, JSON.stringify(data));
+        console.log(`⚡ تم الحفظ المحلي لـ ${key}`);
+    } catch (e) {
+        console.warn("⚠️ تعذر الحفظ في LocalStorage", e);
+    }
 }
