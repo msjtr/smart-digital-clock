@@ -8,9 +8,16 @@ export function initAdmin() {
 
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
-            // إزالة التفعيل من جميع الأزرار والتبويبات
+            // تجاهل العناصر التي لا تحتوي على بيانات تبويب (مثل Labels)
+            if (!item.getAttribute('data-tab')) return;
+
+            // إزالة التفعيل من جميع الأزرار
             menuItems.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(tab => tab.classList.remove('active'));
+            // إخفاء جميع التبويبات
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.display = 'none';
+            });
 
             // تفعيل الزر والتبويب المطلوب
             item.classList.add('active');
@@ -19,7 +26,9 @@ export function initAdmin() {
             
             if (targetTab) {
                 targetTab.classList.add('active');
-                // تحديث عنوان الصفحة العلوية (وتنظيفه من الإيموجي)
+                targetTab.style.display = 'block'; // إظهار التبويب الحالي
+                
+                // تحديث العنوان العلوي وتنظيفه من الإيموجي
                 if (pageTitle) {
                     pageTitle.textContent = item.textContent.replace(/[^\u0600-\u06FF\s]/g, '').trim();
                 }
@@ -34,45 +43,45 @@ export function initAdmin() {
             const now = new Date();
             timeDisplay.textContent = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
         };
-        updateAdminTime(); // تشغيل فوري لتجنب تأخير ثانية
+        updateAdminTime();
         setInterval(updateAdminTime, 1000);
     }
 
-    // 3. تهيئة زر القائمة الجانبية (للموبايل والشاشات الصغيرة)
+    // 3. تهيئة زر القائمة الجانبية (للموبايل)
     const toggleSidebar = document.getElementById('toggleSidebar');
     const sidebar = document.querySelector('.admin-sidebar');
     if (toggleSidebar && sidebar) {
         toggleSidebar.addEventListener('click', () => {
-            sidebar.style.display = (sidebar.style.display === 'none' || sidebar.style.display === '') ? 'flex' : 'none';
+            const isHidden = sidebar.style.display === 'none';
+            sidebar.style.display = isHidden ? 'flex' : 'none';
         });
     }
 
-    // 4. (إضافة جديدة) إدارة العرض المباشر (حفظ عناصر الشاشة)
+    // 4. إدارة العرض المباشر (حفظ عناصر الشاشة)
     const saveDisplayBtn = document.querySelector('#displayManager .btn-primary');
     if (saveDisplayBtn) {
         saveDisplayBtn.addEventListener('click', () => {
-            // جمع قيم خيارات العرض (Checkboxes)
             const checkboxes = document.querySelectorAll('#displayManager input[type="checkbox"]');
             let displaySettings = {};
             
             checkboxes.forEach((cb) => {
-                const label = cb.nextElementSibling.textContent.trim();
+                const label = cb.parentElement.querySelector('.control-label').textContent.trim();
                 displaySettings[label] = cb.checked;
             });
 
             console.log('تم حفظ إعدادات العرض:', displaySettings);
             
-            // تغيير شكل الزر مؤقتاً لتأكيد الحفظ للمستخدم
+            // تأثير بصري للزر
             const originalText = saveDisplayBtn.textContent;
             saveDisplayBtn.textContent = '✅ تم الحفظ والتطبيق';
-            saveDisplayBtn.style.background = '#10b981'; // لون أخضر للنجاح
+            saveDisplayBtn.style.background = '#10b981';
             
             setTimeout(() => {
                 saveDisplayBtn.textContent = originalText;
-                saveDisplayBtn.style.background = ''; // العودة للون الأساسي
+                saveDisplayBtn.style.background = '';
             }, 2000);
 
-            // تحديث نافذة المعاينة المباشرة (iframe) لرؤية التغييرات
+            // تحديث المعاينة المباشرة
             const previewFrame = document.getElementById('livePreviewFrame');
             if (previewFrame) {
                 previewFrame.contentWindow.location.reload();
