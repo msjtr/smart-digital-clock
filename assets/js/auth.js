@@ -1,9 +1,9 @@
 // ============================================================================
-// Authentication Manager - (نسخة الطوارئ المستقلة تماماً)
+// Authentication Manager - (النسخة المستقلة الآمنة)
 // ============================================================================
 
 export function initAuth() {
-    console.log("✅ ملف auth.js يعمل الآن بدون أي ارتباطات خارجية");
+    console.log("✅ ملف auth.js يعمل الآن (النسخة المستقلة)");
 
     const loginBtn = document.getElementById("loginBtn");
     const passwordInput = document.getElementById("adminPassword");
@@ -14,7 +14,7 @@ export function initAuth() {
 
     const ACCESS_PASSWORD = "123";
 
-    // التحقق المباشر
+    // التحقق المباشر عند تحديث الصفحة
     if (sessionStorage.getItem("is_admin_logged_in") === "true") {
         showDashboard(loginScreen, dashboard);
     }
@@ -24,18 +24,19 @@ export function initAuth() {
         loginBtn.onclick = null; 
         
         // ربط الزر بحدث النقر
-        loginBtn.onclick = function() {
-            console.log("تم الضغط على الزر!"); // رسالة تأكيد في الـ Console
+        loginBtn.onclick = function(e) {
+            e.preventDefault(); // منع أي تحديث افتراضي
+            console.log("👆 تم الضغط على زر الدخول!"); 
             
             if (!passwordInput) return;
             const password = passwordInput.value.trim();
 
             if (password === ACCESS_PASSWORD) {
-                console.log("كلمة المرور صحيحة، جاري فتح اللوحة...");
+                console.log("🔓 كلمة المرور صحيحة، جاري فتح اللوحة...");
                 sessionStorage.setItem("is_admin_logged_in", "true");
                 showDashboard(loginScreen, dashboard);
             } else {
-                console.log("كلمة المرور خاطئة!");
+                console.log("❌ كلمة المرور خاطئة!");
                 if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
                 passwordInput.value = "";
             }
@@ -52,10 +53,11 @@ export function initAuth() {
         };
     }
 
-    // زر Enter
+    // دعم الدخول عبر زر Enter
     if (passwordInput) {
         passwordInput.onkeypress = function(e) {
             if (e.key === "Enter" && loginBtn) {
+                e.preventDefault();
                 loginBtn.click();
             }
         };
@@ -64,5 +66,6 @@ export function initAuth() {
 
 function showDashboard(screen, dash) {
     if (screen) screen.style.display = "none";
-    if (dash) dash.style.display = "grid";
+    // ⚠️ الإصلاح هنا: استخدام flex بدلاً من grid ليتوافق مع تنسيق admin.css
+    if (dash) dash.style.display = "flex"; 
 }
