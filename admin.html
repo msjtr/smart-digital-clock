@@ -15,7 +15,7 @@
 <div id="loginScreen" class="login-container">
     <div class="login-box">
         <img src="assets/images/logos/university-logo.jpg" alt="University Logo" style="width:120px; margin-bottom:15px;">
-        <h2>تسجيل الدخول للإدارة</h2>
+        <h2>تسجيل الدخول</h2>
         <input type="password" id="adminPassword" placeholder="كلمة المرور">
         <button id="loginBtn" class="btn-primary">دخول</button>
         <div id="loginError" style="color:red; margin-top:10px;"></div>
@@ -53,7 +53,12 @@
 
         <div class="content-wrapper">
             <section id="mainDashboard" class="tab-pane active"><h2>📊 الإحصائيات العامة</h2></section>
-            <section id="displayManager" class="tab-pane"><h2>📺 إدارة العرض</h2></section>
+            <section id="displayManager" class="tab-pane">
+                <h2>📺 إدارة العرض</h2>
+                <label><input type="checkbox" data-setting="showClock"> إظهار الساعة</label><br>
+                <label><input type="checkbox" data-setting="showDate"> إظهار التاريخ</label><br>
+                <button class="btn-primary">حفظ الإعدادات</button>
+            </section>
             <section id="timeSettings" class="tab-pane"><h2>⏰ الوقت والتاريخ</h2></section>
             <section id="messagesSettings" class="tab-pane"><h2>💬 الرسائل</h2></section>
             <section id="occasionsSettings" class="tab-pane"><h2>🎉 المناسبات</h2></section>
@@ -62,9 +67,9 @@
             <section id="prayerWeatherSettings" class="tab-pane"><h2>🌦️ الطقس والصلاة</h2></section>
             <section id="logosSettings" class="tab-pane"><h2>🖼️ الشعارات و QR</h2></section>
             <section id="usersSettings" class="tab-pane"><h2>👥 المستخدمون</h2></section>
-            <section id="logsSettings" class="tab-pane"><h2>📝 سجلات النظام</h2></section>
+            <section id="logsSettings" class="tab-pane"><h2>📝 السجلات</h2></section>
             <section id="backupSettings" class="tab-pane"><h2>💾 النسخ الاحتياطي</h2></section>
-            <section id="systemSettings" class="tab-pane"><h2>⚙️ إعدادات النظام</h2></section>
+            <section id="systemSettings" class="tab-pane"><h2>⚙️ النظام</h2></section>
         </div>
     </main>
 </div>
