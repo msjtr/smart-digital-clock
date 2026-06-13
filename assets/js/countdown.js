@@ -1,71 +1,403 @@
-// assets/js/countdown.js
-import { fetchJsonData } from './storage.js';
-import { padZero } from './utils.js';
+// ============================================================================
+// Countdown Manager
+// ============================================================================
+
+import {
+    fetchJsonData,
+    saveToLocal,
+    getFromLocal
+} from "./storage.js";
+
+import {
+    addLog
+} from "./logs.js";
+
+import {
+    padZero
+} from "./utils.js";
+
+let events = [];
+
+let activeEvent = null;
+
+let countdownTimer = null;
+
+// ============================================================================
+// تشغيل النظام
+// ============================================================================
 
 export async function initCountdown() {
-    const countdownSection = document.getElementById('countdownSection');
-    const countdownElement = document.getElementById('countdown');
-    
-    if (!countdownElement || !countdownSection) return;
 
-    let schedulesData = await fetchJsonData('schedules');
-    let events = schedulesData?.events || [];
-    
-    let targetDate = null;
-    let eventName = "";
+    const localEvents =
+        getFromLocal(
+            "countdown_events"
+        );
 
-    // البحث عن أقرب فعالية قادمة في المستقبل بغض النظر عن ترتيبها في الملف
-    const now = new Date().getTime();
-    const upcomingEvent = events
-        .filter(event => new Date(event.date).getTime() > now)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+    if (
+        localEvents &&
+        localEvents.length
+    ) {
 
-    if (upcomingEvent) {
-        targetDate = new Date(upcomingEvent.date).getTime();
-        eventName = upcomingEvent.title;
+        events = localEvents;
+
+    } else {
+
+        const schedules =
+            await fetchJsonData(
+                "schedules"
+            );
+
+        events =
+            schedules?.events || [];
+
+        saveEvents();
+
     }
 
-    // إخفاء قسم العد التنازلي إذا لم تكن هناك فعاليات قادمة
-    if (!targetDate) {
-        countdownSection.style.display = 'none';
-        console.log("لا توجد فعاليات قادمة، تم إخفاء العد التنازلي.");
+    findNextEvent();
+
+    renderCountdown();
+
+    startCountdown();
+
+    console.log(
+        "✅ تم تشغيل العد التنازلي"
+    );
+
+}
+
+// ============================================================================
+// أقرب حدث
+// ============================================================================
+
+function findNextEvent() {
+
+    const now =
+        Date.now();
+
+    activeEvent =
+        events
+
+        .filter(
+            event =>
+                new Date(
+                    event.date
+                ).getTime() > now
+        )
+
+        .sort(
+            (a, b) =>
+
+                new Date(
+                    a.date
+                ) -
+
+                new Date(
+                    b.date
+                )
+        )[0] || null;
+
+}
+
+// ============================================================================
+// بدء العد
+// ============================================================================
+
+function startCountdown() {
+
+    if (
+        countdownTimer
+    ) {
+
+        clearInterval(
+            countdownTimer
+        );
+
+    }
+
+    countdownTimer =
+        setInterval(
+            renderCountdown,
+            1000
+        );
+
+}
+
+// ============================================================================
+// عرض العداد
+// ============================================================================
+
+function renderCountdown() {
+
+    const section =
+        document.getElementById(
+            "countdownSection"
+        );
+
+    const container =
+        document.getElementById(
+            "countdown"
+        );
+
+    if (
+        !section ||
+        !container
+    ) return;
+
+    if (
+        !activeEvent
+    ) {
+
+        section.style.display =
+            "none";
+
         return;
+
     }
 
-    // تحديث عنوان القسم باسم الفعالية
-    const sectionTitle = countdownSection.querySelector('h2');
-    if (sectionTitle) {
-        sectionTitle.textContent = `العد التنازلي: ${eventName}`;
+    section.style.display =
+        "block";
+
+    const title =
+        section.querySelector(
+            "h2"
+        );
+
+    if (title) {
+
+        title.textContent =
+            `العد التنازلي: ${activeEvent.title}`;
+
     }
 
-    function updateCountdown() {
-        const currentTime = new Date().getTime();
-        const distance = targetDate - currentTime;
+    const now =
+        Date.now();
 
-        if (distance < 0) {
-            countdownElement.innerHTML = `<div class="event-started">بدأت الفعالية! 🎉</div>`;
-            return;
-        }
+    const target =
+        new Date(
+            activeEvent.date
+        ).getTime();
 
-        // الحسابات الزمنية
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = padZero(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-        const minutes = padZero(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
-        const seconds = padZero(Math.floor((distance % (1000 * 60)) / 1000));
+    const diff =
+        target - now;
 
-        // عرض العداد بشكل أنيق
-        countdownElement.innerHTML = `
-            <div class="countdown-grid" style="display: flex; gap: 15px; justify-content: center; direction: ltr;">
-                <div class="countdown-item"><span>${days}</span><br><small>أيام</small></div>
-                <div class="countdown-item"><span>${hours}</span><br><small>ساعات</small></div>
-                <div class="countdown-item"><span>${minutes}</span><br><small>دقائق</small></div>
-                <div class="countdown-item" style="color: var(--accent-color);"><span>${seconds}</span><br><small>ثواني</small></div>
+    if (
+        diff <= 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="countdown-finished">
+
+                🎉 بدأت الفعالية
+
             </div>
+
         `;
+
+        addLog(
+            "انتهاء العد التنازلي",
+            activeEvent.title
+        );
+
+        clearInterval(
+            countdownTimer
+        );
+
+        return;
+
     }
 
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-    
-    console.log(`تم تفعيل العد التنازلي لفعالية: ${eventName}`);
+    const days =
+        Math.floor(
+            diff /
+            (1000 * 60 * 60 * 24)
+        );
+
+    const hours =
+        Math.floor(
+            (
+                diff %
+                (1000 * 60 * 60 * 24)
+            ) /
+            (1000 * 60 * 60)
+        );
+
+    const minutes =
+        Math.floor(
+            (
+                diff %
+                (1000 * 60 * 60)
+            ) /
+            (1000 * 60)
+        );
+
+    const seconds =
+        Math.floor(
+            (
+                diff %
+                (1000 * 60)
+            ) / 1000
+        );
+
+    container.innerHTML = `
+
+        <div class="countdown-grid">
+
+            <div class="countdown-item">
+
+                <span>${days}</span>
+
+                <small>يوم</small>
+
+            </div>
+
+            <div class="countdown-item">
+
+                <span>${padZero(hours)}</span>
+
+                <small>ساعة</small>
+
+            </div>
+
+            <div class="countdown-item">
+
+                <span>${padZero(minutes)}</span>
+
+                <small>دقيقة</small>
+
+            </div>
+
+            <div class="countdown-item countdown-seconds">
+
+                <span>${padZero(seconds)}</span>
+
+                <small>ثانية</small>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+// ============================================================================
+// إضافة حدث
+// ============================================================================
+
+export function addEvent(
+    event
+) {
+
+    events.push(
+        event
+    );
+
+    saveEvents();
+
+    addLog(
+        "إضافة حدث",
+        event.title
+    );
+
+    findNextEvent();
+
+    renderCountdown();
+
+}
+
+// ============================================================================
+// تعديل حدث
+// ============================================================================
+
+export function updateEvent(
+    index,
+    event
+) {
+
+    if (
+        !events[index]
+    ) return;
+
+    events[index] =
+        event;
+
+    saveEvents();
+
+    addLog(
+        "تعديل حدث",
+        event.title
+    );
+
+    findNextEvent();
+
+    renderCountdown();
+
+}
+
+// ============================================================================
+// حذف حدث
+// ============================================================================
+
+export function deleteEvent(
+    index
+) {
+
+    if (
+        !events[index]
+    ) return;
+
+    const deleted =
+        events[index];
+
+    events.splice(
+        index,
+        1
+    );
+
+    saveEvents();
+
+    addLog(
+        "حذف حدث",
+        deleted.title
+    );
+
+    findNextEvent();
+
+    renderCountdown();
+
+}
+
+// ============================================================================
+// حفظ
+// ============================================================================
+
+function saveEvents() {
+
+    saveToLocal(
+        "countdown_events",
+        events
+    );
+
+}
+
+// ============================================================================
+// جلب الأحداث
+// ============================================================================
+
+export function getEvents() {
+
+    return events;
+
+}
+
+// ============================================================================
+// الحدث الحالي
+// ============================================================================
+
+export function getActiveEvent() {
+
+    return activeEvent;
+
 }
