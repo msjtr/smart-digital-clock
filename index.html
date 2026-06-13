@@ -18,32 +18,39 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="assets/images/icons/icon-1.png">
     <link rel="apple-touch-icon" href="assets/images/icons/icon-1.png">
+
+    <style>
+        /* تنسيق زر الدخول للإدارة في أعلى الشاشة */
+        .admin-login-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .admin-login-btn:hover {
+            background: rgba(239, 68, 68, 0.8); /* لون أحمر للإدارة */
+            color: white;
+            transform: scale(1.05);
+            border-color: rgba(239, 68, 68, 1);
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+    </style>
 </head>
 <body data-theme="dark">
 
-    <aside id="sidebar" role="navigation" aria-label="القائمة الجانبية">
-        <button id="closeSidebarBtn" class="close-sidebar">✖</button>
-        <div class="sidebar-header">
-            <h2>القائمة الرئيسية</h2>
-        </div>
-        <ul>
-            <li>الرئيسية</li>
-            <li>الرسائل</li>
-            <li>المناسبات</li>
-            <li>المحتوى</li>
-            <li>العد التنازلي</li>
-            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 15px 0;">
-            <li style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
-                <a href="admin.html" style="color: inherit; text-decoration: none; display: block; width: 100%;">
-                    لوحة الإدارة 🔒
-                </a>
-            </li>
-        </ul>
-    </aside>
-
     <header title="انقر نقراً مزدوجاً لملء الشاشة">
         <div class="logo-section">
-            <button id="menuToggleBtn" class="menu-btn">☰</button>
             <img id="universityLogo" src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة">
             <img id="collegeLogo" src="assets/images/logos/college-logo.jpg" alt="شعار الكلية">
             <div>
@@ -51,8 +58,14 @@
                 <p>جامعة حائل - كلية الشريعة والقانون</p>
             </div>
         </div>
-        <div class="status-box" aria-live="polite">
-            <span id="connectionStatus">جاري الاتصال...</span>
+        
+        <div class="header-controls">
+            <div class="status-box" aria-live="polite">
+                <span id="connectionStatus">جاري الاتصال...</span>
+            </div>
+            <a href="admin.html" class="admin-login-btn" title="تسجيل الدخول للوحة التحكم">
+                <span>الإدارة</span> 🔒
+            </a>
         </div>
     </header>
 
@@ -107,16 +120,6 @@
     <footer id="newsTicker">
         <div class="ticker-content">أهلاً بكم في نظام الساعة الرقمية الذكية - جامعة حائل - كلية الشريعة والقانون</div>
     </footer>
-
-    <div id="settingsPanel">
-        <h2 style="color:var(--accent-color); margin-bottom: 15px;">لوحة التحكم السريعة</h2>
-        <div class="setting-item"><label>إظهار الساعة</label><input type="checkbox" checked></div>
-        <div class="setting-item"><label>إظهار التاريخ</label><input type="checkbox" checked></div>
-        <div class="setting-item"><label>إظهار الرسائل</label><input type="checkbox" checked></div>
-        <div class="setting-item"><label>إظهار العد التنازلي</label><input type="checkbox" checked></div>
-    </div>
-
-    <button id="openSettingsBtn" class="pulse">⚙️ الإعدادات</button>
 
     <script>
         if ("serviceWorker" in navigator) {
