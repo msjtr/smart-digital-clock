@@ -1,15 +1,59 @@
-// assets/js/utils.js
+// assets/js/auth.js
+export function initAuth() {
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const passwordInput = document.getElementById('adminPassword');
+    const errorMsg = document.getElementById('loginError');
 
-// إضافة صفر للأرقام الأقل من 10 (مثل 09 بدلاً من 9 في الساعة)
-export const padZero = (num) => String(num).padStart(2, '0');
+    // التحقق من حالة الجلسة عند تحميل الصفحة
+    checkSession();
 
-// تحويل الأرقام الإنجليزية إلى عربية (اختياري، يمكن استخدامه لاحقاً)
-export const toArabicNumbers = (str) => {
-    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return String(str).replace(/[0-9]/g, w => arabicNumbers[+w]);
-};
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            if (passwordInput.value === '123') { // كلمة المرور
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                if(errorMsg) errorMsg.textContent = '';
+                passwordInput.value = '';
+                showDashboard();
+            } else {
+                if(errorMsg) errorMsg.textContent = 'كلمة المرور غير صحيحة!';
+            }
+        });
+    }
 
-// التعامل مع الأخطاء برمجياً
-export const handleError = (context, error) => {
-    console.error(`[خطأ في ${context}]:`, error);
-};
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            showLogin();
+        });
+    }
+}
+
+function checkSession() {
+    const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
+    if (isLoggedIn) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+}
+
+function showDashboard() {
+    const loginScreen = document.getElementById('loginScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (adminDashboard) adminDashboard.style.display = 'flex';
+}
+
+function showLogin() {
+    const loginScreen = document.getElementById('loginScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    if (adminDashboard) adminDashboard.style.display = 'none';
+    if (loginScreen) loginScreen.style.display = 'flex';
+}
