@@ -2,46 +2,135 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
+const PORT = process.env.PORT || 10000;
+
+const MIME_TYPES = {
+".html": "text/html; charset=utf-8",
+".css": "text/css",
+".js": "application/javascript",
+".json": "application/json",
+".png": "image/png",
+".jpg": "image/jpeg",
+".jpeg": "image/jpeg",
+".gif": "image/gif",
+".svg": "image/svg+xml",
+".webp": "image/webp",
+".ico": "image/x-icon",
+".woff": "font/woff",
+".woff2": "font/woff2",
+".ttf": "font/ttf",
+".pdf": "application/pdf"
+};
+
 const server = http.createServer((req, res) => {
 
-    let filePath = "." + (req.url === "/" ? "/index.html" : req.url);
+```
+let filePath;
 
-    const ext = path.extname(filePath);
+if (
+    req.url === "/" ||
+    req.url === "/index.html"
+) {
 
-    const contentTypes = {
-        ".html": "text/html",
-        ".css": "text/css",
-        ".js": "application/javascript",
-        ".json": "application/json",
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".svg": "image/svg+xml"
-    };
+    filePath = path.join(
+        __dirname,
+        "index.html"
+    );
 
-    fs.readFile(filePath, (err, content) => {
+} else {
+
+    filePath = path.join(
+        __dirname,
+        decodeURIComponent(
+            req.url
+        )
+    );
+
+}
+
+fs.readFile(
+    filePath,
+    (err, content) => {
 
         if (err) {
-            res.writeHead(404);
-            res.end("Not Found");
+
+            const notFoundPage =
+                path.join(
+                    __dirname,
+                    "404.html"
+                );
+
+            fs.readFile(
+                notFoundPage,
+                (notFoundErr, notFoundContent) => {
+
+                    if (notFoundErr) {
+
+                        res.writeHead(
+                            404,
+                            {
+                                "Content-Type":
+                                    "text/plain"
+                            }
+                        );
+
+                        return res.end(
+                            "404 Not Found"
+                        );
+
+                    }
+
+                    res.writeHead(
+                        404,
+                        {
+                            "Content-Type":
+                                "text/html; charset=utf-8"
+                        }
+                    );
+
+                    res.end(
+                        notFoundContent
+                    );
+
+                }
+            );
+
             return;
+
         }
+
+        const ext =
+            path.extname(
+                filePath
+            ).toLowerCase();
 
         res.writeHead(
             200,
             {
                 "Content-Type":
-                    contentTypes[ext] || "text/plain"
+                    MIME_TYPES[ext] ||
+                    "application/octet-stream"
             }
         );
 
         res.end(content);
-    });
+
+    }
+);
+```
 
 });
 
-const PORT =
-    process.env.PORT || 10000;
+server.listen(
+PORT,
+() => {
 
-server.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
-});
+```
+    console.log(
+        `Smart Digital Clock running on port ${PORT}`
+    );
+
+}
+
+
+);
