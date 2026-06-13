@@ -1,54 +1,311 @@
-// assets/js/auth.js
+// ============================================================================
+// Authentication & Permissions Manager
+// ============================================================================
+
+import { addLog } from "./logs.js";
+import { showNotification } from "./notifications.js";
+
+const USERS = [
+
+    {
+        username: "superadmin",
+        password: "123456",
+        role: "super_admin"
+    },
+
+    {
+        username: "admin",
+        password: "123456",
+        role: "admin"
+    },
+
+    {
+        username: "viewer",
+        password: "123456",
+        role: "viewer"
+    }
+
+];
+
+// ============================================================================
+// تشغيل النظام
+// ============================================================================
+
 export function initAuth() {
-    console.log("🔒 نظام الحماية: جاري التهيئة...");
 
-    const loginBtn = document.getElementById('loginBtn');
-    const passwordInput = document.getElementById('adminPassword');
-    const errorMsg = document.getElementById('loginError');
-    const loginScreen = document.getElementById('loginScreen');
-    const adminDashboard = document.getElementById('adminDashboard');
+    console.log(
+        "🔐 تم تشغيل نظام الدخول"
+    );
 
-    const ADMIN_PASSWORD = "123";
+    const loginBtn =
+        document.getElementById(
+            "loginBtn"
+        );
 
-    // 1. وظيفة عرض لوحة التحكم
-    function showDashboard() {
-        console.log("✅ الدخول ناجح: يتم عرض لوحة التحكم.");
-        if (loginScreen) loginScreen.style.display = 'none';
-        if (adminDashboard) adminDashboard.style.display = 'grid';
+    const usernameInput =
+        document.getElementById(
+            "adminUsername"
+        );
+
+    const passwordInput =
+        document.getElementById(
+            "adminPassword"
+        );
+
+    const errorMsg =
+        document.getElementById(
+            "loginError"
+        );
+
+    const loginScreen =
+        document.getElementById(
+            "loginScreen"
+        );
+
+    const dashboard =
+        document.getElementById(
+            "adminDashboard"
+        );
+
+    if (
+        isLoggedIn()
+    ) {
+
+        showDashboard(
+            loginScreen,
+            dashboard
+        );
+
+        applyPermissions();
+
     }
 
-    // 2. التحقق المباشر من الجلسة
-    if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-        showDashboard();
-    }
+    loginBtn?.addEventListener(
+        "click",
+        () => {
 
-    // 3. التحقق من وجود الزر قبل الربط
-    if (loginBtn) {
-        // استخدم onclick بدلاً من addEventListener لضمان عدم تعدد النسخ
-        loginBtn.onclick = function() {
-            if (passwordInput && passwordInput.value === ADMIN_PASSWORD) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                if (errorMsg) errorMsg.textContent = '';
-                showDashboard();
-            } else {
-                console.warn("⚠️ محاولة دخول فاشلة.");
-                if (errorMsg) errorMsg.textContent = 'كلمة المرور غير صحيحة، حاول مرة أخرى.';
-                if (passwordInput) {
-                    passwordInput.value = '';
-                    passwordInput.focus();
+            const username =
+                usernameInput?.value
+                ?.trim();
+
+            const password =
+                passwordInput?.value;
+
+            const user =
+                USERS.find(
+
+                    u =>
+
+                        u.username === username &&
+                        u.password === password
+
+                );
+
+            if (!user) {
+
+                if (errorMsg) {
+
+                    errorMsg.textContent =
+                        "بيانات الدخول غير صحيحة";
+
                 }
+
+                addLog(
+                    "فشل تسجيل الدخول",
+                    username
+                );
+
+                return;
+
             }
-        };
-    } else {
-        console.error("❌ خطأ: الزر 'loginBtn' غير موجود في صفحة الـ HTML.");
+
+            sessionStorage.setItem(
+                "admin_session",
+                JSON.stringify(
+                    user
+                )
+            );
+
+            addLog(
+                "تسجيل دخول",
+                `${user.username} (${user.role})`
+            );
+
+            showNotification(
+                "تم تسجيل الدخول بنجاح",
+                "success"
+            );
+
+            showDashboard(
+                loginScreen,
+                dashboard
+            );
+
+            applyPermissions();
+
+        }
+    );
+
+    passwordInput?.addEventListener(
+        "keypress",
+        e => {
+
+            if (
+                e.key === "Enter"
+            ) {
+
+                loginBtn?.click();
+
+            }
+
+        }
+    );
+
+}
+
+// ============================================================================
+// تسجيل خروج
+// ============================================================================
+
+export function logout() {
+
+    sessionStorage.removeItem(
+        "admin_session"
+    );
+
+    addLog(
+        "تسجيل خروج"
+    );
+
+    location.reload();
+
+}
+
+// ============================================================================
+// التحقق من الجلسة
+// ============================================================================
+
+export function isLoggedIn() {
+
+    return !!sessionStorage.getItem(
+        "admin_session"
+    );
+
+}
+
+// ============================================================================
+// المستخدم الحالي
+// ============================================================================
+
+export function getCurrentUser() {
+
+    const session =
+        sessionStorage.getItem(
+            "admin_session"
+        );
+
+    if (!session)
+        return null;
+
+    return JSON.parse(
+        session
+    );
+
+}
+
+// ============================================================================
+// عرض لوحة التحكم
+// ============================================================================
+
+function showDashboard(
+    loginScreen,
+    dashboard
+) {
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            "none";
+
     }
 
-    // 4. دعم مفتاح Enter
-    if (passwordInput) {
-        passwordInput.onkeypress = function(e) {
-            if (e.key === 'Enter') {
-                loginBtn.click();
-            }
-        };
+    if (dashboard) {
+
+        dashboard.style.display =
+            "grid";
+
     }
+
+}
+
+// ============================================================================
+// الصلاحيات
+// ============================================================================
+
+function applyPermissions() {
+
+    const user =
+        getCurrentUser();
+
+    if (!user)
+        return;
+
+    document.body.dataset.role =
+        user.role;
+
+    if (
+        user.role ===
+        "viewer"
+    ) {
+
+        hideElements([
+            ".btn-save",
+            ".btn-delete",
+            ".btn-edit",
+            ".admin-settings",
+            ".backup-tools"
+        ]);
+
+    }
+
+    if (
+        user.role ===
+        "admin"
+    ) {
+
+        hideElements([
+            ".super-admin-only"
+        ]);
+
+    }
+
+}
+
+// ============================================================================
+// إخفاء عناصر
+// ============================================================================
+
+function hideElements(
+    selectors
+) {
+
+    selectors.forEach(
+        selector => {
+
+            document
+                .querySelectorAll(
+                    selector
+                )
+                .forEach(
+                    el => {
+
+                        el.style.display =
+                            "none";
+
+                    }
+                );
+
+        }
+    );
+
 }
