@@ -1,5 +1,5 @@
 // ============================================================================
-// Authentication Manager - (النسخة الذكية)
+// Authentication Manager - (النسخة المعززة)
 // ============================================================================
 
 export function initAuth() {
@@ -10,58 +10,67 @@ export function initAuth() {
     const dashboard = document.getElementById("adminDashboard");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // الإصلاح الجذري: إذا لم نكن في صفحة الإدارة، أوقف تشغيل السكربت بصمت
-    if (!loginScreen && !dashboard) {
-        return; 
-    }
+    // حماية: إذا لم نكن في صفحة الإدارة، نخرج فوراً لتوفير الموارد
+    if (!loginScreen || !dashboard) return;
 
-    console.log("✅ ملف auth.js يعمل الآن (النسخة المستقلة)");
+    console.log("✅ نظام المصادقة مفعل.");
     const ACCESS_PASSWORD = "123";
+    const SESSION_KEY = "is_admin_logged_in";
 
-    // التحقق المباشر عند تحديث الصفحة
-    if (sessionStorage.getItem("is_admin_logged_in") === "true") {
-        showDashboard(loginScreen, dashboard);
+    // 1. التحقق الفوري عند التحميل
+    try {
+        if (sessionStorage.getItem(SESSION_KEY) === "true") {
+            showDashboard(loginScreen, dashboard);
+        }
+    } catch (e) {
+        console.warn("تعذر الوصول إلى sessionStorage.");
     }
 
+    // 2. معالجة زر الدخول
     if (loginBtn) {
-        loginBtn.onclick = null; 
-        
-        loginBtn.onclick = function(e) {
-            e.preventDefault(); 
-            
-            if (!passwordInput) return;
-            const password = passwordInput.value.trim();
+        loginBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const password = passwordInput ? passwordInput.value.trim() : "";
 
             if (password === ACCESS_PASSWORD) {
-                sessionStorage.setItem("is_admin_logged_in", "true");
-                showDashboard(loginScreen, dashboard);
+                try {
+                    sessionStorage.setItem(SESSION_KEY, "true");
+                    showDashboard(loginScreen, dashboard);
+                } catch (e) {
+                    errorMsg.textContent = "خطأ في حفظ الجلسة!";
+                }
             } else {
                 if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                passwordInput.value = "";
+                if (passwordInput) passwordInput.value = "";
             }
-        };
+        });
     }
 
-    // تسجيل الخروج
+    // 3. تسجيل الخروج
     if (logoutBtn) {
-        logoutBtn.onclick = function() {
-            sessionStorage.removeItem("is_admin_logged_in");
+        logoutBtn.addEventListener("click", () => {
+            sessionStorage.removeItem(SESSION_KEY);
+            // إخفاء اللوحة وإظهار شاشة الدخول يدوياً قبل التحديث لضمان سلاسة التجربة
             location.reload();
-        };
+        });
     }
 
-    // دعم الدخول عبر زر Enter
+    // 4. دعم زر Enter
     if (passwordInput) {
-        passwordInput.onkeypress = function(e) {
-            if (e.key === "Enter" && loginBtn) {
-                e.preventDefault();
-                loginBtn.click();
-            }
-        };
+        passwordInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") loginBtn.click();
+        });
     }
 }
 
+/**
+ * دالة الانتقال للوحة التحكم
+ */
 function showDashboard(screen, dash) {
     if (screen) screen.style.display = "none";
-    if (dash) dash.style.display = "flex"; 
+    if (dash) {
+        dash.style.display = "flex";
+        // إضافة حالة للـ body لتسهيل تنسيق الـ CSS
+        document.body.setAttribute("data-admin-state", "logged-in");
+    }
 }
