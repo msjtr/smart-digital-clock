@@ -1,40 +1,330 @@
-// assets/js/viewer.js
+// ============================================================================
+// Advanced Viewer
+// ============================================================================
+
+import { addLog } from "./logs.js";
+
+let currentZoom = 1;
 
 export function initViewer() {
-    console.log("تم تهيئة نظام العارض المتقدم (Viewer).");
+
+    createViewer();
+
+    console.log(
+        "✅ تم تشغيل العارض الاحترافي"
+    );
+
 }
 
-// دالة قابلة للاستدعاء من أي مكان لفتح ملف (صورة، PDF) في نافذة العرض
-export function openViewer(fileUrl, fileType) {
-    let viewerContainer = document.getElementById('mainViewer');
-    
-    // إنشاء الحاوية إذا لم تكن موجودة
-    if (!viewerContainer) {
-        viewerContainer = document.createElement('div');
-        viewerContainer.id = 'mainViewer';
-        viewerContainer.className = 'fullscreen-viewer';
-        document.body.appendChild(viewerContainer);
+// ============================================================================
+// إنشاء العارض
+// ============================================================================
+
+function createViewer() {
+
+    if (
+        document.getElementById(
+            "mainViewer"
+        )
+    ) return;
+
+    const viewer =
+        document.createElement(
+            "div"
+        );
+
+    viewer.id =
+        "mainViewer";
+
+    viewer.className =
+        "fullscreen-viewer";
+
+    viewer.innerHTML = `
+
+        <div class="viewer-toolbar">
+
+            <button id="viewerClose">
+                ✖
+            </button>
+
+            <button id="viewerZoomIn">
+                ➕
+            </button>
+
+            <button id="viewerZoomOut">
+                ➖
+            </button>
+
+            <button id="viewerFullscreen">
+                ⛶
+            </button>
+
+            <a
+                id="viewerDownload"
+                download>
+
+                ⬇
+
+            </a>
+
+        </div>
+
+        <div
+            id="viewerContent"
+            class="viewer-content">
+
+        </div>
+
+    `;
+
+    document.body.appendChild(
+        viewer
+    );
+
+    document
+        .getElementById(
+            "viewerClose"
+        )
+        .addEventListener(
+            "click",
+            closeViewer
+        );
+
+    document
+        .getElementById(
+            "viewerZoomIn"
+        )
+        .addEventListener(
+            "click",
+            zoomIn
+        );
+
+    document
+        .getElementById(
+            "viewerZoomOut"
+        )
+        .addEventListener(
+            "click",
+            zoomOut
+        );
+
+    document
+        .getElementById(
+            "viewerFullscreen"
+        )
+        .addEventListener(
+            "click",
+            enterFullscreen
+        );
+
+}
+
+// ============================================================================
+// فتح ملف
+// ============================================================================
+
+export function openViewer(
+    fileUrl,
+    fileType
+) {
+
+    const viewer =
+        document.getElementById(
+            "mainViewer"
+        );
+
+    const content =
+        document.getElementById(
+            "viewerContent"
+        );
+
+    const downloadBtn =
+        document.getElementById(
+            "viewerDownload"
+        );
+
+    if (
+        !viewer ||
+        !content
+    ) return;
+
+    viewer.style.display =
+        "flex";
+
+    content.innerHTML = "";
+
+    downloadBtn.href =
+        fileUrl;
+
+    currentZoom = 1;
+
+    switch (
+        fileType
+    ) {
+
+        case "image":
+
+        case "gif":
+
+            content.innerHTML = `
+                <img
+                    src="${fileUrl}"
+                    class="viewer-image"
+                    id="viewerMedia">
+            `;
+            break;
+
+        case "video":
+
+            content.innerHTML = `
+                <video
+                    controls
+                    autoplay
+                    class="viewer-video">
+
+                    <source
+                        src="${fileUrl}">
+                </video>
+            `;
+            break;
+
+        case "pdf":
+
+            content.innerHTML = `
+                <iframe
+                    src="${fileUrl}"
+                    class="viewer-pdf">
+                </iframe>
+            `;
+            break;
+
+        case "ppt":
+
+            content.innerHTML = `
+                <iframe
+                    src="${fileUrl}"
+                    class="viewer-pdf">
+                </iframe>
+            `;
+            break;
+
+        case "excel":
+
+            content.innerHTML = `
+                <iframe
+                    src="${fileUrl}"
+                    class="viewer-pdf">
+                </iframe>
+            `;
+            break;
+
+        default:
+
+            content.innerHTML = `
+                <div class="viewer-error">
+
+                    نوع الملف غير مدعوم
+
+                </div>
+            `;
+
     }
 
-    viewerContainer.innerHTML = '<button class="close-viewer-btn" onclick="this.parentElement.style.display=\'none\'">❌ إغلاق</button>';
-    viewerContainer.style.display = 'flex';
+    addLog(
+        "فتح ملف",
+        fileUrl
+    );
 
-    if (fileType === 'image') {
-        const img = document.createElement('img');
-        img.src = fileUrl;
-        img.className = 'viewer-image';
-        
-        // معالجة الخطأ إذا كان الملف غير مرفق
-        img.onerror = () => {
-            viewerContainer.innerHTML += `<div class="error-msg">⚠️ عذراً، تعذر عرض المكون لعدم توفر المرفق (${fileUrl}).</div>`;
-        };
-        viewerContainer.appendChild(img);
-        
-    } else if (fileType === 'pdf') {
-        // استخدام iframe لعرض الـ PDF محلياً
-        const iframe = document.createElement('iframe');
-        iframe.src = fileUrl;
-        iframe.className = 'viewer-pdf';
-        viewerContainer.appendChild(iframe);
+}
+
+// ============================================================================
+// إغلاق
+// ============================================================================
+
+export function closeViewer() {
+
+    const viewer =
+        document.getElementById(
+            "mainViewer"
+        );
+
+    if (viewer) {
+
+        viewer.style.display =
+            "none";
+
     }
+
+}
+
+// ============================================================================
+// تكبير
+// ============================================================================
+
+function zoomIn() {
+
+    currentZoom += 0.1;
+
+    applyZoom();
+
+}
+
+// ============================================================================
+// تصغير
+// ============================================================================
+
+function zoomOut() {
+
+    currentZoom -= 0.1;
+
+    if (
+        currentZoom < 0.5
+    ) {
+
+        currentZoom = 0.5;
+
+    }
+
+    applyZoom();
+
+}
+
+// ============================================================================
+// تطبيق التكبير
+// ============================================================================
+
+function applyZoom() {
+
+    const media =
+        document.getElementById(
+            "viewerMedia"
+        );
+
+    if (!media)
+        return;
+
+    media.style.transform =
+        `scale(${currentZoom})`;
+
+}
+
+// ============================================================================
+// ملء الشاشة
+// ============================================================================
+
+function enterFullscreen() {
+
+    const viewer =
+        document.getElementById(
+            "mainViewer"
+        );
+
+    if (
+        viewer.requestFullscreen
+    ) {
+
+        viewer.requestFullscreen();
+
+    }
+
 }
