@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الساعة الرقمية الذكية - جامعة حائل</title>
-    
-    <meta name="description" content="نظام الساعة الرقمية الذكية لكلية الشريعة والقانون بجامعة حائل">
+    <meta name="description" content="نظام عرض المعلومات والساعة الرقمية لكلية الشريعة والقانون بجامعة حائل">
+    <meta name="theme-color" content="#2563eb">
 
-    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/animations.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="assets/images/icons/icon-192x192.png">
 </head>
-
 <body data-theme="dark">
 
     <aside id="sidebar" role="navigation" aria-label="القائمة الجانبية">
@@ -23,52 +22,100 @@
             <h2>القائمة الرئيسية</h2>
         </div>
         <ul>
-            <li><a href="#">الرئيسية</a></li>
-            <li><a href="#">الرسائل</a></li>
-            <li><a href="#">المناسبات</a></li>
-            </ul>
+            <li>الرئيسية</li>
+            <li>الرسائل</li>
+            <li>المناسبات</li>
+            <li>المحتوى</li>
+            <li>العد التنازلي</li>
+        </ul>
     </aside>
 
-    <header>
+    <header title="انقر نقراً مزدوجاً لملء الشاشة">
         <div class="logo-section">
-            <img id="universityLogo" src="assets/images/logos/university-logo.png" alt="شعار جامعة حائل">
-            <img id="collegeLogo" src="assets/images/logos/college-logo.png" alt="شعار كلية الشريعة والقانون">
+            <img id="universityLogo" src="assets/images/logos/university-logo.png" alt="شعار الجامعة">
+            <img id="collegeLogo" src="assets/images/logos/college-logo.png" alt="شعار الكلية">
             <div>
                 <h1>الساعة الرقمية الذكية</h1>
                 <p>جامعة حائل - كلية الشريعة والقانون</p>
             </div>
         </div>
         <div class="status-box" aria-live="polite">
-            <span id="connectionStatus">متصل</span>
+            <span id="connectionStatus">جاري الاتصال...</span>
         </div>
     </header>
 
     <main>
-        <section id="occasionBox" class="widget fade-in">
-            <h2>🎉 المناسبة الحالية</h2>
-            <p>أهلاً بكم في كلية الشريعة والقانون</p>
-        </section>
-
+        <section id="occasionBox" class="widget fade-in"></section>
+        
         <section id="clockSection" class="widget">
-            <div id="clock" aria-live="off">00:00:00</div>
+            <div id="clock" aria-live="off">--:--:--</div>
         </section>
 
-        </main>
+        <section id="dateSection" class="widget">
+            <div class="date-card">
+                <h3>اليوم</h3>
+                <span id="dayName">--</span>
+            </div>
+            <div class="date-card">
+                <h3>التاريخ الهجري</h3>
+                <span id="hijriDate">--</span>
+            </div>
+            <div class="date-card">
+                <h3>التاريخ الميلادي</h3>
+                <span id="gregorianDate">--</span>
+            </div>
+        </section>
+
+        <section id="weatherSection" class="widget">
+            <h2>الطقس</h2>
+            <div id="weatherInfo">جاري التحديث...</div>
+        </section>
+
+        <section id="prayerSection" class="widget">
+            <h2>أوقات الصلاة</h2>
+            <div id="prayerTimes">جاري التحديث...</div>
+        </section>
+
+        <section id="messagesSection" class="widget">
+            <h2>الرسائل الإرشادية</h2>
+            <div id="messageDisplay">أهلاً بكم...</div>
+        </section>
+
+        <section id="countdownSection" class="widget" style="display:none;">
+            <h2>العد التنازلي</h2>
+            <div id="countdown">--:--:--</div>
+        </section>
+
+        <section id="contentViewer" class="widget">
+            <h2>المحتوى المعروض</h2>
+            <div id="contentArea">لا يوجد محتوى حالياً</div>
+        </section>
+    </main>
 
     <footer id="newsTicker">
-        <div class="ticker-content">
-            أهلاً بكم في نظام الساعة الرقمية الذكية - جامعة حائل - كلية الشريعة والقانون
-        </div>
+        <div class="ticker-content">أهلاً بكم في نظام الساعة الرقمية الذكية...</div>
     </footer>
 
-    <script type="module" src="assets/js/app.js"></script>
+    <div id="settingsPanel">
+        <h2>لوحة التحكم السريعة</h2>
+        <div class="setting-item"><label>إظهار الساعة</label><input type="checkbox" checked></div>
+        <div class="setting-item"><label>إظهار التاريخ</label><input type="checkbox" checked></div>
+        <div class="setting-item"><label>إظهار الرسائل</label><input type="checkbox" checked></div>
+        <div class="setting-item"><label>إظهار العد التنازلي</label><input type="checkbox" checked></div>
+    </div>
+
+    <button id="openSettingsBtn" class="pulse">⚙️ الإعدادات</button>
+
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 navigator.serviceWorker.register("./service-worker.js")
-                    .catch(err => console.error("Service Worker Error:", err));
+                    .then(reg => console.log("تم تفعيل العمل بدون إنترنت (PWA)"))
+                    .catch(err => console.error("خطأ في Service Worker:", err));
             });
         }
     </script>
+
+    <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
