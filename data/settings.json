@@ -1,17 +1,57 @@
 {
-  "clockFormat": "24",
-  "showSeconds": true,
-  "theme": "dark",
-  "layout": "default",
+  "systemVersion": "1.0.0",
+
   "universityName": "جامعة حائل",
   "collegeName": "كلية الشريعة والقانون",
+
+  "clockFormat": "24",
+  "showSeconds": true,
+  "timezone": "Asia/Riyadh",
+
+  "theme": "dark",
+  "layout": "default",
+  "fontSize": "auto",
+
+  "projectorMode": false,
+  "fullscreenMode": false,
+
+  "displayMode": "normal",
+
   "features": {
     "showClock": true,
     "showDate": true,
+    "showHijriDate": true,
+    "showGregorianDate": true,
+    "showDayName": true,
+
     "showWeather": true,
+    "showTemperature": true,
+
     "showPrayers": true,
+    "showNextPrayer": true,
+
     "showMessages": true,
     "showOccasions": true,
-    "showCountdown": true
+
+    "showContent": true,
+    "showCountdown": true,
+
+    "showNewsTicker": true,
+
+    "showUniversityLogo": true,
+    "showCollegeLogo": true,
+    "showOccasionLogo": true,
+
+    "showQRCode": true
+  },
+
+  "contentRotation": {
+    "enabled": true,
+    "intervalSeconds": 30
+  },
+
+  "notifications": {
+    "enablePrayerAlerts": true,
+    "enableCountdownAlerts": true
   }
 }
