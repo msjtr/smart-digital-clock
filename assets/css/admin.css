@@ -3,15 +3,20 @@
    المشروع: الساعة الرقمية الذكية - جامعة حائل
 ============================================================================ */
 
+/* --- إصلاح التداخل (Box Sizing Reset) --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* --- المتغيرات الأساسية للوحة الإدارة --- */
 :root {
-    --admin-bg: #0f172a; /* لون خلفية كحلي داكن */
-    --admin-sidebar: rgba(30, 41, 59, 0.8);
+    --admin-bg: #0f172a;
+    --admin-sidebar: rgba(30, 41, 59, 0.9);
     --admin-card: rgba(255, 255, 255, 0.05);
     --admin-border: rgba(255, 255, 255, 0.1);
     --admin-text: #f8fafc;
     --admin-text-muted: #94a3b8;
-    --admin-primary: #0ea5e9; /* أزرق */
+    --admin-primary: #0ea5e9;
     --admin-primary-hover: #0284c7;
     --admin-danger: #ef4444;
     --admin-danger-hover: #dc2626;
@@ -25,7 +30,9 @@
     background: var(--admin-bg);
     color: var(--admin-text);
     font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow-x: hidden;
+    overflow: hidden; /* يمنع التمرير للصفحة بالكامل، التمرير سيكون داخلياً فقط */
+    width: 100vw;
+    height: 100vh;
 }
 
 /* ============================================================================
@@ -37,6 +44,11 @@
     align-items: center;
     min-height: 100vh;
     background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
 }
 
 .login-box {
@@ -47,13 +59,14 @@
     padding: 40px;
     border-radius: 20px;
     text-align: center;
-    width: 100%;
+    width: 90%;
     max-width: 400px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     animation: fadeInUp 0.6s ease-out;
 }
 
 .login-box h2 {
+    margin-top: 0;
     margin-bottom: 25px;
     font-size: 1.5rem;
     color: var(--admin-text);
@@ -71,7 +84,6 @@
     font-size: 1rem;
     outline: none;
     transition: all 0.3s;
-    box-sizing: border-box;
 }
 
 .login-box input[type="password"]:focus {
@@ -86,6 +98,7 @@ button {
     cursor: pointer;
     font-family: inherit;
     transition: all 0.3s ease;
+    outline: none;
 }
 
 .btn-primary {
@@ -105,12 +118,16 @@ button {
 }
 
 .btn-danger {
-    padding: 8px 15px;
+    padding: 8px 20px;
     background: var(--admin-danger);
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: bold;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-danger:hover {
@@ -118,30 +135,32 @@ button {
 }
 
 /* ============================================================================
-   3. تخطيط لوحة الإدارة (Layout)
+   3. تخطيط لوحة الإدارة المقاوم للتداخل (Bulletproof Layout)
 ============================================================================ */
 .admin-layout {
     display: flex;
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
 }
 
 /* --- القائمة الجانبية --- */
 .admin-sidebar {
+    flex: 0 0 260px; /* يمنع القائمة من التمدد أو الانكماش */
     width: 260px;
     background: var(--admin-sidebar);
     backdrop-filter: var(--glass-blur);
     border-left: 1px solid var(--admin-border);
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
     z-index: 100;
 }
 
 .sidebar-header {
+    flex: 0 0 80px; /* ارتفاع ثابت للهيدر الجانبي */
     display: flex;
     align-items: center;
-    padding: 20px;
+    padding: 0 20px;
     border-bottom: 1px solid var(--admin-border);
 }
 
@@ -155,7 +174,7 @@ button {
     list-style: none;
     padding: 15px;
     margin: 0;
-    overflow-y: auto;
+    overflow-y: auto; /* يسمح بتمرير القائمة إذا طالت */
     flex: 1;
 }
 
@@ -173,4 +192,151 @@ button {
 }
 
 .sidebar-menu li:hover {
-    background: rgba(255, 255, 255,
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--admin-text);
+}
+
+.sidebar-menu li.active {
+    background: var(--admin-primary);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+/* --- المحتوى الرئيسي --- */
+.admin-main {
+    flex: 1; /* يأخذ باقي مساحة الشاشة */
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+    overflow: hidden; /* يمنع خروج المحتوى عن الإطار */
+    min-width: 0; /* إصلاح لبعض مشاكل Flexbox */
+}
+
+/* --- الهيدر العلوي وزر الخروج --- */
+.top-bar {
+    flex: 0 0 70px; /* ارتفاع ثابت يمنع التداخل */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid var(--admin-border);
+    z-index: 10;
+}
+
+.page-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--admin-text);
+    margin: 0;
+}
+
+/* --- منطقة التبويبات والمحتوى --- */
+.content-wrapper {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto; /* هنا فقط يحدث التمرير (Scroll) */
+}
+
+/* ============================================================================
+   4. التبويبات والبطاقات
+============================================================================ */
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.tab-pane h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-primary);
+}
+
+/* تنسيق Checkboxes ولوحات التحكم */
+.tab-pane label {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    margin-bottom: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-pane label:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
+}
+
+.tab-pane input[type="checkbox"] {
+    margin-left: 15px;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--admin-primary);
+    cursor: pointer;
+}
+
+/* ============================================================================
+   5. الحركات (Animations)
+============================================================================ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================================
+   6. التوافق مع الشاشات الصغيرة (Mobile Responsive)
+============================================================================ */
+@media (max-width: 768px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        flex: 0 0 auto;
+        width: 100%;
+        border-left: none;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .sidebar-header {
+        justify-content: space-between;
+        padding: 10px 20px;
+        flex: 0 0 60px;
+    }
+
+    .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        white-space: nowrap;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 0;
+        margin-left: 10px;
+        flex: 0 0 auto;
+    }
+
+    .top-bar {
+        padding: 0 20px;
+    }
+
+    .content-wrapper {
+        padding: 20px;
+    }
+}
