@@ -1,59 +1,55 @@
-// assets/js/auth.js
-export function initAuth() {
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const passwordInput = document.getElementById('adminPassword');
-    const errorMsg = document.getElementById('loginError');
+/**
+ * نظام الأدوات المساعدة للنظام - utils.js
+ * جامعة حائل - كلية الشريعة والقانون
+ */
 
-    // التحقق من حالة الجلسة عند تحميل الصفحة
-    checkSession();
-
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            if (passwordInput.value === '123') { // كلمة المرور
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                if(errorMsg) errorMsg.textContent = '';
-                passwordInput.value = '';
-                showDashboard();
-            } else {
-                if(errorMsg) errorMsg.textContent = 'كلمة المرور غير صحيحة!';
-            }
-        });
-    }
-
-    if (passwordInput) {
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            sessionStorage.removeItem('isAdminLoggedIn');
-            showLogin();
-        });
-    }
+// 1. دالة موحدة لمعالجة الأخطاء في النظام
+export function handleError(moduleName, error) {
+    console.error(`[نظام ${moduleName}]:`, error);
+    // يمكنك إضافة كود هنا لإرسال الخطأ إلى سجلات النظام (Logs)
 }
 
-function checkSession() {
-    const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
-    if (isLoggedIn) {
-        showDashboard();
-    } else {
-        showLogin();
-    }
+// 2. دالة تنسيق الوقت (تستخدم في أكثر من مكان)
+export function formatTime(date, options = {}) {
+    return date.toLocaleTimeString('ar-SA', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: options.showSeconds ? '2-digit' : undefined,
+        hour12: options.is12Hour || false
+    });
 }
 
-function showDashboard() {
-    const loginScreen = document.getElementById('loginScreen');
-    const adminDashboard = document.getElementById('adminDashboard');
-    if (loginScreen) loginScreen.style.display = 'none';
-    if (adminDashboard) adminDashboard.style.display = 'flex';
+// 3. دالة التأخير (لعمل أنيميشن أو انتظار)
+export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// 4. دالة إنشاء معرفات فريدة (تستخدم للمناسبات أو الرسائل المضافة)
+export function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-function showLogin() {
-    const loginScreen = document.getElementById('loginScreen');
-    const adminDashboard = document.getElementById('adminDashboard');
-    if (adminDashboard) adminDashboard.style.display = 'none';
-    if (loginScreen) loginScreen.style.display = 'flex';
+// 5. دالة تحديث الحالة في الواجهة
+export function updateElementText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
+
+// 6. التحقق من وجود عنصر
+export function elementExists(id) {
+    return !!document.getElementById(id);
+}
+
+// 7. دالة لتحويل التواريخ الهجرية (مثال مبسط)
+export function getHijriDate() {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(new Date());
+}
+
+// 8. دالة لتنظيف النصوص (أمنياً)
+export function sanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
