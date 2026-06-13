@@ -1,71 +1,69 @@
-@media (max-width:1200px){
+/* assets/css/responsive.css */
 
-    #clock{
-
-        font-size:5rem;
-
+/* للشاشات المتوسطة واللوحيات */
+@media (max-width: 1024px) {
+    #clock {
+        font-size: 4rem;
     }
-
+    
+    .logo-section img {
+        height: 50px;
+    }
+    
+    .logo-section h1 {
+        font-size: 1.4rem;
+    }
 }
 
-@media (max-width:992px){
-
-    #dateSection{
-
-        flex-wrap:wrap;
-
+/* للهواتف المحمولة والشاشات الصغيرة */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 15px;
     }
 
+    .logo-section {
+        flex-direction: column;
+    }
+
+    main {
+        grid-template-columns: 1fr; /* عرض الصناديق تحت بعضها */
+        padding: 15px;
+    }
+
+    #clock {
+        font-size: 3.5rem;
+    }
+
+    #prayerTimes {
+        grid-template-columns: repeat(2, 1fr); /* عمودين فقط للصلاة في الجوال */
+    }
 }
 
-@media (max-width:768px){
-
-    header{
-
-        flex-direction:column;
-
-        gap:15px;
-
+/* دعم الشاشات الطولية (Vertical/Portrait) للوحات الإعلانية */
+@media (orientation: portrait) {
+    main {
+        grid-template-columns: 1fr;
     }
-
-    #clock{
-
-        font-size:4rem;
-
+    
+    #clockSection {
+        order: -1; /* رفع الساعة للأعلى دائماً في العرض الطولي */
     }
-
-    #dateSection{
-
-        flex-direction:column;
-
-    }
-
-    .date-card{
-
-        width:100%;
-
-    }
-
 }
 
-@media (max-width:480px){
-
-    body{
-
-        padding:10px;
-
+/* دعم الشاشات الضخمة (4K) */
+@media (min-width: 2560px) {
+    * {
+        font-size: 1.2rem; /* تكبير الخطوط بشكل عام */
     }
-
-    #clock{
-
-        font-size:2.5rem;
-
+    
+    #clock {
+        font-size: 8rem;
     }
-
-    #countdown{
-
-        font-size:2rem;
-
+    
+    .logo-section img {
+        height: 100px;
     }
-
 }
