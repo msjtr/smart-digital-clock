@@ -5,7 +5,7 @@
 import { addLog } from "./logs.js";
 import { showNotification } from "./notifications.js";
 
-// كلمة المرور التي تعتمد عليها
+// كلمة المرور المعتمدة
 const ACCESS_PASSWORD = "123";
 
 export function initAuth() {
@@ -23,23 +23,25 @@ export function initAuth() {
         showDashboard(loginScreen, dashboard);
     }
 
-    // تسجيل الدخول
-    loginBtn?.addEventListener("click", () => {
-        const password = passwordInput?.value?.trim();
+    // تسجيل الدخول (مع حماية التحقق من وجود الزر)
+    if (loginBtn) {
+        loginBtn.addEventListener("click", () => {
+            const password = passwordInput?.value?.trim();
 
-        if (password === ACCESS_PASSWORD) {
-            sessionStorage.setItem("is_admin_logged_in", "true");
-            
-            // سجل العملية
-            try { addLog("تسجيل دخول", "admin"); } catch (e) {}
-            try { showNotification("تم الدخول بنجاح", "success"); } catch (e) {}
-            
-            showDashboard(loginScreen, dashboard);
-        } else {
-            if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-            passwordInput.value = "";
-        }
-    });
+            if (password === ACCESS_PASSWORD) {
+                sessionStorage.setItem("is_admin_logged_in", "true");
+                
+                // سجل العملية (مع التعامل مع الأخطاء في حال فشل الاستيراد)
+                try { addLog("تسجيل دخول", "admin"); } catch (e) { console.warn("Log module not available"); }
+                try { showNotification("تم الدخول بنجاح", "success"); } catch (e) { console.warn("Notification module not available"); }
+                
+                showDashboard(loginScreen, dashboard);
+            } else {
+                if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
+                if (passwordInput) passwordInput.value = "";
+            }
+        });
+    }
 
     // تسجيل الخروج
     logoutBtn?.addEventListener("click", () => {
@@ -47,9 +49,11 @@ export function initAuth() {
         location.reload();
     });
 
-    // زر Enter
+    // دعم زر Enter
     passwordInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") loginBtn.click();
+        if (e.key === "Enter") {
+            loginBtn?.click();
+        }
     });
 }
 
