@@ -1,10 +1,18 @@
+/* ملف admin.css المحدث والمطابق لواجهة HTML */
+
+/* إعدادات عامة */
+.admin-body {
+    margin: 0;
+    background-color: #f8fafc;
+}
+
 /* تنسيقات شاشة تسجيل الدخول */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: var(--bg-gradient);
+    background: var(--bg-gradient, linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%));
 }
 
 .login-box {
@@ -17,8 +25,8 @@
     max-width: 400px;
 }
 
-.login-box h2 { color: var(--text-main); margin-bottom: 10px; }
-.login-box p { color: var(--text-muted); margin-bottom: 25px; }
+.login-box h2 { color: #1e293b; margin-bottom: 10px; }
+.login-box p { color: #64748b; margin-bottom: 25px; }
 
 .login-box input {
     width: 100%;
@@ -27,54 +35,88 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1.1rem;
+    box-sizing: border-box; /* يمنع الحقل من الخروج عن حجم المربع */
+    text-align: center;
 }
 
 .error-msg { color: #ef4444; font-size: 0.9rem; margin-top: 10px; }
 
 /* الأزرار العامة */
 button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-.btn-primary { background: var(--primary-color); color: white; width: 100%; padding: 15px; }
+.btn-primary { background: #2563eb; color: white; width: 100%; padding: 15px; }
 .btn-primary:hover { background: #1d4ed8; }
-.btn-secondary { background: #64748b; color: white; text-decoration: none; display: inline-block; }
+.btn-secondary, .btn-secondary-sm { background: #64748b; color: white; padding: 8px 15px;}
 .btn-success { background: #10b981; color: white; }
-.btn-danger { background: #ef4444; color: white; }
+.btn-danger, .btn-danger-sm { background: #ef4444; color: white; padding: 8px 15px;}
+.icon-btn { background: none; font-size: 1.2rem; padding: 5px 10px; }
 
-/* تخطيط لوحة التحكم (Grid Layout) */
-.dashboard-layout {
+/* تخطيط لوحة التحكم (Grid Layout) المطابق للـ HTML */
+.admin-layout {
     display: grid;
     grid-template-columns: 280px 1fr;
     height: 100vh;
     background: #f8fafc;
+    overflow: hidden;
 }
 
+/* القائمة الجانبية */
 .admin-sidebar {
     background: #1e293b;
     color: white;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
-.sidebar-brand { padding: 20px; text-align: center; border-bottom: 1px solid #334155; }
-.admin-menu { list-style: none; padding: 0; flex: 1; }
-.admin-menu li { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #334155; transition: 0.3s; }
-.admin-menu li:hover, .admin-menu li.active { background: var(--primary-color); }
-.logout-btn { margin: 20px; }
+.sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid #334155; }
+.sidebar-header img { max-width: 70px; border-radius: 8px; margin-bottom: 10px; }
+.sidebar-header h3 { margin: 0; font-size: 1.1rem; color: #f8fafc; }
 
-.admin-content { padding: 30px; overflow-y: auto; }
-.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+.sidebar-menu li { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #334155; transition: 0.3s; }
+.sidebar-menu li:hover, .sidebar-menu li.active { background: #2563eb; border-right: 4px solid white; }
+.sidebar-menu .menu-label { background: #0f172a; color: #94a3b8; font-size: 0.85rem; padding: 10px 20px; pointer-events: none; }
+
+/* الشريط العلوي والمحتوى */
+.admin-main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.top-bar-right, .top-bar-left { display: flex; align-items: center; gap: 15px; }
+
+.content-wrapper { padding: 30px; overflow-y: auto; flex: 1; }
 
 /* البطاقات والنماذج */
 .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
 .mt-20 { margin-top: 20px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #334; }
-.form-group select, .form-group input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+.mb-20 { margin-bottom: 20px; }
 
-/* الجداول */
-.admin-table { width: 100%; border-collapse: collapse; text-align: right; }
-.admin-table th, .admin-table td { padding: 15px; border-bottom: 1px solid #eee; }
-.admin-table th { background: #f1f5f9; }
+/* التبويبات (Tabs) */
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeIn 0.4s ease; }
 
-/* التبويبات */
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* شبكة الإحصائيات (Stats) */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.stat-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+/* تقسيم الشاشة للإدارة المباشرة */
+.dashboard-split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.iframe-container { width: 100%; height: 450px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+.iframe-container iframe { width: 100%; height: 100%; border: none; }
+
+/* الأوضاع السريعة */
+.grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-mode { background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; }
+.btn-mode:hover { background: #e2e8f0; }
+
+/* القوائم الصغيرة */
+.recent-logs { list-style: none; padding: 0; margin: 0; }
+.recent-logs li { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+.log-time { color: #2563eb; font-weight: bold; margin-left: 10px; }
+
+/* مفاتيح التفعيل (Toggles) */
+.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+.toggle-control { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle-control input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
