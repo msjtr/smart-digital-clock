@@ -1,52 +1,292 @@
-// assets/js/messages.js
-import { fetchJsonData } from './storage.js';
+// ============================================================================
+// Messages Manager
+// ============================================================================
+
+import {
+    fetchJsonData,
+    getMessages,
+    saveMessages
+} from "./storage.js";
+
+import {
+    addLog
+} from "./logs.js";
+
+let messages = [];
+
+let currentIndex = 0;
+
+let rotationInterval = null;
+
+// ============================================================================
+// تشغيل النظام
+// ============================================================================
 
 export async function initMessages() {
-    const messageDisplay = document.getElementById('messageDisplay');
-    const tickerContent = document.querySelector('.ticker-content');
-    
-    if (!messageDisplay && !tickerContent) return;
 
-    // جلب الرسائل من ملف JSON أو استخدام رسائل افتراضية
-    let messagesData = await fetchJsonData('messages');
-    let messages = messagesData?.list || [
-        "أهلاً بكم في نظام الساعة الرقمية الذكية",
-        "جامعة حائل - كلية الشريعة والقانون ترحب بكم",
-        "نسعى لتقديم بيئة تعليمية إلكترونية متطورة"
-    ];
+    const localMessages =
+        getMessages();
 
-    let currentIndex = 0;
+    if (
+        localMessages &&
+        localMessages.length
+    ) {
 
-    // دالة لتغيير الرسالة الرئيسية بتأثير حركي
-    function showNextMessage() {
-        if (messages.length === 0) return;
-        
-        if (messageDisplay) {
-            // تأثير الاختفاء
-            messageDisplay.style.opacity = '0'; 
-            messageDisplay.style.transform = 'translateY(10px)';
-            messageDisplay.style.transition = 'all 0.5s ease-in-out';
-            
-            setTimeout(() => {
-                messageDisplay.textContent = messages[currentIndex];
-                // تأثير الظهور
-                messageDisplay.style.opacity = '1';
-                messageDisplay.style.transform = 'translateY(0)';
-                
-                currentIndex = (currentIndex + 1) % messages.length;
-            }, 500);
-        }
+        messages =
+            localMessages;
+
+    } else {
+
+        const jsonData =
+            await fetchJsonData(
+                "messages"
+            );
+
+        messages =
+            jsonData?.list || [
+
+                "أهلاً بكم في جامعة حائل",
+
+                "كلية الشريعة والقانون ترحب بكم",
+
+                "نظام الساعة الرقمية الذكية"
+
+            ];
+
+        saveMessages(
+            messages
+        );
+
     }
 
-    // تعبئة الشريط الإخباري السفلي (News Ticker)
-    if (tickerContent && messages.length > 0) {
-        // ندمج الرسائل بفاصل بصري لعرضها كشريط مستمر
-        tickerContent.textContent = messages.join('   ✦   ');
+    startMessages();
+
+    updateTicker();
+
+    console.log(
+        "✅ تم تشغيل الرسائل"
+    );
+
+}
+
+// ============================================================================
+// تشغيل تدوير الرسائل
+// ============================================================================
+
+export function startMessages() {
+
+    if (
+        rotationInterval
+    ) {
+
+        clearInterval(
+            rotationInterval
+        );
+
     }
 
-    // تغيير الرسالة كل 10 ثوانٍ
-    setInterval(showNextMessage, 10000);
-    showNextMessage();
-    
-    console.log("تم تفعيل نظام الرسائل والشريط الإخباري.");
+    showCurrentMessage();
+
+    rotationInterval =
+        setInterval(
+            nextMessage,
+            10000
+        );
+
+}
+
+// ============================================================================
+// الرسالة الحالية
+// ============================================================================
+
+function showCurrentMessage() {
+
+    const container =
+        document.getElementById(
+            "messageDisplay"
+        );
+
+    if (
+        !container ||
+        messages.length === 0
+    ) return;
+
+    container.style.opacity =
+        "0";
+
+    setTimeout(() => {
+
+        container.textContent =
+            messages[
+                currentIndex
+            ];
+
+        container.style.opacity =
+            "1";
+
+    }, 300);
+
+}
+
+// ============================================================================
+// الرسالة التالية
+// ============================================================================
+
+function nextMessage() {
+
+    currentIndex++;
+
+    if (
+        currentIndex >=
+        messages.length
+    ) {
+
+        currentIndex = 0;
+
+    }
+
+    showCurrentMessage();
+
+}
+
+// ============================================================================
+// إضافة رسالة
+// ============================================================================
+
+export function addMessage(
+    text
+) {
+
+    if (!text) return;
+
+    messages.push(
+        text
+    );
+
+    saveMessages(
+        messages
+    );
+
+    updateTicker();
+
+    addLog(
+        "إضافة رسالة",
+        text
+    );
+
+}
+
+// ============================================================================
+// تعديل رسالة
+// ============================================================================
+
+export function updateMessage(
+    index,
+    text
+) {
+
+    if (
+        !messages[index]
+    ) return;
+
+    messages[index] =
+        text;
+
+    saveMessages(
+        messages
+    );
+
+    updateTicker();
+
+    addLog(
+        "تعديل رسالة",
+        text
+    );
+
+}
+
+// ============================================================================
+// حذف رسالة
+// ============================================================================
+
+export function deleteMessage(
+    index
+) {
+
+    if (
+        !messages[index]
+    ) return;
+
+    const deleted =
+        messages[index];
+
+    messages.splice(
+        index,
+        1
+    );
+
+    saveMessages(
+        messages
+    );
+
+    updateTicker();
+
+    addLog(
+        "حذف رسالة",
+        deleted
+    );
+
+}
+
+// ============================================================================
+// جلب الرسائل
+// ============================================================================
+
+export function getAllMessages() {
+
+    return messages;
+
+}
+
+// ============================================================================
+// تحديث الشريط الإخباري
+// ============================================================================
+
+export function updateTicker() {
+
+    const ticker =
+        document.querySelector(
+            ".ticker-content"
+        );
+
+    if (!ticker)
+        return;
+
+    ticker.textContent =
+        messages.join(
+            " ✦ "
+        );
+
+}
+
+// ============================================================================
+// إيقاف الرسائل
+// ============================================================================
+
+export function stopMessages() {
+
+    clearInterval(
+        rotationInterval
+    );
+
+}
+
+// ============================================================================
+// تشغيل الرسائل
+// ============================================================================
+
+export function resumeMessages() {
+
+    startMessages();
+
 }
