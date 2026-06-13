@@ -1,292 +1,90 @@
 // ============================================================================
-// Messages Manager
+// Messages Manager - إدارة الرسائل (متوافق مع التحديث اللحظي)
 // ============================================================================
 
-import {
-    fetchJsonData,
-    getMessages,
-    saveMessages
-} from "./storage.js";
-
-import {
-    addLog
-} from "./logs.js";
+import { fetchJsonData, saveJsonData } from "./storage.js";
+import { addLog } from "./logs.js";
 
 let messages = [];
-
 let currentIndex = 0;
-
 let rotationInterval = null;
 
 // ============================================================================
 // تشغيل النظام
 // ============================================================================
-
 export async function initMessages() {
-
-    const localMessages =
-        getMessages();
-
-    if (
-        localMessages &&
-        localMessages.length
-    ) {
-
-        messages =
-            localMessages;
-
-    } else {
-
-        const jsonData =
-            await fetchJsonData(
-                "messages"
-            );
-
-        messages =
-            jsonData?.list || [
-
-                "أهلاً بكم في جامعة حائل",
-
-                "كلية الشريعة والقانون ترحب بكم",
-
-                "نظام الساعة الرقمية الذكية"
-
-            ];
-
-        saveMessages(
-            messages
-        );
-
-    }
-
+    // جلب البيانات من السيرفر (ملف messages.json)
+    const data = await fetchJsonData("messages");
+    messages = data?.list || ["أهلاً بكم في جامعة حائل", "نظام الساعة الرقمية الذكية"];
+    
     startMessages();
-
     updateTicker();
+    console.log("✅ تم تشغيل نظام الرسائل");
+}
 
-    console.log(
-        "✅ تم تشغيل الرسائل"
-    );
-
+// ============================================================================
+// تحديث الرسائل (يُستدعى من sync.js عند أي تغيير من لوحة الإدارة)
+// ============================================================================
+export function refreshMessages(newList) {
+    messages = newList;
+    currentIndex = 0;
+    updateTicker();
+    showCurrentMessage();
+    console.log("🔄 تم تحديث قائمة الرسائل لحظياً.");
 }
 
 // ============================================================================
 // تشغيل تدوير الرسائل
 // ============================================================================
-
 export function startMessages() {
-
-    if (
-        rotationInterval
-    ) {
-
-        clearInterval(
-            rotationInterval
-        );
-
-    }
-
+    if (rotationInterval) clearInterval(rotationInterval);
     showCurrentMessage();
-
-    rotationInterval =
-        setInterval(
-            nextMessage,
-            10000
-        );
-
+    rotationInterval = setInterval(nextMessage, 10000);
 }
-
-// ============================================================================
-// الرسالة الحالية
-// ============================================================================
 
 function showCurrentMessage() {
+    const container = document.getElementById("messageDisplay");
+    if (!container || messages.length === 0) return;
 
-    const container =
-        document.getElementById(
-            "messageDisplay"
-        );
-
-    if (
-        !container ||
-        messages.length === 0
-    ) return;
-
-    container.style.opacity =
-        "0";
-
+    container.style.opacity = "0";
     setTimeout(() => {
-
-        container.textContent =
-            messages[
-                currentIndex
-            ];
-
-        container.style.opacity =
-            "1";
-
+        container.textContent = messages[currentIndex];
+        container.style.opacity = "1";
     }, 300);
-
 }
-
-// ============================================================================
-// الرسالة التالية
-// ============================================================================
 
 function nextMessage() {
-
-    currentIndex++;
-
-    if (
-        currentIndex >=
-        messages.length
-    ) {
-
-        currentIndex = 0;
-
-    }
-
+    currentIndex = (currentIndex + 1) % messages.length;
     showCurrentMessage();
-
 }
 
 // ============================================================================
-// إضافة رسالة
+// العمليات الأساسية (الربط مع السيرفر)
 // ============================================================================
+async function saveMessagesToServer() {
+    await saveJsonData("messages", { list: messages });
+    updateTicker();
+}
 
-export function addMessage(
-    text
-) {
-
+export async function addMessage(text) {
     if (!text) return;
-
-    messages.push(
-        text
-    );
-
-    saveMessages(
-        messages
-    );
-
-    updateTicker();
-
-    addLog(
-        "إضافة رسالة",
-        text
-    );
-
+    messages.push(text);
+    await saveMessagesToServer();
+    addLog("إضافة رسالة", text);
 }
 
-// ============================================================================
-// تعديل رسالة
-// ============================================================================
-
-export function updateMessage(
-    index,
-    text
-) {
-
-    if (
-        !messages[index]
-    ) return;
-
-    messages[index] =
-        text;
-
-    saveMessages(
-        messages
-    );
-
-    updateTicker();
-
-    addLog(
-        "تعديل رسالة",
-        text
-    );
-
+export async function deleteMessage(index) {
+    if (!messages[index]) return;
+    const deleted = messages.splice(index, 1);
+    await saveMessagesToServer();
+    addLog("حذف رسالة", deleted[0]);
 }
-
-// ============================================================================
-// حذف رسالة
-// ============================================================================
-
-export function deleteMessage(
-    index
-) {
-
-    if (
-        !messages[index]
-    ) return;
-
-    const deleted =
-        messages[index];
-
-    messages.splice(
-        index,
-        1
-    );
-
-    saveMessages(
-        messages
-    );
-
-    updateTicker();
-
-    addLog(
-        "حذف رسالة",
-        deleted
-    );
-
-}
-
-// ============================================================================
-// جلب الرسائل
-// ============================================================================
-
-export function getAllMessages() {
-
-    return messages;
-
-}
-
-// ============================================================================
-// تحديث الشريط الإخباري
-// ============================================================================
 
 export function updateTicker() {
-
-    const ticker =
-        document.querySelector(
-            ".ticker-content"
-        );
-
-    if (!ticker)
-        return;
-
-    ticker.textContent =
-        messages.join(
-            " ✦ "
-        );
-
+    const ticker = document.querySelector(".ticker-content");
+    if (ticker) ticker.textContent = messages.join(" ✦ ");
 }
 
-// ============================================================================
-// إيقاف الرسائل
-// ============================================================================
-
-export function stopMessages() {
-
-    clearInterval(
-        rotationInterval
-    );
-
-}
-
-// ============================================================================
-// تشغيل الرسائل
-// ============================================================================
-
-export function resumeMessages() {
-
-    startMessages();
-
-}
+export function getAllMessages() { return messages; }
+export function stopMessages() { clearInterval(rotationInterval); }
+export function resumeMessages() { startMessages(); }
