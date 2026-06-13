@@ -1,62 +1,49 @@
-/**
- * نظام الأدوات المساعدة للنظام - utils.js
- * جامعة حائل - كلية الشريعة والقانون
- */
+// assets/js/clock.js
+import { padZero } from './utils.js';
 
-// 1. دالة إضافة الصفر للأرقام الفردية (تم حمايتها من القيم الفارغة)
-export function padZero(num) {
-    if (num === undefined || num === null || isNaN(num)) return '00';
-    return num.toString().padStart(2, '0');
-}
+export function initClock(settings = {}) {
+    // 1. البحث عن مكان الساعة في الشاشة
+    const clockElement = document.getElementById('clock');
+    
+    // إذا لم يكن العنصر موجوداً، سنطبع رسالة لمعرفة السبب
+    if (!clockElement) {
+        console.warn("⚠️ لم يتم العثور على عنصر الساعة (id='clock') في شاشة HTML.");
+        return;
+    }
 
-// 2. دالة موحدة لمعالجة الأخطاء في النظام
-export function handleError(moduleName, error) {
-    console.error(`[نظام ${moduleName}]:`, error);
-}
+    // 2. ضبط الإعدادات: جعل نظام 12 ساعة (ص/م) هو الافتراضي
+    const is12HourFormat = settings?.clockFormat !== '24'; 
+    const showSeconds = settings?.showSeconds !== false;
 
-// 3. دالة تنسيق الوقت (تم حمايتها بتمرير الوقت الحالي افتراضياً)
-export function formatTime(date, options = {}) {
-    if (!date) date = new Date();
-    return date.toLocaleTimeString('ar-SA', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: options.showSeconds ? '2-digit' : undefined,
-        hour12: options.is12Hour || false
-    });
-}
+    // 3. محرك الساعة
+    function updateClock() {
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = padZero(now.getMinutes());
+        const seconds = padZero(now.getSeconds());
+        
+        let amPm = '';
 
-// 4. دالة التأخير (لعمل أنيميشن أو انتظار)
-export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        // نظام 12 ساعة وإضافة (ص/م)
+        if (is12HourFormat) {
+            amPm = hours >= 12 ? ' م' : ' ص'; // م للمساء، ص للصباح
+            hours = hours % 12 || 12; // تحويل الصفر (منتصف الليل) إلى 12
+        }
 
-// 5. دالة إنشاء معرفات فريدة (تم التحديث إلى slice لضمان التوافق مع كل المتصفحات)
-export function generateId() {
-    return '_' + Math.random().toString(36).slice(2, 11);
-}
+        hours = padZero(hours); // إضافة الصفر قبل الساعات الفردية
 
-// 6. دالة تحديث الحالة في الواجهة
-export function updateElementText(id, text) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = text || '';
-}
+        // تجميع النص النهائي
+        const timeString = showSeconds 
+            ? `${hours}:${minutes}:${seconds}${amPm}`
+            : `${hours}:${minutes}${amPm}`;
 
-// 7. التحقق من وجود عنصر
-export function elementExists(id) {
-    return !!document.getElementById(id);
-}
+        // عرض الوقت على الشاشة
+        clockElement.textContent = timeString;
+    }
 
-// 8. دالة لتحويل التواريخ الهجرية (دعم تمرير تاريخ مخصص)
-export function getHijriDate(date = new Date()) {
-    return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(date);
-}
-
-// 9. دالة لتنظيف النصوص أمنياً (تمت حمايتها من النصوص الفارغة)
-export function sanitize(str) {
-    if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    // 4. تشغيل الساعة فورا ثم تحديثها كل ثانية
+    updateClock();
+    setInterval(updateClock, 1000);
+    
+    console.log("⏱️ تم تفعيل الساعة الرقمية بنجاح مع نظام (ص/م).");
 }
