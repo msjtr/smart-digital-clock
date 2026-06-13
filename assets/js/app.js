@@ -26,8 +26,12 @@ async function bootstrapSystem() {
 
     await initSettings();
 
-    // 2. قائمة الوحدات للتحميل (تم دمجها لتحميل متوازي سريع)
+    // 2. قائمة الوحدات للتحميل (تم إضافة نظام الدخول والإدارة هنا)
     const modules = [
+        // --- تمت إضافة هذين السطرين ليعمل زر الدخول ولوحة الإدارة ---
+        { path: "./auth.js", fn: "initAuth" },
+        { path: "./admin.js", fn: "initAdmin" },
+        // --------------------------------------------------------------
         { path: "./themes.js", fn: "initThemes", args: [window.AppSystem.settings] },
         { path: "./layouts.js", fn: "initLayouts", args: [window.AppSystem.settings] },
         { path: "./logos.js", fn: "initLogos", args: [window.AppSystem.settings] },
