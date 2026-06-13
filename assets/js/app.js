@@ -3,29 +3,9 @@
 // جامعة حائل - كلية الشريعة والقانون
 // ============================================================================
 
-// 1. استيراد جميع المكونات (Modules)
+// 1. استيراد الأدوات الأساسية والضرورية فقط
 import { fetchJsonData } from './storage.js';
 import { handleError } from './utils.js';
-import { initSettings, applySettings } from './settings.js';
-import { initClock } from './clock.js';
-import { initDate } from './date.js';
-import { initWeather } from './weather.js';
-import { initPrayers } from './prayers.js';
-import { initMessages } from './messages.js';
-import { initOccasions } from './occasions.js';
-import { initCountdown } from './countdown.js';
-import { initContent } from './content.js';
-import { initDashboard } from './dashboard.js';
-import { initLayouts } from './layouts.js';
-import { initThemes } from './themes.js';
-import { initLogos } from './logos.js';
-import { initLogs } from './logs.js';
-import { initNotifications } from './notifications.js';
-import { initBackup } from './backup.js';
-import { initQR } from './qr.js';
-import { initFullscreen } from './fullscreen.js';
-import { initProjector } from './projector.js';
-import { initViewer } from './viewer.js';
 
 // 2. كائن النظام المركزي (لحفظ الحالة والبيانات المشتركة)
 window.AppSystem = {
@@ -34,53 +14,68 @@ window.AppSystem = {
     version: '1.0.0'
 };
 
-// 3. الدالة الرئيسية لتشغيل النظام
+// 3. الدالة الرئيسية لتشغيل النظام (الاستيراد الديناميكي الذكي)
 async function bootstrapSystem() {
     console.log(`🚀 بدء تشغيل نظام الساعة الذكية الإصدار ${window.AppSystem.version}`);
 
     // --- تهيئة الإعدادات أولاً (الأساس) ---
     try {
         window.AppSystem.settings = await fetchJsonData('settings');
-        if (window.AppSystem.settings) {
-            // تهيئة الثيمات والتخطيط بناءً على الإعدادات
-            if (typeof initThemes === 'function') initThemes(window.AppSystem.settings);
-            if (typeof initLayouts === 'function') initLayouts(window.AppSystem.settings);
-            if (typeof initLogos === 'function') initLogos(window.AppSystem.settings);
-        } else {
-            console.warn("⚠️ لم يتم العثور على الإعدادات، سيتم استخدام القيم الافتراضية.");
+    } catch (e) { 
+        handleError('Settings Init', e); 
+        console.warn("⚠️ لم يتم العثور على الإعدادات، سيتم استخدام القيم الافتراضية.");
+    }
+
+    // دالة مساعدة ذكية لتحميل الملفات بشكل مستقل
+    // إذا تعطل ملف، لن تتأثر باقي الشاشة!
+    const loadModule = async (path, initFnName, ...args) => {
+        try {
+            const module = await import(path);
+            if (typeof module[initFnName] === 'function') {
+                module[initFnName](...args);
+            }
+        } catch (error) {
+            console.warn(`⏳ جاري تجاوز [${initFnName}]: الملف غير جاهز أو قيد التطوير.`);
         }
-    } catch (e) { handleError('Settings Init', e); }
+    };
+
+    // --- تهيئة الثيمات والتخطيط ---
+    if (window.AppSystem.settings) {
+        loadModule('./themes.js', 'initThemes', window.AppSystem.settings);
+        loadModule('./layouts.js', 'initLayouts', window.AppSystem.settings);
+        loadModule('./logos.js', 'initLogos', window.AppSystem.settings);
+    }
 
     // --- تهيئة الوقت والتاريخ (العمود الفقري) ---
-    try { if (typeof initClock === 'function') initClock(window.AppSystem.settings); } catch (e) { handleError('Clock', e); }
-    try { if (typeof initDate === 'function') initDate(window.AppSystem.settings); } catch (e) { handleError('Date', e); }
+    loadModule('./clock.js', 'initClock', window.AppSystem.settings);
+    loadModule('./date.js', 'initDate', window.AppSystem.settings);
 
     // --- تهيئة البيانات الحية (الطقس والصلاة) ---
-    try { if (typeof initWeather === 'function') initWeather(); } catch (e) { handleError('Weather', e); }
-    try { if (typeof initPrayers === 'function') initPrayers(); } catch (e) { handleError('Prayers', e); }
+    loadModule('./weather.js', 'initWeather');
+    loadModule('./prayers.js', 'initPrayers');
 
     // --- تهيئة المحتوى المرئي (المناسبات، الرسائل، العروض) ---
-    try { if (typeof initOccasions === 'function') initOccasions(); } catch (e) { handleError('Occasions', e); }
-    try { if (typeof initMessages === 'function') initMessages(); } catch (e) { handleError('Messages', e); }
-    try { if (typeof initCountdown === 'function') initCountdown(); } catch (e) { handleError('Countdown', e); }
-    try { if (typeof initContent === 'function') initContent(); } catch (e) { handleError('Content', e); }
-    try { if (typeof initViewer === 'function') initViewer(); } catch (e) { handleError('Viewer', e); }
+    loadModule('./occasions.js', 'initOccasions');
+    loadModule('./messages.js', 'initMessages');
+    loadModule('./countdown.js', 'initCountdown');
+    loadModule('./content.js', 'initContent');
+    loadModule('./viewer.js', 'initViewer');
 
-    // --- تهيئة واجهة المستخدم والنظام (لوحة التحكم، الشاشة الكاملة، البروجكتور) ---
-    try { if (typeof initDashboard === 'function') initDashboard(); } catch (e) { handleError('Dashboard', e); }
-    try { if (typeof initFullscreen === 'function') initFullscreen(); } catch (e) { handleError('Fullscreen', e); }
-    try { if (typeof initProjector === 'function') initProjector(); } catch (e) { handleError('Projector', e); }
-    try { if (typeof initQR === 'function') initQR(); } catch (e) { handleError('QR Code', e); }
+    // --- تهيئة واجهة المستخدم والنظام ---
+    loadModule('./dashboard.js', 'initDashboard');
+    loadModule('./fullscreen.js', 'initFullscreen');
+    loadModule('./projector.js', 'initProjector');
+    loadModule('./qr.js', 'initQR');
 
-    // --- تهيئة أدوات الإدارة (السجلات، الإشعارات، النسخ الاحتياطي) ---
-    try { if (typeof initLogs === 'function') initLogs(); } catch (e) { handleError('Logs', e); }
-    try { if (typeof initNotifications === 'function') initNotifications(); } catch (e) { handleError('Notifications', e); }
-    try { if (typeof initBackup === 'function') initBackup(); } catch (e) { handleError('Backup', e); }
+    // --- تهيئة أدوات الإدارة ---
+    loadModule('./logs.js', 'initLogs');
+    loadModule('./notifications.js', 'initNotifications');
+    loadModule('./backup.js', 'initBackup');
 
     // 4. مراقبة حالة الاتصال بالإنترنت
     setupNetworkMonitoring();
 
-    console.log("✅ تم اكتمال تهيئة جميع وحدات النظام بنجاح.");
+    console.log("✅ تم إرسال أوامر التشغيل لجميع وحدات النظام.");
 }
 
 // 5. مراقبة الإنترنت لتحديث الواجهة والخدمات
@@ -92,7 +87,6 @@ function setupNetworkMonitoring() {
             statusBox.textContent = online ? 'متصل' : 'غير متصل (يعمل محلياً)';
             statusBox.className = online ? 'status-online' : 'status-offline';
         }
-        console.log(`🌐 حالة الاتصال: ${online ? 'متصل بالإنترنت' : 'غير متصل'}`);
     };
 
     window.addEventListener('online', () => updateStatus(true));
