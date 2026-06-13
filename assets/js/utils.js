@@ -3,13 +3,17 @@
  * جامعة حائل - كلية الشريعة والقانون
  */
 
-// 1. دالة موحدة لمعالجة الأخطاء في النظام
-export function handleError(moduleName, error) {
-    console.error(`[نظام ${moduleName}]:`, error);
-    // يمكنك إضافة كود هنا لإرسال الخطأ إلى سجلات النظام (Logs)
+// 1. دالة إضافة الصفر للأرقام الفردية (مطلوبة لعمل الساعة والعد التنازلي)
+export function padZero(num) {
+    return num.toString().padStart(2, '0');
 }
 
-// 2. دالة تنسيق الوقت (تستخدم في أكثر من مكان)
+// 2. دالة موحدة لمعالجة الأخطاء في النظام
+export function handleError(moduleName, error) {
+    console.error(`[نظام ${moduleName}]:`, error);
+}
+
+// 3. دالة تنسيق الوقت (تستخدم في أكثر من مكان)
 export function formatTime(date, options = {}) {
     return date.toLocaleTimeString('ar-SA', {
         hour: '2-digit',
@@ -19,26 +23,26 @@ export function formatTime(date, options = {}) {
     });
 }
 
-// 3. دالة التأخير (لعمل أنيميشن أو انتظار)
+// 4. دالة التأخير (لعمل أنيميشن أو انتظار)
 export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// 4. دالة إنشاء معرفات فريدة (تستخدم للمناسبات أو الرسائل المضافة)
+// 5. دالة إنشاء معرفات فريدة (تستخدم للمناسبات أو الرسائل المضافة)
 export function generateId() {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// 5. دالة تحديث الحالة في الواجهة
+// 6. دالة تحديث الحالة في الواجهة
 export function updateElementText(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
 }
 
-// 6. التحقق من وجود عنصر
+// 7. التحقق من وجود عنصر
 export function elementExists(id) {
     return !!document.getElementById(id);
 }
 
-// 7. دالة لتحويل التواريخ الهجرية (مثال مبسط)
+// 8. دالة لتحويل التواريخ الهجرية 
 export function getHijriDate() {
     return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
         day: 'numeric',
@@ -47,7 +51,7 @@ export function getHijriDate() {
     }).format(new Date());
 }
 
-// 8. دالة لتنظيف النصوص (أمنياً)
+// 9. دالة لتنظيف النصوص (أمنياً)
 export function sanitize(str) {
     const div = document.createElement('div');
     div.textContent = str;
