@@ -1,16 +1,8 @@
 // ============================================================================
-// Authentication & Permissions Manager
+// Authentication Manager (Password Only)
 // ============================================================================
 
-import { addLog } from "./logs.js";
-import { showNotification } from "./notifications.js";
-
-// كلمة المرور الموحدة (يمكنك تغييرها هنا)
-const ACCESS_PASSWORD = "123"; 
-
 export function initAuth() {
-    console.log("🔐 تم تشغيل نظام الدخول");
-
     const loginBtn = document.getElementById("loginBtn");
     const passwordInput = document.getElementById("adminPassword");
     const errorMsg = document.getElementById("loginError");
@@ -18,56 +10,43 @@ export function initAuth() {
     const dashboard = document.getElementById("adminDashboard");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // فحص الجلسة الحالية
-    if (isLoggedIn()) {
+    // كلمة المرور الموحدة (يمكنك تغييرها هنا)
+    const ACCESS_PASSWORD = "123"; 
+
+    // فحص الجلسة عند التحميل
+    if (sessionStorage.getItem("admin_is_logged_in") === "true") {
         showDashboard(loginScreen, dashboard);
     }
 
-    // تسجيل الدخول
+    // زر الدخول
     loginBtn?.addEventListener("click", () => {
         const password = passwordInput?.value?.trim();
 
-        // التحقق من كلمة المرور
         if (password === ACCESS_PASSWORD) {
-            // تسجيل دخول ناجح (بافتراض دور المدير)
-            const user = { username: "Admin", role: "admin" };
-            
-            sessionStorage.setItem("admin_session", JSON.stringify(user));
-
-            try {
-                addLog("تسجيل دخول", "admin");
-                showNotification("تم تسجيل الدخول بنجاح", "success");
-            } catch (e) {}
-
+            sessionStorage.setItem("admin_is_logged_in", "true");
             showDashboard(loginScreen, dashboard);
         } else {
             if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة";
-            try { addLog("فشل تسجيل الدخول", "محاولة خاطئة"); } catch (e) {}
         }
     });
 
     // تسجيل الخروج
-    logoutBtn?.addEventListener("click", logout);
+    logoutBtn?.addEventListener("click", () => {
+        sessionStorage.removeItem("admin_is_logged_in");
+        location.reload();
+    });
 
-    // زر Enter
-    passwordInput?.addEventListener("keypress", e => {
+    // دعم زر Enter
+    passwordInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") loginBtn?.click();
     });
 }
 
-// ============================================================================
-// Logout
-// ============================================================================
-export function logout() {
-    sessionStorage.removeItem("admin_session");
-    location.reload();
+function showDashboard(screen, dash) {
+    if (screen) screen.style.display = "none";
+    if (dash) dash.style.display = "grid";
 }
 
 export function isLoggedIn() {
-    return !!sessionStorage.getItem("admin_session");
-}
-
-function showDashboard(loginScreen, dashboard) {
-    if (loginScreen) loginScreen.style.display = "none";
-    if (dashboard) dashboard.style.display = "grid";
+    return sessionStorage.getItem("admin_is_logged_in") === "true";
 }
