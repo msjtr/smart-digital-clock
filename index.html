@@ -5,22 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الشاشة الرقمية الذكية - جامعة حائل</title>
     
-    <meta property="og:title" content="الشاشة الرقمية الذكية - جامعة حائل">
-    <meta property="og:description" content="نظام عرض المعلومات والساعة الرقمية لكلية الشريعة والقانون">
-    <meta property="og:image" content="assets/images/logos/Social Preview.jpg">
-    <meta property="og:type" content="website">
-
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/animations.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
 
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="assets/images/icons/icon-1.png">
-    <link rel="apple-touch-icon" href="assets/images/icons/icon-1.png">
-
     <style>
-        /* تنسيق زر الدخول للإدارة في أعلى الشاشة */
+        /* نظام العرض المتسلسل (Slider) */
+        .widget-container { 
+            position: relative; 
+            width: 100%; 
+            min-height: 500px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .widget { 
+            display: none; 
+            width: 100%; 
+            text-align: center; 
+            animation: fadeIn 1s;
+        }
+        .widget.active { display: block; }
+        
         .admin-login-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
@@ -28,109 +35,52 @@
             padding: 8px 15px;
             border-radius: 20px;
             text-decoration: none;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             transition: all 0.3s ease;
-        }
-        .admin-login-btn:hover {
-            background: rgba(239, 68, 68, 0.8); /* لون أحمر للإدارة */
-            color: white;
-            transform: scale(1.05);
-            border-color: rgba(239, 68, 68, 1);
-        }
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
         }
     </style>
 </head>
 <body data-theme="dark">
 
-    <header title="انقر نقراً مزدوجاً لملء الشاشة">
+    <header>
         <div class="logo-section">
-            <img id="universityLogo" src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة">
-            <img id="collegeLogo" src="assets/images/logos/college-logo.jpg" alt="شعار الكلية">
+            <img src="assets/images/logos/university-logo.jpg" alt="جامعة حائل">
+            <img src="assets/images/logos/college-logo.jpg" alt="الكلية">
             <div>
                 <h1>الساعة الرقمية الذكية</h1>
                 <p>جامعة حائل - كلية الشريعة والقانون</p>
             </div>
         </div>
-        
-        <div class="header-controls">
-            <div class="status-box" aria-live="polite">
-                <span id="connectionStatus">جاري الاتصال...</span>
-            </div>
-            <a href="admin.html" class="admin-login-btn" title="تسجيل الدخول للوحة التحكم">
-                <span>الإدارة</span> 🔒
-            </a>
-        </div>
+        <a href="admin.html" class="admin-login-btn">الإدارة 🔒</a>
     </header>
 
-    <main>
-        <section id="occasionBox" class="widget fade-in"></section>
-        
-        <section id="clockSection" class="widget">
-            <div id="clock" aria-live="off">--:--:--</div>
-        </section>
-
-        <section id="dateSection" class="widget">
-            <div class="date-card">
-                <h3>اليوم</h3>
-                <span id="dayName">--</span>
-            </div>
-            <div class="date-card">
-                <h3>التاريخ الهجري</h3>
-                <span id="hijriDate">--</span>
-            </div>
-            <div class="date-card">
-                <h3>التاريخ الميلادي</h3>
-                <span id="gregorianDate">--</span>
-            </div>
-        </section>
-
-        <section id="weatherSection" class="widget">
-            <h2>الطقس</h2>
-            <div id="weatherInfo">جاري التحديث...</div>
-        </section>
-
-        <section id="prayerSection" class="widget">
-            <h2>أوقات الصلاة</h2>
-            <div id="prayerTimes">جاري التحديث...</div>
-        </section>
-
-        <section id="messagesSection" class="widget">
-            <h2>الرسائل الإرشادية</h2>
-            <div id="messageDisplay">أهلاً بكم...</div>
-        </section>
-
-        <section id="countdownSection" class="widget">
-            <h2>العد التنازلي</h2>
-            <div id="countdown">--:--:--</div>
-        </section>
-
-        <section id="contentViewer" class="widget">
-            <h2>المحتوى المعروض</h2>
-            <div id="contentArea">لا يوجد محتوى حالياً</div>
-        </section>
+    <main class="widget-container">
+        <section class="widget active"><h2>المناسبات</h2><div id="occasionBox"></div></section>
+        <section class="widget"><h2>الوقت</h2><div id="clock">--:--:--</div></section>
+        <section class="widget"><h2>التاريخ</h2><div id="dateSection"></div></section>
+        <section class="widget"><h2>الطقس</h2><div id="weatherInfo">جاري التحديث...</div></section>
+        <section class="widget"><h2>الصلاة</h2><div id="prayerTimes">جاري التحديث...</div></section>
+        <section class="widget"><h2>الرسائل</h2><div id="messageDisplay">أهلاً بكم...</div></section>
+        <section class="widget"><h2>العد التنازلي</h2><div id="countdown">--:--:--</div></section>
+        <section class="widget"><h2>المحتوى</h2><div id="contentArea">لا يوجد محتوى حالياً</div></section>
     </main>
 
     <footer id="newsTicker">
-        <div class="ticker-content">أهلاً بكم في نظام الساعة الرقمية الذكية - جامعة حائل - كلية الشريعة والقانون</div>
+        <div class="ticker-content">جامعة حائل - كلية الشريعة والقانون</div>
     </footer>
 
-    <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("./service-worker.js")
-                    .then(reg => console.log("Service Worker Registered"))
-                    .catch(err => console.error("Service Worker Error:", err));
-            });
-        }
+    <script type="module">
+        // نظام التبديل التلقائي
+        document.addEventListener("DOMContentLoaded", () => {
+            const widgets = document.querySelectorAll('.widget');
+            let index = 0;
+            
+            setInterval(() => {
+                widgets[index].classList.remove('active');
+                index = (index + 1) % widgets.length;
+                widgets[index].classList.add('active');
+            }, 5000); // 5 ثواني
+        });
     </script>
-
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
