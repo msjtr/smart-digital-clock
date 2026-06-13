@@ -1,32 +1,231 @@
 // assets/js/weather.js
-import { fetchLiveWeather } from './api.js';
+
+import {
+    fetchLiveWeather
+} from "./api.js";
+
+import {
+    saveToLocal,
+    getFromLocal
+} from "./storage.js";
+
+import {
+    addLog
+} from "./logs.js";
+
+const WEATHER_KEY =
+    "weather_cache";
 
 export async function initWeather() {
-    const weatherContainer = document.getElementById('weatherInfo');
-    if (!weatherContainer) return;
 
-    async function updateWeather() {
-        const weatherData = await fetchLiveWeather();
-        
-        if (weatherData) {
-            const temp = Math.round(weatherData.temperature);
-            // تحديد أيقونة الطقس بناءً على ما إذا كان الوقت نهاراً أم ليلاً
-            const isDay = weatherData.is_day === 1;
-            const icon = isDay ? '☀️' : '🌙'; 
-            
-            weatherContainer.innerHTML = `
-                <span>${icon}</span>
-                <span dir="ltr">${temp}°C</span>
-                <span>حائل</span>
-            `;
-        } else {
-            // في حالة انقطاع الإنترنت أو فشل الجلب
-            weatherContainer.innerHTML = `<span>--°C</span> <span>حائل</span>`;
+    const container =
+        document.getElementById(
+            "weatherInfo"
+        );
+
+    if (!container)
+        return;
+
+    await updateWeather();
+
+    setInterval(
+        updateWeather,
+        1800000
+    );
+
+    console.log(
+        "✅ تم تشغيل نظام الطقس"
+    );
+
+}
+
+async function updateWeather() {
+
+    const container =
+        document.getElementById(
+            "weatherInfo"
+        );
+
+    try {
+
+        const weather =
+            await fetchLiveWeather();
+
+        if (weather) {
+
+            saveToLocal(
+                WEATHER_KEY,
+                weather
+            );
+
+            renderWeather(
+                weather,
+                container
+            );
+
+            return;
+
         }
+
+        throw new Error(
+            "No Data"
+        );
+
+    } catch {
+
+        const cached =
+            getFromLocal(
+                WEATHER_KEY
+            );
+
+        if (cached) {
+
+            renderWeather(
+                cached,
+                container
+            );
+
+        }
+
     }
 
-    updateWeather();
-    // تحديث الطقس كل 30 دقيقة
-    setInterval(updateWeather, 1800000); 
-    console.log("تم تفعيل نظام الطقس الحي.");
+}
+
+function renderWeather(
+    weather,
+    container
+) {
+
+    const temp =
+        Math.round(
+            weather.temperature || 0
+        );
+
+    const humidity =
+        weather.humidity || "--";
+
+    const windSpeed =
+        weather.wind_speed || "--";
+
+    const windDirection =
+        weather.wind_direction || "--";
+
+    const visibility =
+        weather.visibility || "--";
+
+    const pressure =
+        weather.pressure || "--";
+
+    const uv =
+        weather.uv_index || "--";
+
+    const sunrise =
+        weather.sunrise || "--";
+
+    const sunset =
+        weather.sunset || "--";
+
+    const forecast =
+        weather.forecast || [];
+
+    const icon =
+        weather.is_day === 1
+            ? "☀️"
+            : "🌙";
+
+    container.innerHTML = `
+
+        <div class="weather-main">
+
+            <div class="weather-temp">
+                ${icon}
+                ${temp}°C
+            </div>
+
+            <div class="weather-city">
+                حائل
+            </div>
+
+        </div>
+
+        <div class="weather-details">
+
+            <div>
+                💧 الرطوبة:
+                ${humidity}%
+            </div>
+
+            <div>
+                🌬 الرياح:
+                ${windSpeed} كم/س
+            </div>
+
+            <div>
+                🧭 الاتجاه:
+                ${windDirection}
+            </div>
+
+            <div>
+                👁 الرؤية:
+                ${visibility} كم
+            </div>
+
+            <div>
+                📈 الضغط:
+                ${pressure}
+            </div>
+
+            <div>
+                ☀ UV:
+                ${uv}
+            </div>
+
+            <div>
+                🌅 الشروق:
+                ${sunrise}
+            </div>
+
+            <div>
+                🌇 الغروب:
+                ${sunset}
+            </div>
+
+        </div>
+
+        <div class="weather-forecast">
+
+            ${forecast
+                .slice(0, 5)
+                .map(
+                    day => `
+                    <div class="forecast-item">
+
+                        <div>
+                            ${day.day}
+                        </div>
+
+                        <div>
+                            ${day.icon || "☀️"}
+                        </div>
+
+                        <div>
+                            ${day.max}°
+                            /
+                            ${day.min}°
+                        </div>
+
+                    </div>
+                `
+                )
+                .join("")}
+
+        </div>
+
+    `;
+
+    addLog(
+        "تحديث الطقس",
+        "تم تحديث بيانات الطقس"
+    );
+
 }
