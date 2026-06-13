@@ -1,44 +1,54 @@
 // assets/js/auth.js
 export function initAuth() {
+    console.log("🔒 نظام الحماية: جاري التهيئة...");
+
     const loginBtn = document.getElementById('loginBtn');
     const passwordInput = document.getElementById('adminPassword');
     const errorMsg = document.getElementById('loginError');
     const loginScreen = document.getElementById('loginScreen');
     const adminDashboard = document.getElementById('adminDashboard');
 
-    // كلمة المرور المطلوبة
     const ADMIN_PASSWORD = "123";
 
-    // التحقق من حالة الجلسة عند تحميل الصفحة
+    // 1. وظيفة عرض لوحة التحكم
+    function showDashboard() {
+        console.log("✅ الدخول ناجح: يتم عرض لوحة التحكم.");
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (adminDashboard) adminDashboard.style.display = 'grid';
+    }
+
+    // 2. التحقق المباشر من الجلسة
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
         showDashboard();
     }
 
+    // 3. التحقق من وجود الزر قبل الربط
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            if (passwordInput.value === ADMIN_PASSWORD) {
-                // كلمة المرور صحيحة
+        // استخدم onclick بدلاً من addEventListener لضمان عدم تعدد النسخ
+        loginBtn.onclick = function() {
+            if (passwordInput && passwordInput.value === ADMIN_PASSWORD) {
                 sessionStorage.setItem('isAdminLoggedIn', 'true');
                 if (errorMsg) errorMsg.textContent = '';
                 showDashboard();
             } else {
-                // كلمة المرور خاطئة
+                console.warn("⚠️ محاولة دخول فاشلة.");
                 if (errorMsg) errorMsg.textContent = 'كلمة المرور غير صحيحة، حاول مرة أخرى.';
-                passwordInput.value = ''; // تفريغ الحقل
-                passwordInput.focus();
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
             }
-        });
+        };
+    } else {
+        console.error("❌ خطأ: الزر 'loginBtn' غير موجود في صفحة الـ HTML.");
     }
 
-    // السماح بالدخول عند الضغط على زر Enter
+    // 4. دعم مفتاح Enter
     if (passwordInput) {
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-    }
-
-    function showDashboard() {
-        if (loginScreen) loginScreen.style.display = 'none';
-        if (adminDashboard) adminDashboard.style.display = 'grid'; // أو 'flex' حسب الـ CSS لديك
+        passwordInput.onkeypress = function(e) {
+            if (e.key === 'Enter') {
+                loginBtn.click();
+            }
+        };
     }
 }
