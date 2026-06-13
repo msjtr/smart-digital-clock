@@ -3,105 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة - الساعة الذكية</title>
+    <title>لوحة تحكم النظام - جامعة حائل</title>
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="icon" href="assets/images/icons/icon-1.png">
 </head>
-<body data-theme="light">
+<body class="admin-body">
 
     <div id="loginScreen" class="login-container">
-        <div class="login-box">
-            <img src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة" style="height: 60px; margin-bottom: 20px;">
-            <h2>تسجيل الدخول للإدارة</h2>
-            <p>جامعة حائل - كلية الشريعة والقانون</p>
-            <input type="password" id="adminPassword" placeholder="كلمة المرور..." autofocus>
-            <button id="loginBtn" class="btn-primary">دخول</button>
-            <p id="loginError" class="error-msg"></p>
         </div>
-    </div>
 
-    <div id="adminDashboard" class="dashboard-layout" style="display: none;">
+    <div id="adminDashboard" class="admin-layout" style="display: none;">
         
         <aside class="admin-sidebar">
-            <div class="sidebar-brand">
-                <h3>لوحة التحكم</h3>
+            <div class="sidebar-header">
+                <img src="assets/images/logos/university-logo.jpg" alt="الشعار">
+                <h3>الساعة الرقمية الذكية</h3>
             </div>
-            <ul class="admin-menu">
-                <li class="active" data-tab="generalSettings">⚙️ الإعدادات العامة</li>
-                <li data-tab="messagesManager">💬 إدارة الرسائل</li>
-                <li data-tab="occasionsManager">🎉 إدارة المناسبات</li>
-                <li data-tab="systemLogs">📝 سجلات النظام</li>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-label">الرئيسية</li>
+                <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
+                <li data-tab="displayManager">📺 إدارة العرض المباشر</li>
+                
+                <li class="menu-label">إدارة الوحدات</li>
+                <li data-tab="timeSettings">⏰ الوقت والتاريخ</li>
+                <li data-tab="messagesSettings">💬 إدارة الرسائل</li>
+                <li data-tab="occasionsSettings">🎉 إدارة المناسبات</li>
+                <li data-tab="contentSettings">📁 إدارة المحتوى (PDF/Video)</li>
+                <li data-tab="countdownSettings">⏳ العد التنازلي</li>
+                <li data-tab="prayerWeatherSettings">🕋 الصلاة والطقس</li>
+                
+                <li class="menu-label">إدارة النظام</li>
+                <li data-tab="logosSettings">🖼️ الشعارات و QR</li>
+                <li data-tab="usersSettings">👥 المستخدمين والصلاحيات</li>
+                <li data-tab="logsSettings">📝 سجلات النظام</li>
+                <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
+                <li data-tab="systemSettings">⚙️ إعدادات النظام</li>
             </ul>
-            <button id="logoutBtn" class="btn-danger logout-btn">تسجيل الخروج</button>
         </aside>
 
-        <main class="admin-content">
-            <header class="admin-header">
-                <h2>مرحباً بك في نظام إدارة الشاشات</h2>
-                <a href="index.html" target="_blank" class="btn-secondary">عرض الشاشة الحية 📺</a>
+        <main class="admin-main">
+            <header class="top-bar">
+                <div class="top-bar-right">
+                    <button id="toggleSidebar" class="icon-btn">☰</button>
+                    <span class="page-title">لوحة التحكم الرئيسية</span>
+                </div>
+                <div class="top-bar-left">
+                    <span class="user-info">أهلاً بك، <strong>مدير النظام</strong></span>
+                    <button class="icon-btn" title="الإشعارات">🔔</button>
+                    <button id="logoutBtn" class="btn-danger-sm">خروج</button>
+                </div>
             </header>
 
-            <section id="generalSettings" class="tab-content active">
-                <div class="card">
-                    <h3>إعدادات العرض الأساسية</h3>
-                    <div class="form-group">
-                        <label>صيغة الوقت:</label>
-                        <select id="timeFormat">
-                            <option value="12">12 ساعة (ص/م)</option>
-                            <option value="24">24 ساعة</option>
-                        </select>
+            <div class="content-wrapper">
+                
+                <section id="mainDashboard" class="tab-pane active">
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">⏱️</div>
+                            <div class="stat-data">
+                                <h4>الوقت الحالي</h4>
+                                <span id="adminCurrentTime" style="font-weight: bold; font-size: 1.2rem; direction: ltr;">--:--</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🌐</div>
+                            <div class="stat-data">
+                                <h4>حالة النظام</h4>
+                                <span class="status-badge success">متصل (Online)</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fef9c3; color: #ca8a04;">💬</div>
+                            <div class="stat-data">
+                                <h4>الرسائل النشطة</h4>
+                                <span>5 رسائل</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🎉</div>
+                            <div class="stat-data">
+                                <h4>المناسبة الحالية</h4>
+                                <span>أسبوع الاختبارات</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>إظهار الثواني:</label>
-                        <input type="checkbox" id="showSecondsBox">
+
+                    <div class="dashboard-split">
+                        <div class="card preview-card">
+                            <div class="card-header">
+                                <h3>📺 المعاينة المباشرة للشاشة</h3>
+                                <button class="btn-secondary-sm" onclick="document.getElementById('livePreviewFrame').contentWindow.location.reload();">🔄 تحديث المعاينة</button>
+                            </div>
+                            <div class="iframe-container">
+                                <iframe id="livePreviewFrame" src="index.html" frameborder="0"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions-section">
+                            <div class="card mb-20">
+                                <h3>⚡ أوضاع العرض الجاهزة</h3>
+                                <div class="grid-2-cols mt-10">
+                                    <button class="btn-mode">🎓 الوضع الأكاديمي</button>
+                                    <button class="btn-mode">🎉 وضع المناسبات</button>
+                                    <button class="btn-mode">📝 وضع الاختبارات</button>
+                                    <button class="btn-mode">🤝 وضع الاجتماعات</button>
+                                    <button class="btn-mode" style="grid-column: span 2; background: var(--text-main); color: var(--bg-gradient);">📽️ وضع البروجكتور (تباين عالي)</button>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3>📝 آخر العمليات</h3>
+                                <ul class="recent-logs">
+                                    <li><span class="log-time">08:30 ص</span> تعديل رسالة ترحيبية (مدير النظام)</li>
+                                    <li><span class="log-time">08:15 ص</span> تفعيل وضع الاختبارات (مدير النظام)</li>
+                                    <li><span class="log-time">07:00 ص</span> تسجيل دخول ناجح</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-success" onclick="alert('تم الحفظ محلياً')">حفظ الإعدادات</button>
-                </div>
-            </section>
+                </section>
 
-            <section id="messagesManager" class="tab-content">
-                <div class="card">
-                    <h3>إضافة رسالة جديدة</h3>
-                    <div class="form-group">
-                        <input type="text" placeholder="اكتب الرسالة هنا..." style="width: 100%;">
+                <section id="displayManager" class="tab-pane">
+                    <div class="card">
+                        <h3>التحكم بعناصر الشاشة</h3>
+                        <p class="text-muted mb-20">قم بتحديد العناصر التي ترغب بظهورها على الشاشة الرئيسية الآن.</p>
+                        
+                        <div class="checkbox-grid">
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الساعة</span></label>
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار التاريخ</span></label>
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الطقس</span></label>
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">أوقات الصلاة</span></label>
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الرسائل</span></label>
+                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار المناسبات</span></label>
+                            <label class="toggle-control"><input type="checkbox"> <span class="control-label">العد التنازلي</span></label>
+                            <label class="toggle-control"><input type="checkbox"> <span class="control-label">شريط الأخبار</span></label>
+                        </div>
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+                        <button class="btn-primary">حفظ وتطبيق على الشاشة</button>
                     </div>
-                    <button class="btn-primary">إضافة</button>
-                </div>
-                <div class="card mt-20">
-                    <h3>الرسائل الحالية</h3>
-                    <table class="admin-table">
-                        <tr><th>الرسالة</th><th>الحالة</th><th>إجراء</th></tr>
-                        <tr><td>الرجاء الالتزام بالهدوء أثناء الاختبارات</td><td>نشط</td><td><button class="btn-danger">حذف</button></td></tr>
-                    </table>
-                </div>
-            </section>
+                </section>
 
-            <section id="occasionsManager" class="tab-content">
-                <div class="card">
-                    <h3>إدارة المناسبات</h3>
-                    <p>واجهة إضافة الصور وتحديد أوقات الفعاليات ستكون هنا.</p>
                 </div>
-            </section>
-
-            <section id="systemLogs" class="tab-content">
-                <div class="card">
-                    <h3>سجل العمليات</h3>
-                    <ul class="logs-list">
-                        <li>✅ تم تسجيل الدخول بنجاح</li>
-                    </ul>
-                </div>
-            </section>
         </main>
     </div>
 
-    <script type="module">
-        import { initAuth } from './assets/js/auth.js';
-        import { initAdmin } from './assets/js/admin.js';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            initAuth();
-            initAdmin();
-        });
-    </script>
+    <script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
