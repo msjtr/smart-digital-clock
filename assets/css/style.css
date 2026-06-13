@@ -1,90 +1,117 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+/* assets/css/style.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body{
-    background:#0f172a;
-    color:#ffffff;
-    font-family:Cairo,sans-serif;
-    min-height:100vh;
-    padding:20px;
+body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
 }
 
-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
+/* الترويسة (Header) */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
 }
 
-#clock{
-    font-size:6rem;
-    text-align:center;
-    font-weight:bold;
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-#occasionBox,
-#messagesSection,
-#contentViewer,
-#countdownSection,
-#weatherSection,
-#prayerSection,
-#dateSection{
-    background:#1e293b;
-    border-radius:16px;
-    padding:20px;
-    margin-top:20px;
+.logo-section img {
+    height: 70px;
+    object-fit: contain;
 }
 
-#messageDisplay{
-    font-size:1.5rem;
-    text-align:center;
+.logo-section h1 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 5px;
 }
 
-#countdown{
-    font-size:3rem;
-    text-align:center;
+/* الصناديق الزجاجية (Widgets) */
+main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 30px 40px;
 }
 
-#dateSection{
-    display:flex;
-    gap:15px;
-    justify-content:center;
-    flex-wrap:wrap;
+.widget {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: var(--glass-shadow);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.date-card{
-    background:#334155;
-    padding:15px;
-    border-radius:12px;
-    min-width:180px;
-    text-align:center;
+.widget h2 {
+    color: var(--accent-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
 }
 
-#sidebar{
-    display:none;
+/* الساعة */
+#clock {
+    font-size: 5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: var(--primary-color);
+    text-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+    direction: ltr;
 }
 
-#settingsPanel{
-    display:none;
+/* أوقات الصلاة */
+#prayerTimes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
 }
 
-footer{
-    margin-top:20px;
-    padding:15px;
-    background:#1e293b;
-    border-radius:12px;
+.prayer-item {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
 }
 
-@media(max-width:768px){
+.prayer-time {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-top: 5px;
+}
 
-    #clock{
-        font-size:3rem;
-    }
-
-    .date-card{
-        width:100%;
-    }
+/* الشريط الإخباري (Footer) */
+footer {
+    background: var(--primary-color);
+    color: white;
+    padding: 15px 0;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+    border-top: 2px solid var(--accent-color);
 }
