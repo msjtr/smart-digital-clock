@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الشاشة الرقمية الذكية - جامعة حائل </title>
-    <meta name="description" content="نظام عرض المعلومات والساعة الرقمية لكلية الشريعة والقانون بجامعة حائل">
-    <meta name="theme-color" content="#2563eb">
+    <title>الشاشة الرقمية الذكية - جامعة حائل</title>
+    
+    <meta property="og:title" content="الشاشة الرقمية الذكية - جامعة حائل">
+    <meta property="og:description" content="نظام عرض المعلومات والساعة الرقمية لكلية الشريعة والقانون">
+    <meta property="og:image" content="assets/images/logos/Social Preview.jpg">
+    <meta property="og:type" content="website">
 
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -13,13 +16,13 @@
     <link rel="stylesheet" href="assets/css/responsive.css">
 
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="assets/images/icons/icon-192x192.png">
+    <link rel="icon" href="assets/images/icons/icon-1.png">
+    <link rel="apple-touch-icon" href="assets/images/icons/icon-1.png">
 </head>
 <body data-theme="dark">
 
     <aside id="sidebar" role="navigation" aria-label="القائمة الجانبية">
         <button id="closeSidebarBtn" class="close-sidebar">✖</button>
-        
         <div class="sidebar-header">
             <h2>القائمة الرئيسية</h2>
         </div>
@@ -35,9 +38,8 @@
     <header title="انقر نقراً مزدوجاً لملء الشاشة">
         <div class="logo-section">
             <button id="menuToggleBtn" class="menu-btn">☰</button>
-            
-            <img id="universityLogo" src="assets/images/logos/university-logo.svg" alt="شعار الجامعة">
-            <img id="collegeLogo" src="assets/images/logos/college-logo.png" alt="شعار الكلية">
+            <img id="universityLogo" src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة">
+            <img id="collegeLogo" src="assets/images/logos/college-logo.jpg" alt="شعار الكلية">
             <div>
                 <h1>الساعة الرقمية الذكية</h1>
                 <p>جامعة حائل - كلية الشريعة والقانون</p>
@@ -97,7 +99,7 @@
     </main>
 
     <footer id="newsTicker">
-        <div class="ticker-content">أهلاً بكم في نظام الساعة الرقمية الذكية...</div>
+        <div class="ticker-content">أهلاً بكم في نظام الساعة الرقمية الذكية - جامعة حائل - كلية الشريعة والقانون</div>
     </footer>
 
     <div id="settingsPanel">
@@ -114,8 +116,8 @@
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 navigator.serviceWorker.register("./service-worker.js")
-                    .then(reg => console.log("تم تفعيل العمل بدون إنترنت (PWA)"))
-                    .catch(err => console.error("خطأ في Service Worker:", err));
+                    .then(reg => console.log("Service Worker Registered"))
+                    .catch(err => console.error("Service Worker Error:", err));
             });
         }
     </script>
