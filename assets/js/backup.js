@@ -1,363 +1,93 @@
 // ============================================================================
-// Backup Manager
+// Backup Manager - نظام النسخ الاحتياطي المتكامل
 // ============================================================================
 
-import {
-    showNotification
-} from "./notifications.js";
-
-import {
-    addLog
-} from "./logs.js";
+import { showNotification } from "./notifications.js";
+import { addLog } from "./logs.js";
+import { fetchJsonData } from "./storage.js"; // جلب من السيرفر
 
 export function initBackup() {
-
-    console.log(
-        "✅ تم تشغيل النسخ الاحتياطي"
-    );
-
+    console.log("✅ تم تشغيل نظام النسخ الاحتياطي");
 }
 
 // ============================================================================
-// تصدير نسخة كاملة
+// تصدير نسخة كاملة من السيرفر والمحلي
 // ============================================================================
-
-export function exportBackup() {
-
+export async function exportBackup() {
     try {
-
+        // جلب البيانات الفعلية من السيرفر لضمان دقة النسخة الاحتياطية
         const backupData = {
-
             version: "1.0.0",
-
-            exportDate:
-                new Date()
-                .toISOString(),
-
-            settings:
-                JSON.parse(
-                    localStorage.getItem(
-                        "settings"
-                    )
-                ) || {},
-
-            messages:
-                JSON.parse(
-                    localStorage.getItem(
-                        "messages"
-                    )
-                ) || [],
-
-            occasions:
-                JSON.parse(
-                    localStorage.getItem(
-                        "occasions"
-                    )
-                ) || [],
-
-            content:
-                JSON.parse(
-                    localStorage.getItem(
-                        "content"
-                    )
-                ) || [],
-
-            logs:
-                JSON.parse(
-                    localStorage.getItem(
-                        "system_logs"
-                    )
-                ) || [],
-
-            countdown:
-                JSON.parse(
-                    localStorage.getItem(
-                        "countdown_events"
-                    )
-                ) || [],
-
-            weather:
-                JSON.parse(
-                    localStorage.getItem(
-                        "weather_cache"
-                    )
-                ) || {},
-
-            prayers:
-                JSON.parse(
-                    localStorage.getItem(
-                        "prayer_cache"
-                    )
-                ) || {}
-
+            exportDate: new Date().toISOString(),
+            settings: await fetchJsonData("settings") || {},
+            messages: await fetchJsonData("messages") || [],
+            occasions: await fetchJsonData("occasions") || [],
+            content: await fetchJsonData("content") || [],
+            logs: await fetchJsonData("logs") || [],
+            countdown: await fetchJsonData("schedules") || [],
+            weather: await fetchJsonData("weather") || {},
+            prayers: await fetchJsonData("prayers") || {}
         };
 
-        const blob =
-            new Blob(
-
-                [
-                    JSON.stringify(
-                        backupData,
-                        null,
-                        2
-                    )
-                ],
-
-                {
-                    type:
-                        "application/json"
-                }
-
-            );
-
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
         link.href = url;
-
-        link.download =
-            `smart-clock-backup-${Date.now()}.json`;
-
+        link.download = `smart-clock-backup-${new Date().toISOString().slice(0,10)}.json`;
         link.click();
+        URL.revokeObjectURL(url);
 
-        URL.revokeObjectURL(
-            url
-        );
-
-        showNotification(
-            "تم إنشاء النسخة الاحتياطية بنجاح",
-            "success"
-        );
-
-        addLog(
-            "نسخة احتياطية",
-            "تصدير نسخة كاملة"
-        );
+        showNotification("تم إنشاء النسخة الاحتياطية بنجاح", "success");
+        addLog("نسخة احتياطية", "تصدير نسخة كاملة");
 
     } catch (error) {
-
-        console.error(
-            error
-        );
-
-        showNotification(
-            "فشل إنشاء النسخة الاحتياطية",
-            "error"
-        );
-
+        console.error(error);
+        showNotification("فشل إنشاء النسخة الاحتياطية", "error");
     }
-
 }
 
 // ============================================================================
-// استيراد نسخة
+// استيراد نسخة (تحديثات)
 // ============================================================================
+export function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-export function importBackup(
-    event
-) {
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // تحديث التخزين المحلي فوراً
+            const keys = ['settings', 'messages', 'occasions', 'content', 'logs', 'countdown', 'weather', 'prayers'];
+            keys.forEach(key => {
+                if (data[key]) localStorage.setItem(key, JSON.stringify(data[key]));
+            });
 
-    const file =
-        event.target.files[0];
+            addLog("استعادة نسخة", "تم استيراد نسخة احتياطية");
+            showNotification("تم استعادة النسخة الاحتياطية، جاري تحديث النظام...", "success");
 
-    if (!file)
-        return;
+            setTimeout(() => location.reload(), 2000);
 
-    const reader =
-        new FileReader();
-
-    reader.onload =
-        e => {
-
-            try {
-
-                const data =
-                    JSON.parse(
-                        e.target.result
-                    );
-
-                if (
-                    data.settings
-                ) {
-
-                    localStorage.setItem(
-                        "settings",
-                        JSON.stringify(
-                            data.settings
-                        )
-                    );
-
-                }
-
-                if (
-                    data.messages
-                ) {
-
-                    localStorage.setItem(
-                        "messages",
-                        JSON.stringify(
-                            data.messages
-                        )
-                    );
-
-                }
-
-                if (
-                    data.occasions
-                ) {
-
-                    localStorage.setItem(
-                        "occasions",
-                        JSON.stringify(
-                            data.occasions
-                        )
-                    );
-
-                }
-
-                if (
-                    data.content
-                ) {
-
-                    localStorage.setItem(
-                        "content",
-                        JSON.stringify(
-                            data.content
-                        )
-                    );
-
-                }
-
-                if (
-                    data.logs
-                ) {
-
-                    localStorage.setItem(
-                        "system_logs",
-                        JSON.stringify(
-                            data.logs
-                        )
-                    );
-
-                }
-
-                if (
-                    data.countdown
-                ) {
-
-                    localStorage.setItem(
-                        "countdown_events",
-                        JSON.stringify(
-                            data.countdown
-                        )
-                    );
-
-                }
-
-                if (
-                    data.weather
-                ) {
-
-                    localStorage.setItem(
-                        "weather_cache",
-                        JSON.stringify(
-                            data.weather
-                        )
-                    );
-
-                }
-
-                if (
-                    data.prayers
-                ) {
-
-                    localStorage.setItem(
-                        "prayer_cache",
-                        JSON.stringify(
-                            data.prayers
-                        )
-                    );
-
-                }
-
-                addLog(
-                    "استعادة نسخة",
-                    "تم استيراد نسخة احتياطية"
-                );
-
-                showNotification(
-                    "تم استعادة النسخة الاحتياطية",
-                    "success"
-                );
-
-                setTimeout(
-                    () => {
-
-                        location.reload();
-
-                    },
-                    2000
-                );
-
-            } catch {
-
-                showNotification(
-                    "ملف النسخة الاحتياطية غير صالح",
-                    "error"
-                );
-
-            }
-
-        };
-
-    reader.readAsText(
-        file
-    );
-
+        } catch {
+            showNotification("ملف النسخة الاحتياطية غير صالح", "error");
+        }
+    };
+    reader.readAsText(file);
 }
 
 // ============================================================================
 // حذف جميع البيانات
 // ============================================================================
-
 export function clearSystemData() {
-
-    if (
-        !confirm(
-            "هل تريد حذف جميع البيانات؟"
-        )
-    ) {
-
+    if (!confirm("⚠️ تحذير: هل أنت متأكد من حذف جميع بيانات النظام؟ هذا الإجراء لا يمكن التراجع عنه.")) {
         return;
-
     }
 
     localStorage.clear();
+    addLog("حذف البيانات", "تم مسح النظام بالكامل");
+    showNotification("تم حذف البيانات، جاري إعادة تشغيل النظام...", "warning");
 
-    addLog(
-        "حذف البيانات",
-        "تم مسح النظام"
-    );
-
-    showNotification(
-        "تم حذف البيانات",
-        "warning"
-    );
-
-    setTimeout(
-        () => {
-
-            location.reload();
-
-        },
-        2000
-    );
-
+    setTimeout(() => location.reload(), 2000);
 }
