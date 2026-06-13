@@ -1,511 +1,94 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>لوحة إدارة الساعة الرقمية الذكية</title>
-
-<link rel="stylesheet" href="assets/css/themes.css">
-<link rel="stylesheet" href="assets/css/admin.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة الساعة الرقمية الذكية</title>
+    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
 </head>
-
 <body class="admin-body">
 
-<!-- شاشة تسجيل الدخول -->
-
 <div id="loginScreen" class="login-container">
-
     <div class="login-box">
-
         <h2>تسجيل الدخول</h2>
-
-        <input
-            type="text"
-            id="adminUsername"
-            placeholder="اسم المستخدم">
-
-        <input
-            type="password"
-            id="adminPassword"
-            placeholder="كلمة المرور">
-
-        <button id="loginBtn">
-            تسجيل الدخول
-        </button>
-
-        <div id="loginError"></div>
-
+        <input type="text" id="adminUsername" placeholder="اسم المستخدم">
+        <input type="password" id="adminPassword" placeholder="كلمة المرور">
+        <button id="loginBtn">تسجيل الدخول</button>
+        <div id="loginError" style="color:red; margin-top:10px;"></div>
     </div>
-
 </div>
 
-<!-- لوحة الإدارة -->
-
-<div id="adminDashboard"
-     class="admin-layout"
-     style="display:none;">
-
-    <!-- القائمة الجانبية -->
-
+<div id="adminDashboard" class="admin-layout" style="display:none;">
     <aside class="admin-sidebar">
-
         <div class="sidebar-header">
-
-            <h3>
-                لوحة الإدارة
-            </h3>
-
+            <h3>لوحة الإدارة</h3>
         </div>
-
         <ul class="sidebar-menu">
-
-            <li class="active"
-                data-tab="mainDashboard">
-
-                📊 لوحة التحكم
-
-            </li>
-
-            <li data-tab="displayManager">
-
-                📺 إدارة العرض
-
-            </li>
-
-            <li data-tab="timeSettings">
-
-                ⏰ الوقت والتاريخ
-
-            </li>
-
-            <li data-tab="messagesSettings">
-
-                💬 الرسائل
-
-            </li>
-
-            <li data-tab="occasionsSettings">
-
-                🎉 المناسبات
-
-            </li>
-
-            <li data-tab="contentSettings">
-
-                📁 المحتوى
-
-            </li>
-
-            <li data-tab="countdownSettings">
-
-                ⏳ العد التنازلي
-
-            </li>
-
-            <li data-tab="prayerWeatherSettings">
-
-                🌦️ الطقس والصلاة
-
-            </li>
-
-            <li data-tab="logosSettings">
-
-                🖼️ الشعارات و QR
-
-            </li>
-
-            <li data-tab="usersSettings">
-
-                👥 المستخدمون
-
-            </li>
-
-            <li data-tab="logsSettings">
-
-                📝 السجلات
-
-            </li>
-
-            <li data-tab="backupSettings">
-
-                💾 النسخ الاحتياطي
-
-            </li>
-
-            <li data-tab="systemSettings">
-
-                ⚙️ النظام
-
-            </li>
-
+            <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
+            <li data-tab="displayManager">📺 إدارة العرض</li>
+            <li data-tab="timeSettings">⏰ الوقت والتاريخ</li>
+            <li data-tab="messagesSettings">💬 الرسائل</li>
+            <li data-tab="occasionsSettings">🎉 المناسبات</li>
+            <li data-tab="contentSettings">📁 المحتوى</li>
+            <li data-tab="countdownSettings">⏳ العد التنازلي</li>
+            <li data-tab="prayerWeatherSettings">🌦️ الطقس والصلاة</li>
+            <li data-tab="logosSettings">🖼️ الشعارات و QR</li>
+            <li data-tab="usersSettings">👥 المستخدمون</li>
+            <li data-tab="logsSettings">📝 السجلات</li>
+            <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
+            <li data-tab="systemSettings">⚙️ النظام</li>
         </ul>
-
     </aside>
 
-    <!-- المحتوى -->
-
     <main class="admin-main">
-
         <header class="top-bar">
-
-            <span class="page-title">
-
-                لوحة التحكم
-
-            </span>
-
-            <button id="logoutBtn">
-
-                تسجيل الخروج
-
-            </button>
-
+            <span class="page-title">لوحة التحكم</span>
+            <button id="logoutBtn">تسجيل الخروج</button>
         </header>
 
-        <!-- لوحة التحكم -->
-
-        <section
-            id="mainDashboard"
-            class="tab-pane active">
-
-            <h2>
-                الإحصائيات
-            </h2>
-
+        <section id="mainDashboard" class="tab-pane active">
+            <h2>الإحصائيات</h2>
             <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <h4>الرسائل</h4>
-
-                    <span id="statMessages">
-                        0
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>المناسبات</h4>
-
-                    <span id="statOccasions">
-                        0
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>المحتوى</h4>
-
-                    <span id="statContent">
-                        0
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>العد التنازلي</h4>
-
-                    <span id="statEvents">
-                        0
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>السجلات</h4>
-
-                    <span id="statLogs">
-                        0
-                    </span>
-
-                </div>
-
+                <div class="stat-card"><h4>الرسائل</h4><span id="statMessages">0</span></div>
+                <div class="stat-card"><h4>المناسبات</h4><span id="statOccasions">0</span></div>
+                <div class="stat-card"><h4>المحتوى</h4><span id="statContent">0</span></div>
+                <div class="stat-card"><h4>العد التنازلي</h4><span id="statEvents">0</span></div>
+                <div class="stat-card"><h4>السجلات</h4><span id="statLogs">0</span></div>
             </div>
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <h4>حالة الاتصال</h4>
-
-                    <span id="internetStatus">
-
-                        --
-
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>الطقس الحالي</h4>
-
-                    <span id="currentWeather">
-
-                        --
-
-                    </span>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <h4>الصلاة القادمة</h4>
-
-                    <span id="nextPrayerStatus">
-
-                        --
-
-                    </span>
-
-                </div>
-
-            </div>
-
         </section>
 
-        <!-- إدارة العرض -->
-
-        <section
-            id="displayManager"
-            class="tab-pane">
-
-            <h2>
-                إدارة العرض المباشر
-            </h2>
-
-            <label>
-
-                <input type="checkbox"
-                       checked>
-
-                إظهار الساعة
-
-            </label>
-
-            <label>
-
-                <input type="checkbox"
-                       checked>
-
-                إظهار التاريخ
-
-            </label>
-
-            <label>
-
-                <input type="checkbox"
-                       checked>
-
-                إظهار الطقس
-
-            </label>
-
-            <label>
-
-                <input type="checkbox"
-                       checked>
-
-                إظهار أوقات الصلاة
-
-            </label>
-
-            <button class="btn-primary">
-
-                حفظ الإعدادات
-
-            </button>
-
+        <section id="displayManager" class="tab-pane">
+            <h2>إدارة العرض المباشر</h2>
+            <label><input type="checkbox" checked> إظهار الساعة</label><br>
+            <label><input type="checkbox" checked> إظهار التاريخ</label><br>
+            <button class="btn-primary">حفظ الإعدادات</button>
         </section>
 
-        <!-- الرسائل -->
-
-        <section
-            id="messagesSettings"
-            class="tab-pane">
-
-            <h2>
-                إدارة الرسائل
-            </h2>
-
-            <textarea
-                id="newMessage">
-            </textarea>
-
-            <button class="btn-primary">
-
-                إضافة رسالة
-
-            </button>
-
-        </section>
-
-        <!-- المناسبات -->
-
-        <section
-            id="occasionsSettings"
-            class="tab-pane">
-
-            <h2>
-                إدارة المناسبات
-            </h2>
-
-        </section>
-
-        <!-- المحتوى -->
-
-        <section
-            id="contentSettings"
-            class="tab-pane">
-
-            <h2>
-                إدارة المحتوى
-            </h2>
-
-        </section>
-
-        <!-- العد التنازلي -->
-
-        <section
-            id="countdownSettings"
-            class="tab-pane">
-
-            <h2>
-                العد التنازلي
-            </h2>
-
-        </section>
-
-        <!-- الطقس والصلاة -->
-
-        <section
-            id="prayerWeatherSettings"
-            class="tab-pane">
-
-            <h2>
-                إعدادات الطقس والصلاة
-            </h2>
-
-        </section>
-
-        <!-- الشعارات -->
-
-        <section
-            id="logosSettings"
-            class="tab-pane">
-
-            <h2>
-                الشعارات و QR
-            </h2>
-
-            <div id="qrContainer"></div>
-
-        </section>
-
-        <!-- المستخدمون -->
-
-        <section
-            id="usersSettings"
-            class="tab-pane">
-
-            <h2>
-                المستخدمون والصلاحيات
-            </h2>
-
-        </section>
-
-        <!-- السجلات -->
-
-        <section
-            id="logsSettings"
-            class="tab-pane">
-
-            <h2>
-                سجلات النظام
-            </h2>
-
-            <div id="logsContainer"></div>
-
-        </section>
-
-        <!-- النسخ الاحتياطي -->
-
-        <section
-            id="backupSettings"
-            class="tab-pane">
-
-            <h2>
-                النسخ الاحتياطي
-            </h2>
-
-            <button
-                onclick="exportBackup()">
-
-                إنشاء نسخة احتياطية
-
-            </button>
-
-            <input
-                type="file"
-                id="restoreBackup">
-
-        </section>
-
-        <!-- النظام -->
-
-        <section
-            id="systemSettings"
-            class="tab-pane">
-
-            <h2>
-                إعدادات النظام
-            </h2>
-
-            <button>
-
-                إعادة ضبط النظام
-
-            </button>
-
-        </section>
-
+        <section id="timeSettings" class="tab-pane"><h2>الوقت والتاريخ</h2></section>
+        <section id="messagesSettings" class="tab-pane"><h2>إدارة الرسائل</h2></section>
+        <section id="occasionsSettings" class="tab-pane"><h2>إدارة المناسبات</h2></section>
+        <section id="contentSettings" class="tab-pane"><h2>إدارة المحتوى</h2></section>
+        <section id="countdownSettings" class="tab-pane"><h2>العد التنازلي</h2></section>
+        <section id="prayerWeatherSettings" class="tab-pane"><h2>الطقس والصلاة</h2></section>
+        <section id="logosSettings" class="tab-pane"><h2>الشعارات و QR</h2></section>
+        <section id="usersSettings" class="tab-pane"><h2>المستخدمون</h2></section>
+        <section id="logsSettings" class="tab-pane"><h2>سجلات النظام</h2></section>
+        <section id="backupSettings" class="tab-pane"><h2>النسخ الاحتياطي</h2></section>
+        <section id="systemSettings" class="tab-pane"><h2>إعدادات النظام</h2></section>
     </main>
-
 </div>
 
 <script type="module">
+    import { initAuth } from "./assets/js/auth.js";
+    import { initAdmin } from "./assets/js/admin.js";
+    import { initDashboard } from "./assets/js/dashboard.js";
 
-import {
-    initAuth
-} from "./assets/js/auth.js";
-
-import {
-    initAdmin
-} from "./assets/js/admin.js";
-
-import {
-    initDashboard
-} from "./assets/js/dashboard.js";
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
+    document.addEventListener("DOMContentLoaded", () => {
         initAuth();
         initAdmin();
         initDashboard();
-
-    }
-);
-
+    });
 </script>
 
 </body>
