@@ -3,20 +3,8 @@
     {
       "title": "🎉 فترة الاختبارات النهائية",
       "description": "تتمنى كلية الشريعة والقانون لجميع الطلاب التوفيق والنجاح في اختباراتهم.",
-      "imagePath": "assets/images/occasions/exams.png",
+      "imagePath": "", 
       "isActive": true
-    },
-    {
-      "title": "🇸🇦 اليوم الوطني",
-      "description": "نهنئ القيادة الرشيدة والشعب السعودي بمناسبة اليوم الوطني.",
-      "imagePath": "assets/images/occasions/national_day.png",
-      "isActive": false
-    },
-    {
-      "title": "📚 أسبوع التهيئة",
-      "description": "نرحب بالطلاب المستجدين في بداية مسيرتهم الجامعية.",
-      "imagePath": "assets/images/occasions/welcome.png",
-      "isActive": false
     }
   ]
 }
