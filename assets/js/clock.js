@@ -1,38 +1,59 @@
-// assets/js/clock.js
-import { padZero } from './utils.js';
+/**
+ * نظام الأدوات المساعدة للنظام - utils.js
+ * جامعة حائل - كلية الشريعة والقانون
+ */
 
-export function initClock(settings = {}) {
-    const clockElement = document.getElementById('clock');
-    if (!clockElement) return;
+// 1. دالة إضافة الصفر للأرقام الفردية (مطلوبة لعمل الساعة والعد التنازلي)
+export function padZero(num) {
+    return num.toString().padStart(2, '0');
+}
 
-    // قراءة الإعدادات (إذا لم تكن متوفرة نضع قيماً افتراضية)
-    const is12HourFormat = settings.clockFormat === '12';
-    const showSeconds = settings.showSeconds !== false;
+// 2. دالة موحدة لمعالجة الأخطاء في النظام
+export function handleError(moduleName, error) {
+    console.error(`[نظام ${moduleName}]:`, error);
+}
 
-    function updateClock() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = padZero(now.getMinutes());
-        const seconds = padZero(now.getSeconds());
-        
-        let amPm = '';
+// 3. دالة تنسيق الوقت (تستخدم في أكثر من مكان)
+export function formatTime(date, options = {}) {
+    return date.toLocaleTimeString('ar-SA', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: options.showSeconds ? '2-digit' : undefined,
+        hour12: options.is12Hour || false
+    });
+}
 
-        if (is12HourFormat) {
-            amPm = hours >= 12 ? ' م' : ' ص';
-            hours = hours % 12 || 12; // تحويل الصفر إلى 12
-        }
+// 4. دالة التأخير (لعمل أنيميشن أو انتظار)
+export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        hours = padZero(hours);
+// 5. دالة إنشاء معرفات فريدة (تستخدم للمناسبات أو الرسائل المضافة)
+export function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
 
-        const timeString = showSeconds 
-            ? `${hours}:${minutes}:${seconds}${amPm}`
-            : `${hours}:${minutes}${amPm}`;
+// 6. دالة تحديث الحالة في الواجهة
+export function updateElementText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
 
-        clockElement.textContent = timeString;
-    }
+// 7. التحقق من وجود عنصر
+export function elementExists(id) {
+    return !!document.getElementById(id);
+}
 
-    // تحديث كل ثانية
-    setInterval(updateClock, 1000);
-    updateClock(); // تشغيل فوري
-    console.log("تم تفعيل الساعة الرقمية.");
+// 8. دالة لتحويل التواريخ الهجرية 
+export function getHijriDate() {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(new Date());
+}
+
+// 9. دالة لتنظيف النصوص (أمنياً)
+export function sanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
