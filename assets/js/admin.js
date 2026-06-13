@@ -1,81 +1,34 @@
 // ============================================================================
-// Admin Master Controller - النسخة المتكاملة والمحمية ضد الأعطال
+// Admin Master Controller - النسخة النهائية المتكاملة
 // ============================================================================
 
 import { fetchJsonData, saveJsonData } from "./storage.js";
 import { broadcastUpdate } from "./sync.js";
 
-// قاعدة بيانات النظام (تأمين قيم افتراضية لكي لا تتعطل الواجهة أبداً)
+// قاعدة بيانات النظام (قيم افتراضية)
 let systemData = {
     settings: { city: "حائل", prayerMethod: "4", theme: "dark" },
-    messages: ["رسالة ترحيبية تجريبية"],
-    weather: {},
-    prayers: {},
+    messages: ["أهلاً بكم في جامعة حائل"],
     content: []
 };
 
 export async function initAdmin() {
-    console.log("🚀 جاري بدء تشغيل لوحة الإدارة...");
+    console.log("🚀 جاري تهيئة لوحة الإدارة...");
     
-    // 1. تشغيل التنقل فوراً حتى تعمل الأزرار الجانبية دائماً
+    // 1. تحميل البيانات الفعلية من السيرفر
+    await loadDataFromServer();
+
+    // 2. تفعيل نظام التنقل
     setupTabs();
 
-    // 2. بناء الواجهات بالقيم الافتراضية أولاً (لكي لا تظهر فارغة أبداً)
-    buildAllInterfaces();
-
-    // 3. محاولة جلب البيانات الحقيقية من السيرفر في الخلفية
-    await loadDataFromServerSafely();
+    // 3. حقن المحتوى في التبويبات
+    renderAllTabs();
+    
+    console.log("✅ تم بناء الواجهة بالكامل.");
 }
 
 // ============================================================================
-// نظام الرسم الآمن
-// ============================================================================
-function buildAllInterfaces() {
-    try {
-        renderMainDashboard();
-        renderDisplayManager();
-        renderThemeManager();
-        renderPrayerWeatherManager();
-        renderMessagesManager();
-        if (typeof renderContentManager === 'function') {
-            renderContentManager();
-        }
-        console.log("✅ تم رسم جميع واجهات لوحة الإدارة بنجاح.");
-    } catch (error) {
-        console.error("❌ حدث خطأ أثناء رسم الواجهات الداخلية:", error);
-    }
-}
-
-// ============================================================================
-// جلب البيانات المحمي
-// ============================================================================
-async function loadDataFromServerSafely() {
-    try {
-        console.log("⏳ جاري سحب البيانات المحفوظة من السيرفر...");
-        const fetchedSettings = await fetchJsonData("settings");
-        const fetchedMessages = await fetchJsonData("messages");
-        const fetchedContent = await fetchJsonData("content");
-        
-        if (fetchedSettings && Object.keys(fetchedSettings).length > 0) {
-            systemData.settings = { ...systemData.settings, ...fetchedSettings };
-        }
-        if (fetchedMessages && Array.isArray(fetchedMessages)) {
-            systemData.messages = fetchedMessages;
-        }
-        if (fetchedContent && Array.isArray(fetchedContent)) {
-            systemData.content = fetchedContent;
-        }
-
-        // إعادة تحديث الشاشة بالبيانات الحقيقية بعد جلبها
-        buildAllInterfaces();
-        console.log("✅ تم تحديث الواجهات بالبيانات الفعلية من السيرفر.");
-    } catch (error) {
-        console.warn("⚠️ لم يتم العثور على بيانات سابقة في السيرفر، تم الإبقاء على الواجهة الافتراضية.");
-    }
-}
-
-// ============================================================================
-// نظام التبويبات
+// نظام التنقل (Tabs)
 // ============================================================================
 function setupTabs() {
     const tabs = document.querySelectorAll(".sidebar-menu li[data-tab]");
@@ -100,6 +53,70 @@ function setupTabs() {
     });
 }
 
-// ----------------------------------------------------------------------------
-// (اترك باقي الدوال كما هي: renderMainDashboard, renderDisplayManager ... إلخ)
-// ----------------------------------------------------------------------------
+// ============================================================================
+// نظام بناء المحتوى (Render All)
+// ============================================================================
+function renderAllTabs() {
+    const contentMap = {
+        "mainDashboard": `<h2>📊 الإحصائيات العامة</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>رسائل النظام</h3><p style="font-size:24px;">${systemData.messages.length}</p></div>
+                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>عدد الشرائح</h3><p style="font-size:24px;">${systemData.content.length}</p></div>
+                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>حالة الاتصال</h3><p style="font-size:24px;">${navigator.onLine ? 'متصل' : 'غير متصل'}</p></div>
+            </div>`,
+            
+        "displayManager": `<h2>📺 إدارة العرض</h2>
+            <div id="displayControls"></div>
+            <button class="btn-primary" style="margin-top:20px;">حفظ الإعدادات</button>`,
+            
+        "messagesSettings": `<h2>💬 إدارة الرسائل</h2>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="msgInput" placeholder="أدخل رسالة جديدة..." style="flex:1; padding:10px; border-radius:5px;">
+                <button class="btn-primary" id="addMsg">إضافة</button>
+            </div>
+            <ul id="msgList" style="margin-top:20px;"></ul>`,
+            
+        "contentSettings": `<h2>📁 المحتوى</h2>
+            <button class="btn-primary">رفع ملف جديد</button>
+            <div style="margin-top:20px; border:2px dashed #475569; padding:40px; text-align:center;">اسحب الملفات هنا</div>`,
+            
+        "prayerWeatherSettings": `<h2>🌦️ الطقس والصلاة</h2>
+            <input type="text" value="${systemData.settings.city || 'حائل'}" style="padding:10px; width:100%; margin-bottom:10px;">
+            <button class="btn-primary">تحديث</button>`,
+            
+        "systemSettings": `<h2>⚙️ إعدادات النظام</h2>
+            <p>إصدار النظام: 1.0.0</p>
+            <button class="btn-danger">إعادة ضبط</button>`
+    };
+
+    Object.keys(contentMap).forEach(id => {
+        const section = document.getElementById(id);
+        if (section && id !== "mainDashboard") { // استثناء الداشبورد لتحديثه لاحقاً
+            section.innerHTML = contentMap[id];
+        }
+    });
+
+    // ربط الأزرار بعد البناء
+    document.getElementById("addMsg")?.addEventListener("click", () => {
+        const val = document.getElementById("msgInput").value;
+        if(val) systemData.messages.push(val);
+        saveJsonData("messages", systemData.messages);
+        renderAllTabs();
+    });
+}
+
+// ============================================================================
+// جلب البيانات
+// ============================================================================
+async function loadDataFromServer() {
+    try {
+        const s = await fetchJsonData("settings");
+        const m = await fetchJsonData("messages");
+        const c = await fetchJsonData("content");
+        if(s) systemData.settings = s;
+        if(m) systemData.messages = m;
+        if(c) systemData.content = c;
+    } catch (e) {
+        console.warn("استخدام البيانات الافتراضية");
+    }
+}
