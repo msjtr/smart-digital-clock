@@ -1,11 +1,10 @@
 // assets/js/admin.js
-
 export function initAdmin() {
+    // 1. نظام التنقل بين التبويبات (Tabs)
     const menuItems = document.querySelectorAll('.sidebar-menu li[data-tab]');
     const tabContents = document.querySelectorAll('.tab-pane');
     const pageTitle = document.querySelector('.page-title');
 
-    // نظام التنقل بين التبويبات
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
             menuItems.forEach(btn => btn.classList.remove('active'));
@@ -24,7 +23,7 @@ export function initAdmin() {
         });
     });
 
-    // تحديث الساعة الحية في لوحة الإدارة
+    // 2. تحديث الساعة الحية في لوحة الإدارة
     const timeDisplay = document.getElementById('adminCurrentTime');
     if (timeDisplay) {
         setInterval(() => {
@@ -33,5 +32,14 @@ export function initAdmin() {
         }, 1000);
     }
 
-    console.log("تم تهيئة واجهة لوحة التحكم الإدارية.");
+    // 3. تهيئة زر القائمة الجانبية (للموبايل)
+    const toggleSidebar = document.getElementById('toggleSidebar');
+    const sidebar = document.querySelector('.admin-sidebar');
+    if (toggleSidebar && sidebar) {
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
+        });
+    }
+
+    console.log("تم تهيئة نظام الإدارة.");
 }
