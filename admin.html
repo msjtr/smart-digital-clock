@@ -1,184 +1,512 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم النظام - جامعة حائل</title>
-    
-    <link rel="stylesheet" href="assets/css/themes.css">
-    <link rel="stylesheet" href="assets/css/admin.css">
-    <link rel="icon" href="assets/images/icons/icon-1.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>لوحة إدارة الساعة الرقمية الذكية</title>
+
+<link rel="stylesheet" href="assets/css/themes.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+
 </head>
+
 <body class="admin-body">
 
-    <div id="loginScreen" class="login-container">
-        <div class="login-box">
-            <img src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة" style="height: 70px; margin-bottom: 15px; border-radius: 8px;">
-            <h2>تسجيل الدخول للإدارة</h2>
-            <p style="color: #64748b; margin-bottom: 25px;">جامعة حائل - كلية الشريعة والقانون</p>
-            
-            <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور..." autofocus style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1.1rem; text-align: center;">
-            
-            <button id="loginBtn" class="btn-primary" style="width: 100%; font-size: 1.1rem;">تسجيل الدخول</button>
-            <p id="loginError" class="error-msg" style="color: #ef4444; margin-top: 10px; min-height: 20px;"></p>
-            
-            <a href="index.html" style="display: inline-block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 0.9rem;">🔙 العودة للشاشة الرئيسية</a>
+<!-- شاشة تسجيل الدخول -->
+
+<div id="loginScreen" class="login-container">
+
+    <div class="login-box">
+
+        <h2>تسجيل الدخول</h2>
+
+        <input
+            type="text"
+            id="adminUsername"
+            placeholder="اسم المستخدم">
+
+        <input
+            type="password"
+            id="adminPassword"
+            placeholder="كلمة المرور">
+
+        <button id="loginBtn">
+            تسجيل الدخول
+        </button>
+
+        <div id="loginError"></div>
+
+    </div>
+
+</div>
+
+<!-- لوحة الإدارة -->
+
+<div id="adminDashboard"
+     class="admin-layout"
+     style="display:none;">
+
+    <!-- القائمة الجانبية -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-header">
+
+            <h3>
+                لوحة الإدارة
+            </h3>
+
         </div>
-    </div>
 
-    <div id="adminDashboard" class="admin-layout" style="display: none;">
-        
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <img src="assets/images/logos/university-logo.jpg" alt="الشعار">
-                <h3>الساعة الرقمية الذكية</h3>
-            </div>
-            
-            <ul class="sidebar-menu">
-                <li class="menu-label">الرئيسية</li>
-                <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
-                <li data-tab="displayManager">📺 إدارة العرض المباشر</li>
-                
-                <li class="menu-label">إدارة الوحدات</li>
-                <li data-tab="timeSettings">⏰ الوقت والتاريخ</li>
-                <li data-tab="messagesSettings">💬 إدارة الرسائل</li>
-                <li data-tab="occasionsSettings">🎉 إدارة المناسبات</li>
-                <li data-tab="contentSettings">📁 إدارة المحتوى (PDF/Video)</li>
-                <li data-tab="countdownSettings">⏳ العد التنازلي</li>
-                <li data-tab="prayerWeatherSettings">🕋 الصلاة والطقس</li>
-                
-                <li class="menu-label">إدارة النظام</li>
-                <li data-tab="logosSettings">🖼️ الشعارات و QR</li>
-                <li data-tab="usersSettings">👥 المستخدمين والصلاحيات</li>
-                <li data-tab="logsSettings">📝 سجلات النظام</li>
-                <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
-                <li data-tab="systemSettings">⚙️ إعدادات النظام</li>
-            </ul>
-        </aside>
+        <ul class="sidebar-menu">
 
-        <main class="admin-main">
-            <header class="top-bar">
-                <div class="top-bar-right">
-                    <button id="toggleSidebar" class="icon-btn">☰</button>
-                    <span class="page-title">لوحة التحكم الرئيسية</span>
+            <li class="active"
+                data-tab="mainDashboard">
+
+                📊 لوحة التحكم
+
+            </li>
+
+            <li data-tab="displayManager">
+
+                📺 إدارة العرض
+
+            </li>
+
+            <li data-tab="timeSettings">
+
+                ⏰ الوقت والتاريخ
+
+            </li>
+
+            <li data-tab="messagesSettings">
+
+                💬 الرسائل
+
+            </li>
+
+            <li data-tab="occasionsSettings">
+
+                🎉 المناسبات
+
+            </li>
+
+            <li data-tab="contentSettings">
+
+                📁 المحتوى
+
+            </li>
+
+            <li data-tab="countdownSettings">
+
+                ⏳ العد التنازلي
+
+            </li>
+
+            <li data-tab="prayerWeatherSettings">
+
+                🌦️ الطقس والصلاة
+
+            </li>
+
+            <li data-tab="logosSettings">
+
+                🖼️ الشعارات و QR
+
+            </li>
+
+            <li data-tab="usersSettings">
+
+                👥 المستخدمون
+
+            </li>
+
+            <li data-tab="logsSettings">
+
+                📝 السجلات
+
+            </li>
+
+            <li data-tab="backupSettings">
+
+                💾 النسخ الاحتياطي
+
+            </li>
+
+            <li data-tab="systemSettings">
+
+                ⚙️ النظام
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- المحتوى -->
+
+    <main class="admin-main">
+
+        <header class="top-bar">
+
+            <span class="page-title">
+
+                لوحة التحكم
+
+            </span>
+
+            <button id="logoutBtn">
+
+                تسجيل الخروج
+
+            </button>
+
+        </header>
+
+        <!-- لوحة التحكم -->
+
+        <section
+            id="mainDashboard"
+            class="tab-pane active">
+
+            <h2>
+                الإحصائيات
+            </h2>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <h4>الرسائل</h4>
+
+                    <span id="statMessages">
+                        0
+                    </span>
+
                 </div>
-                <div class="top-bar-left">
-                    <span class="user-info">أهلاً بك، <strong>مدير النظام</strong></span>
-                    <button class="icon-btn" title="الإشعارات">🔔</button>
-                    <button id="logoutBtn" class="btn-danger-sm">خروج</button>
+
+                <div class="stat-card">
+
+                    <h4>المناسبات</h4>
+
+                    <span id="statOccasions">
+                        0
+                    </span>
+
                 </div>
-            </header>
 
-            <div class="content-wrapper">
-                
-                <section id="mainDashboard" class="tab-pane active">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">⏱️</div>
-                            <div class="stat-data">
-                                <h4>الوقت الحالي</h4>
-                                <span id="adminCurrentTime" style="font-weight: bold; font-size: 1.2rem; direction: ltr;">--:--</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🌐</div>
-                            <div class="stat-data">
-                                <h4>حالة النظام</h4>
-                                <span class="status-badge success">متصل (Online)</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #fef9c3; color: #ca8a04;">💬</div>
-                            <div class="stat-data">
-                                <h4>الرسائل النشطة</h4>
-                                <span>5 رسائل</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🎉</div>
-                            <div class="stat-data">
-                                <h4>المناسبة الحالية</h4>
-                                <span>أسبوع الاختبارات</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="stat-card">
 
-                    <div class="dashboard-split">
-                        <div class="card preview-card">
-                            <div class="card-header">
-                                <h3>📺 المعاينة المباشرة للشاشة</h3>
-                                <button class="btn-secondary-sm" onclick="document.getElementById('livePreviewFrame').contentWindow.location.reload();">🔄 تحديث المعاينة</button>
-                            </div>
-                            <div class="iframe-container">
-                                <iframe id="livePreviewFrame" src="index.html" frameborder="0"></iframe>
-                            </div>
-                        </div>
+                    <h4>المحتوى</h4>
 
-                        <div class="quick-actions-section">
-                            <div class="card mb-20">
-                                <h3>⚡ أوضاع العرض الجاهزة</h3>
-                                <div class="grid-2-cols mt-10">
-                                    <button class="btn-mode">🎓 الوضع الأكاديمي</button>
-                                    <button class="btn-mode">🎉 وضع المناسبات</button>
-                                    <button class="btn-mode">📝 وضع الاختبارات</button>
-                                    <button class="btn-mode">🤝 وضع الاجتماعات</button>
-                                    <button class="btn-mode" style="grid-column: span 2; background: var(--text-main); color: var(--bg-gradient);">📽️ وضع البروجكتور (تباين عالي)</button>
-                                </div>
-                            </div>
-                            
-                            <div class="card">
-                                <h3>📝 آخر العمليات</h3>
-                                <ul class="recent-logs">
-                                    <li><span class="log-time">08:30 ص</span> تعديل رسالة ترحيبية (مدير النظام)</li>
-                                    <li><span class="log-time">08:15 ص</span> تفعيل وضع الاختبارات (مدير النظام)</li>
-                                    <li><span class="log-time">07:00 ص</span> تسجيل دخول ناجح</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    <span id="statContent">
+                        0
+                    </span>
 
-                <section id="displayManager" class="tab-pane">
-                    <div class="card">
-                        <h3>التحكم بعناصر الشاشة</h3>
-                        <p class="text-muted mb-20">قم بتحديد العناصر التي ترغب بظهورها على الشاشة الرئيسية الآن.</p>
-                        
-                        <div class="checkbox-grid">
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الساعة</span></label>
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار التاريخ</span></label>
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الطقس</span></label>
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">أوقات الصلاة</span></label>
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار الرسائل</span></label>
-                            <label class="toggle-control"><input type="checkbox" checked> <span class="control-label">إظهار المناسبات</span></label>
-                            <label class="toggle-control"><input type="checkbox"> <span class="control-label">العد التنازلي</span></label>
-                            <label class="toggle-control"><input type="checkbox"> <span class="control-label">شريط الأخبار</span></label>
-                        </div>
-                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
-                        <button class="btn-primary">حفظ وتطبيق على الشاشة</button>
-                    </div>
-                </section>
+                </div>
+
+                <div class="stat-card">
+
+                    <h4>العد التنازلي</h4>
+
+                    <span id="statEvents">
+                        0
+                    </span>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <h4>السجلات</h4>
+
+                    <span id="statLogs">
+                        0
+                    </span>
+
+                </div>
+
             </div>
-        </main>
-    </div>
 
-    <script type="module">
-        import { initAuth } from './assets/js/auth.js';
-        import { initAdmin } from './assets/js/admin.js';
+            <div class="stats-grid">
 
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("🚀 جاري تهيئة لوحة التحكم...");
-            
-            initAuth();
-            initAdmin();
+                <div class="stat-card">
 
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    sessionStorage.removeItem('isAdminLoggedIn');
-                    window.location.reload();
-                });
-            }
-        });
-    </script>
+                    <h4>حالة الاتصال</h4>
+
+                    <span id="internetStatus">
+
+                        --
+
+                    </span>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <h4>الطقس الحالي</h4>
+
+                    <span id="currentWeather">
+
+                        --
+
+                    </span>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <h4>الصلاة القادمة</h4>
+
+                    <span id="nextPrayerStatus">
+
+                        --
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- إدارة العرض -->
+
+        <section
+            id="displayManager"
+            class="tab-pane">
+
+            <h2>
+                إدارة العرض المباشر
+            </h2>
+
+            <label>
+
+                <input type="checkbox"
+                       checked>
+
+                إظهار الساعة
+
+            </label>
+
+            <label>
+
+                <input type="checkbox"
+                       checked>
+
+                إظهار التاريخ
+
+            </label>
+
+            <label>
+
+                <input type="checkbox"
+                       checked>
+
+                إظهار الطقس
+
+            </label>
+
+            <label>
+
+                <input type="checkbox"
+                       checked>
+
+                إظهار أوقات الصلاة
+
+            </label>
+
+            <button class="btn-primary">
+
+                حفظ الإعدادات
+
+            </button>
+
+        </section>
+
+        <!-- الرسائل -->
+
+        <section
+            id="messagesSettings"
+            class="tab-pane">
+
+            <h2>
+                إدارة الرسائل
+            </h2>
+
+            <textarea
+                id="newMessage">
+            </textarea>
+
+            <button class="btn-primary">
+
+                إضافة رسالة
+
+            </button>
+
+        </section>
+
+        <!-- المناسبات -->
+
+        <section
+            id="occasionsSettings"
+            class="tab-pane">
+
+            <h2>
+                إدارة المناسبات
+            </h2>
+
+        </section>
+
+        <!-- المحتوى -->
+
+        <section
+            id="contentSettings"
+            class="tab-pane">
+
+            <h2>
+                إدارة المحتوى
+            </h2>
+
+        </section>
+
+        <!-- العد التنازلي -->
+
+        <section
+            id="countdownSettings"
+            class="tab-pane">
+
+            <h2>
+                العد التنازلي
+            </h2>
+
+        </section>
+
+        <!-- الطقس والصلاة -->
+
+        <section
+            id="prayerWeatherSettings"
+            class="tab-pane">
+
+            <h2>
+                إعدادات الطقس والصلاة
+            </h2>
+
+        </section>
+
+        <!-- الشعارات -->
+
+        <section
+            id="logosSettings"
+            class="tab-pane">
+
+            <h2>
+                الشعارات و QR
+            </h2>
+
+            <div id="qrContainer"></div>
+
+        </section>
+
+        <!-- المستخدمون -->
+
+        <section
+            id="usersSettings"
+            class="tab-pane">
+
+            <h2>
+                المستخدمون والصلاحيات
+            </h2>
+
+        </section>
+
+        <!-- السجلات -->
+
+        <section
+            id="logsSettings"
+            class="tab-pane">
+
+            <h2>
+                سجلات النظام
+            </h2>
+
+            <div id="logsContainer"></div>
+
+        </section>
+
+        <!-- النسخ الاحتياطي -->
+
+        <section
+            id="backupSettings"
+            class="tab-pane">
+
+            <h2>
+                النسخ الاحتياطي
+            </h2>
+
+            <button
+                onclick="exportBackup()">
+
+                إنشاء نسخة احتياطية
+
+            </button>
+
+            <input
+                type="file"
+                id="restoreBackup">
+
+        </section>
+
+        <!-- النظام -->
+
+        <section
+            id="systemSettings"
+            class="tab-pane">
+
+            <h2>
+                إعدادات النظام
+            </h2>
+
+            <button>
+
+                إعادة ضبط النظام
+
+            </button>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script type="module">
+
+import {
+    initAuth
+} from "./assets/js/auth.js";
+
+import {
+    initAdmin
+} from "./assets/js/admin.js";
+
+import {
+    initDashboard
+} from "./assets/js/dashboard.js";
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initAuth();
+        initAdmin();
+        initDashboard();
+
+    }
+);
+
+</script>
+
 </body>
 </html>
