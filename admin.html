@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم النظام - جامعة حائل</title>
+    
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/admin.css">
     <link rel="icon" href="assets/images/icons/icon-1.png">
@@ -11,7 +12,19 @@
 <body class="admin-body">
 
     <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <img src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة" style="height: 70px; margin-bottom: 15px; border-radius: 8px;">
+            <h2>تسجيل الدخول للإدارة</h2>
+            <p style="color: #64748b; margin-bottom: 25px;">جامعة حائل - كلية الشريعة والقانون</p>
+            
+            <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور..." autofocus style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1.1rem; text-align: center;">
+            
+            <button id="loginBtn" class="btn-primary" style="width: 100%; font-size: 1.1rem;">تسجيل الدخول</button>
+            <p id="loginError" class="error-msg" style="color: #ef4444; margin-top: 10px; min-height: 20px;"></p>
+            
+            <a href="index.html" style="display: inline-block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 0.9rem;">🔙 العودة للشاشة الرئيسية</a>
         </div>
+    </div>
 
     <div id="adminDashboard" class="admin-layout" style="display: none;">
         
@@ -59,7 +72,6 @@
             <div class="content-wrapper">
                 
                 <section id="mainDashboard" class="tab-pane active">
-                    
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">⏱️</div>
@@ -146,10 +158,16 @@
                     </div>
                 </section>
 
-                </div>
+            </div>
         </main>
     </div>
 
-    <script type="module" src="assets/js/admin.js"></script>
-</body>
-</html>
+    <script type="module">
+        import { initAuth } from './assets/js/auth.js';
+        import { initAdmin } from './assets/js/admin.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. تشغيل نظام الحماية أولاً (لن تظهر لوحة الإدارة إلا بعد الدخول)
+            initAuth();
+            
+            // 2. تشغيل وظائف الإدارة (القائمة الجانبية والتبويبات)
