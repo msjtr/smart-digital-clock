@@ -155,3 +155,30 @@
                         </div>
                         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
                         <button class="btn-primary">حفظ وتطبيق على الشاشة</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initAuth } from './assets/js/auth.js';
+        import { initAdmin } from './assets/js/admin.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("🚀 جاري تهيئة لوحة التحكم...");
+            
+            initAuth();
+            initAdmin();
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.removeItem('isAdminLoggedIn');
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
