@@ -1,8 +1,5 @@
 // assets/js/auth.js
 
-// كلمة المرور الافتراضية للمرحلة الحالية (يمكن تغييرها)
-const ADMIN_PASSWORD = "123"; 
-
 export function initAuth() {
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -14,19 +11,18 @@ export function initAuth() {
 
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
-            if (passwordInput.value === ADMIN_PASSWORD) {
-                // حفظ حالة الدخول في المتصفح محلياً
+            if (passwordInput.value === '123') { // كلمة المرور الحالية
                 sessionStorage.setItem('isAdminLoggedIn', 'true');
-                errorMsg.textContent = '';
+                if(errorMsg) errorMsg.textContent = '';
                 passwordInput.value = '';
                 showDashboard();
             } else {
-                errorMsg.textContent = 'كلمة المرور غير صحيحة!';
+                if(errorMsg) errorMsg.textContent = 'كلمة المرور غير صحيحة!';
             }
         });
     }
 
-    // دعم الضغط على زر Enter لتسجيل الدخول
+    // دعم الضغط على زر Enter
     if (passwordInput) {
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') loginBtn.click();
@@ -51,11 +47,15 @@ function checkSession() {
 }
 
 function showDashboard() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminDashboard').style.display = 'grid';
+    const loginScreen = document.getElementById('loginScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (adminDashboard) adminDashboard.style.display = 'flex';
 }
 
 function showLogin() {
-    document.getElementById('adminDashboard').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
+    const loginScreen = document.getElementById('loginScreen');
+    const adminDashboard = document.getElementById('adminDashboard');
+    if (adminDashboard) adminDashboard.style.display = 'none';
+    if (loginScreen) loginScreen.style.display = 'flex';
 }
