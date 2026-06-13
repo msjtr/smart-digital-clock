@@ -1,4 +1,3 @@
-```javascript
 // ============================================================================
 // Settings Manager
 // ============================================================================
@@ -12,244 +11,99 @@ import {
 let currentSettings = null;
 
 // ============================================================================
-// Init
+// Init Settings (تأكد أن هذا الاسم مطابق لما في app.js)
 // ============================================================================
 
 export async function initSettings() {
-
-    console.log(
-        "⚙️ تم تشغيل نظام الإعدادات"
-    );
+    console.log("⚙️ تم تشغيل نظام الإعدادات");
 
     try {
+        // محاولة جلب الإعدادات من التخزين المحلي
+        currentSettings = getFromLocal("system_settings");
 
-        currentSettings =
-            getFromLocal(
-                "system_settings"
-            );
-
+        // إذا لم توجد، جلبها من ملف الـ JSON
         if (!currentSettings) {
-
-            currentSettings =
-                await fetchJsonData(
-                    "settings"
-                );
-
+            currentSettings = await fetchJsonData("settings");
             if (currentSettings) {
-
-                saveToLocal(
-                    "system_settings",
-                    currentSettings
-                );
-
+                saveToLocal("system_settings", currentSettings);
             }
-
         }
 
+        // تطبيق الإعدادات إذا وجدت
         if (currentSettings) {
-
-            applySettings(
-                currentSettings
-            );
-
+            applySettings(currentSettings);
         }
-
     } catch (error) {
-
-        console.error(
-            "فشل تحميل الإعدادات",
-            error
-        );
-
+        console.error("فشل تحميل الإعدادات:", error);
     }
-
 }
 
 // ============================================================================
 // Apply Settings
 // ============================================================================
 
-export function applySettings(
-    settings
-) {
-
-    if (!settings)
-        return;
+export function applySettings(settings) {
+    if (!settings) return;
 
     // Theme
-
-    document.body.setAttribute(
-        "data-theme",
-        settings.theme || "dark"
-    );
+    document.body.setAttribute("data-theme", settings.theme || "dark");
 
     // Projector Mode
-
-    if (
-        settings.projectorMode
-    ) {
-
-        document.body.classList.add(
-            "projector-mode"
-        );
-
+    if (settings.projectorMode) {
+        document.body.classList.add("projector-mode");
     } else {
-
-        document.body.classList.remove(
-            "projector-mode"
-        );
-
+        document.body.classList.remove("projector-mode");
     }
 
     // Elements Visibility
-
     const elementsToToggle = {
-
-        clockSection:
-            settings.features?.showClock,
-
-        dateSection:
-            settings.features?.showDate,
-
-        weatherSection:
-            settings.features?.showWeather,
-
-        prayerSection:
-            settings.features?.showPrayers,
-
-        messagesSection:
-            settings.features?.showMessages,
-
-        occasionBox:
-            settings.features?.showOccasions,
-
-        countdownSection:
-            settings.features?.showCountdown,
-
-        contentViewer:
-            settings.features?.showContent,
-
-        newsTicker:
-            settings.features?.showNewsTicker,
-
-        weatherDetailsSection:
-            settings.features?.showWeatherDetails,
-
-        nextPrayerSection:
-            settings.features?.showNextPrayer,
-
-        qrSection:
-            settings.features?.showQR
-
+        clockSection: settings.features?.showClock,
+        dateSection: settings.features?.showDate,
+        weatherSection: settings.features?.showWeather,
+        prayerSection: settings.features?.showPrayers,
+        messagesSection: settings.features?.showMessages,
+        occasionBox: settings.features?.showOccasions,
+        countdownSection: settings.features?.showCountdown,
+        contentViewer: settings.features?.showContent,
+        newsTicker: settings.features?.showNewsTicker,
+        weatherDetailsSection: settings.features?.showWeatherDetails,
+        nextPrayerSection: settings.features?.showNextPrayer,
+        qrSection: settings.features?.showQR
     };
 
-    Object.entries(
-        elementsToToggle
-    ).forEach(
-        ([id, visible]) => {
-
-            const el =
-                document.getElementById(
-                    id
-                );
-
-            if (!el)
-                return;
-
-            el.style.display =
-                visible === false
-                    ? "none"
-                    : "";
-
+    Object.entries(elementsToToggle).forEach(([id, visible]) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = (visible === false) ? "none" : "";
         }
-    );
+    });
 
     // Logos
+    const universityLogo = document.getElementById("universityLogo");
+    const collegeLogo = document.getElementById("collegeLogo");
 
-    const universityLogo =
-        document.getElementById(
-            "universityLogo"
-        );
+    if (universityLogo) universityLogo.style.display = (settings.features?.showUniversityLogo === false) ? "none" : "";
+    if (collegeLogo) collegeLogo.style.display = (settings.features?.showCollegeLogo === false) ? "none" : "";
 
-    const collegeLogo =
-        document.getElementById(
-            "collegeLogo"
-        );
-
-    if (universityLogo) {
-
-        universityLogo.style.display =
-            settings.features?.showUniversityLogo === false
-                ? "none"
-                : "";
-
-    }
-
-    if (collegeLogo) {
-
-        collegeLogo.style.display =
-            settings.features?.showCollegeLogo === false
-                ? "none"
-                : "";
-
-    }
-
-    console.log(
-        "✅ تم تطبيق الإعدادات"
-    );
-
+    console.log("✅ تم تطبيق الإعدادات");
 }
 
 // ============================================================================
-// Get Settings
+// Exported Functions
 // ============================================================================
 
 export function getSettings() {
-
     return currentSettings;
-
 }
 
-// ============================================================================
-// Save Settings
-// ============================================================================
-
-export function saveSettings(
-    settings
-) {
-
-    currentSettings =
-        settings;
-
-    saveToLocal(
-        "system_settings",
-        settings
-    );
-
-    applySettings(
-        settings
-    );
-
+export function saveSettings(settings) {
+    currentSettings = settings;
+    saveToLocal("system_settings", settings);
+    applySettings(settings);
 }
 
-// ============================================================================
-// Update Setting
-// ============================================================================
-
-export function updateSetting(
-    key,
-    value
-) {
-
-    if (!currentSettings)
-        return;
-
-    currentSettings[key] =
-        value;
-
-    saveSettings(
-        currentSettings
-    );
-
+export function updateSetting(key, value) {
+    if (!currentSettings) return;
+    currentSettings[key] = value;
+    saveSettings(currentSettings);
 }
-```
