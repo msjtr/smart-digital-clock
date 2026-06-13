@@ -1,19 +1,15 @@
-export const Utils = {
+// assets/js/utils.js
 
-    pad(value) {
-        return String(value).padStart(2, "0");
-    },
+// إضافة صفر للأرقام الأقل من 10 (مثل 09 بدلاً من 9 في الساعة)
+export const padZero = (num) => String(num).padStart(2, '0');
 
-    formatTime(hours, minutes, seconds) {
-        return `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
-    },
+// تحويل الأرقام الإنجليزية إلى عربية (اختياري، يمكن استخدامه لاحقاً)
+export const toArabicNumbers = (str) => {
+    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return String(str).replace(/[0-9]/g, w => arabicNumbers[+w]);
+};
 
-    formatDate(date) {
-        return date.toLocaleDateString("ar-SA");
-    },
-
-    generateId() {
-        return Date.now().toString(36);
-    }
-
+// التعامل مع الأخطاء برمجياً
+export const handleError = (context, error) => {
+    console.error(`[خطأ في ${context}]:`, error);
 };
