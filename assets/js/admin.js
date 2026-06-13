@@ -1,33 +1,46 @@
 // ============================================================================
-// Admin Master Controller - النسخة المضادة للأعطال
+// Admin Master Controller - النسخة المتكاملة (السيرفر + المزامنة)
 // ============================================================================
 
-// قاعدة بيانات محلية مؤقتة لضمان عمل الواجهة حتى لو فشل جلب الملفات
+import { fetchJsonData, saveJsonData } from "./storage.js";
+import { broadcastUpdate } from "./sync.js";
+
+// قاعدة بيانات النظام
 let systemData = {
-    settings: JSON.parse(localStorage.getItem("admin_settings")) || {},
-    messages: JSON.parse(localStorage.getItem("admin_messages")) || ["أهلاً بكم في جامعة حائل"],
+    settings: {},
+    messages: [],
     weather: {},
     prayers: {}
 };
 
 export async function initAdmin() {
-    console.log("🚀 تهيئة محرك الإدارة (النسخة الآمنة)...");
+    console.log("🚀 تهيئة محرك الإدارة المتكامل...");
     
-    try {
-        // 1. تفعيل نظام التنقل أولاً
-        setupTabs();
+    // 1. جلب البيانات من السيرفر (مجلد data)
+    await loadDataFromServer();
 
-        // 2. بناء واجهات التحكم فوراً لضمان عدم بقائها فارغة
-        renderMainDashboard();
-        renderDisplayManager();
-        renderThemeManager();
-        renderMessagesManager();
-        renderPrayerWeatherManager();
-        
-        console.log("✅ تم بناء محتوى لوحة الإدارة بنجاح");
-    } catch (error) {
-        console.error("❌ حدث خطأ غير متوقع أثناء بناء الواجهة:", error);
-    }
+    // 2. تفعيل نظام التنقل
+    setupTabs();
+
+    // 3. بناء الواجهات بالبيانات الحقيقية
+    renderMainDashboard();
+    renderDisplayManager();
+    renderThemeManager();
+    renderMessagesManager();
+    renderPrayerWeatherManager();
+    
+    console.log("✅ تم ربط لوحة الإدارة بالبيانات بنجاح");
+}
+
+// ============================================================================
+// جلب البيانات الأساسية
+// ============================================================================
+async function loadDataFromServer() {
+    const fetchedSettings = await fetchJsonData("settings");
+    const fetchedMessages = await fetchJsonData("messages");
+    
+    systemData.settings = fetchedSettings || {};
+    systemData.messages = fetchedMessages || ["أهلاً بكم في الشاشة الرقمية الذكية"];
 }
 
 // ============================================================================
@@ -57,7 +70,7 @@ function setupTabs() {
 }
 
 // ============================================================================
-// بناء الواجهات (Renderers) - يتم حقن الـ HTML مباشرة داخل التبويبات
+// بناء الواجهات وتفعيل الحفظ اللحظي
 // ============================================================================
 
 function renderMainDashboard() {
@@ -96,7 +109,7 @@ function renderDisplayManager() {
     let html = `<h2>📺 التحكم المباشر بعناصر الشاشة</h2><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:15px;">`;
     
     controls.forEach(ctrl => {
-        // إذا لم يكن الإعداد موجوداً، اعتبره true افتراضياً
+        // قراءة الحالة من السيرفر، وإلا فالافتراضي هو true
         const isChecked = systemData.settings[ctrl.id] !== false; 
         html += `
             <label style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; cursor:pointer; display:flex; align-items:center; border:1px solid rgba(255,255,255,0.1);">
@@ -108,21 +121,19 @@ function renderDisplayManager() {
     html += `</div>`;
     section.innerHTML = html;
 
-    // تفعيل حفظ الإعدادات عند الضغط
     section.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
+        checkbox.addEventListener('change', async (e) => {
             const element = e.target.getAttribute('data-visibility');
             const isVisible = e.target.checked;
             
-            // حفظ محلي لضمان بقائها
+            // 1. تحديث البيانات محلياً
             systemData.settings[element] = isVisible;
-            localStorage.setItem("admin_settings", JSON.stringify(systemData.settings));
             
-            // محاولة الإرسال للشاشة إذا كان ملف المزامنة يعمل
-            try {
-                const syncChannel = new BroadcastChannel('smart_clock_channel');
-                syncChannel.postMessage({ action: "TOGGLE_VISIBILITY", payload: { element, visible: isVisible } });
-            } catch(e) {}
+            // 2. إرسال أمر التحديث اللحظي للشاشة
+            broadcastUpdate("TOGGLE_VISIBILITY", { element, visible: isVisible });
+            
+            // 3. الحفظ الفعلي في السيرفر
+            await saveJsonData("settings", systemData.settings);
         });
     });
 }
@@ -144,6 +155,17 @@ function renderThemeManager() {
             </div>
         </div>
     `;
+
+    section.querySelectorAll('input[type="color"]').forEach(picker => {
+        picker.addEventListener('change', async (e) => {
+            const property = e.target.id;
+            const color = e.target.value;
+            
+            systemData.settings[property] = color;
+            broadcastUpdate("UPDATE_THEME", { property, color });
+            await saveJsonData("settings", systemData.settings);
+        });
+    });
 }
 
 function renderPrayerWeatherManager() {
@@ -154,17 +176,29 @@ function renderPrayerWeatherManager() {
         <h2>🌦️ إعدادات الطقس والصلاة</h2>
         <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; border:1px solid rgba(255,255,255,0.1); max-width:500px;">
             <label style="display:block; margin-bottom:15px;">المدينة المحددة: 
-                <input type="text" id="cityInput" value="حائل" style="width:100%; padding:12px; margin-top:8px; border-radius:8px; border:none; background:rgba(0,0,0,0.2); color:white;">
+                <input type="text" id="cityInput" value="${systemData.settings.city || 'حائل'}" style="width:100%; padding:12px; margin-top:8px; border-radius:8px; border:none; background:rgba(0,0,0,0.2); color:white;">
             </label>
             <label style="display:block; margin-bottom:20px;">طريقة حساب الصلاة:
                 <select id="prayerMethod" style="width:100%; padding:12px; margin-top:8px; border-radius:8px; border:none; background:var(--admin-primary); color:white; cursor:pointer;">
-                    <option value="4">جامعة أم القرى، مكة المكرمة</option>
-                    <option value="3">رابطة العالم الإسلامي</option>
+                    <option value="4" ${systemData.settings.prayerMethod == '4' ? 'selected' : ''}>جامعة أم القرى، مكة المكرمة</option>
+                    <option value="3" ${systemData.settings.prayerMethod == '3' ? 'selected' : ''}>رابطة العالم الإسلامي</option>
                 </select>
             </label>
-            <button class="btn-primary" id="updateLocationBtn">تحديث وجلب البيانات اللحظية</button>
+            <button class="btn-primary" id="updateLocationBtn">تحديث وحفظ</button>
         </div>
     `;
+
+    section.querySelector('#updateLocationBtn').addEventListener('click', async () => {
+        const city = section.querySelector('#cityInput').value;
+        const method = section.querySelector('#prayerMethod').value;
+        
+        systemData.settings.city = city;
+        systemData.settings.prayerMethod = method;
+        
+        broadcastUpdate("UPDATE_LOCATION", { city, method });
+        await saveJsonData("settings", systemData.settings);
+        alert('تم الحفظ وتحديث بيانات الشاشة!');
+    });
 }
 
 function renderMessagesManager() {
@@ -188,32 +222,23 @@ function renderMessagesManager() {
         <h2>💬 إدارة الرسائل والشريط الإخباري</h2>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
             <input type="text" id="newMsgInput" placeholder="اكتب رسالة جديدة هنا..." style="flex:1; padding:12px; border-radius:8px; border:none; background:rgba(0,0,0,0.2); color:white; font-size:1.1rem;">
-            <button class="btn-primary" id="addMsgBtn" style="width:150px;">إضافة فورية</button>
+            <button class="btn-primary" id="addMsgBtn" style="width:150px;">إضافة وحفظ</button>
         </div>
         <div id="messagesList" style="display:flex; flex-direction:column; gap:10px;">
             ${renderList()}
         </div>
     `;
 
-    // تفعيل زر الإضافة
-    section.querySelector('#addMsgBtn').addEventListener('click', () => {
+    section.querySelector('#addMsgBtn').addEventListener('click', async () => {
         const input = section.querySelector('#newMsgInput');
         if (input.value.trim() !== '') {
             systemData.messages.push(input.value.trim());
-            localStorage.setItem("admin_messages", JSON.stringify(systemData.messages));
-            renderMessagesManager(); // إعادة بناء القسم لتحديث القائمة
-            renderMainDashboard(); // تحديث الإحصائيات
+            await saveJsonData("messages", systemData.messages);
+            broadcastUpdate("UPDATE_MESSAGES", systemData.messages);
+            renderMessagesManager(); 
+            renderMainDashboard(); 
         }
     });
 
-    // تفعيل أزرار الحذف
     section.querySelectorAll('.delete-msg').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idx = e.target.getAttribute('data-index');
-            systemData.messages.splice(idx, 1);
-            localStorage.setItem("admin_messages", JSON.stringify(systemData.messages));
-            renderMessagesManager();
-            renderMainDashboard();
-        });
-    });
-}
+        btn.
