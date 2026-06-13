@@ -23,105 +23,48 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
+    
+    // 1. تنظيف الرابط لمنع ثغرات (Directory Traversal)
+    const safePath = path.normalize(decodeURIComponent(req.url)).replace(/^(\.\.[\/\\])+/, '');
+    let filePath = path.join(__dirname, safePath);
 
-    let filePath;
-
-    if (
-        req.url === "/" ||
-        req.url === "/index.html"
-    ) {
-
-        filePath = path.join(
-            __dirname,
-            "index.html"
-        );
-
-    } else {
-
-        filePath = path.join(
-            __dirname,
-            decodeURIComponent(req.url)
-        );
-
+    // 2. توجيه المسار الرئيسي إلى index.html
+    if (req.url === "/") {
+        filePath = path.join(__dirname, "index.html");
     }
 
-    fs.readFile(
-        filePath,
-        (err, content) => {
+    // 3. حماية إضافية: التأكد من أن الملف المطلوب يقع حصراً داخل مجلد المشروع
+    if (!filePath.startsWith(__dirname)) {
+        res.writeHead(403, { "Content-Type": "text/plain" });
+        return res.end("403 Forbidden");
+    }
 
-            if (err) {
-
-                const notFoundPage = path.join(
-                    __dirname,
-                    "404.html"
-                );
-
-                fs.readFile(
-                    notFoundPage,
-                    (notFoundErr, notFoundContent) => {
-
-                        if (notFoundErr) {
-
-                            res.writeHead(
-                                404,
-                                {
-                                    "Content-Type":
-                                        "text/plain"
-                                }
-                            );
-
-                            return res.end(
-                                "404 Not Found"
-                            );
-
-                        }
-
-                        res.writeHead(
-                            404,
-                            {
-                                "Content-Type":
-                                    "text/html; charset=utf-8"
-                            }
-                        );
-
-                        res.end(
-                            notFoundContent
-                        );
-
-                    }
-                );
-
-                return;
-
-            }
-
-            const ext = path
-                .extname(filePath)
-                .toLowerCase();
-
-            res.writeHead(
-                200,
-                {
-                    "Content-Type":
-                        MIME_TYPES[ext] ||
-                        "application/octet-stream"
+    // 4. قراءة وإرسال الملف
+    fs.readFile(filePath, (err, content) => {
+        if (err) {
+            // في حال عدم العثور على الملف، يتم عرض صفحة 404
+            const notFoundPage = path.join(__dirname, "404.html");
+            
+            fs.readFile(notFoundPage, (notFoundErr, notFoundContent) => {
+                if (notFoundErr) {
+                    res.writeHead(404, { "Content-Type": "text/plain" });
+                    return res.end("404 Not Found");
                 }
-            );
-
-            res.end(content);
-
+                res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+                res.end(notFoundContent);
+            });
+            return;
         }
-    );
 
+        // جلب نوع الملف وإرساله بنجاح
+        const ext = path.extname(filePath).toLowerCase();
+        res.writeHead(200, {
+            "Content-Type": MIME_TYPES[ext] || "application/octet-stream"
+        });
+        res.end(content);
+    });
 });
 
-server.listen(
-    PORT,
-    () => {
-
-        console.log(
-            "Smart Digital Clock running on port " + PORT
-        );
-
-    }
-);
+server.listen(PORT, () => {
+    console.log("🚀 Smart Digital Clock running securely on port " + PORT);
+});
