@@ -1,19 +1,17 @@
 {
   "clockFormat": "24",
   "showSeconds": true,
-  "showClock": true,
-  "showDate": true,
-  "showWeather": true,
-  "showPrayer": true,
-  "showMessages": true,
-  "showOccasion": true,
-  "showCountdown": true,
-  "showContent": true,
-  "showNewsTicker": true,
-  "showUniversityLogo": true,
-  "showCollegeLogo": true,
   "theme": "dark",
-  "projectorMode": false,
-  "language": "ar",
-  "messageDuration": 5
+  "layout": "default",
+  "universityName": "جامعة حائل",
+  "collegeName": "كلية الشريعة والقانون",
+  "features": {
+    "showClock": true,
+    "showDate": true,
+    "showWeather": true,
+    "showPrayers": true,
+    "showMessages": true,
+    "showOccasions": true,
+    "showCountdown": true
+  }
 }
