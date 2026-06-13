@@ -1,50 +1,77 @@
 // ============================================================================
-// Admin Master Controller - النسخة المتكاملة (السيرفر + المزامنة + إدارة المحتوى)
+// Admin Master Controller - النسخة المتكاملة والمحمية ضد الأعطال
 // ============================================================================
 
 import { fetchJsonData, saveJsonData } from "./storage.js";
 import { broadcastUpdate } from "./sync.js";
 
-// قاعدة بيانات النظام
+// قاعدة بيانات النظام (تأمين قيم افتراضية لكي لا تتعطل الواجهة أبداً)
 let systemData = {
-    settings: {},
-    messages: [],
+    settings: { city: "حائل", prayerMethod: "4", theme: "dark" },
+    messages: ["رسالة ترحيبية تجريبية"],
     weather: {},
     prayers: {},
-    content: [] // مصفوفة لتخزين الشرائح والمحتوى
+    content: []
 };
 
 export async function initAdmin() {
-    console.log("🚀 تهيئة محرك الإدارة المتكامل...");
+    console.log("🚀 جاري بدء تشغيل لوحة الإدارة...");
     
-    // 1. جلب البيانات من السيرفر (مجلد data)
-    await loadDataFromServer();
-
-    // 2. تفعيل نظام التنقل
+    // 1. تشغيل التنقل فوراً حتى تعمل الأزرار الجانبية دائماً
     setupTabs();
 
-    // 3. بناء الواجهات بالبيانات الحقيقية
-    renderMainDashboard();
-    renderDisplayManager();
-    renderThemeManager();
-    renderMessagesManager();
-    renderPrayerWeatherManager();
-    renderContentManager(); // قسم إدارة المحتوى والشرائح
-    
-    console.log("✅ تم ربط لوحة الإدارة بالبيانات بنجاح");
+    // 2. بناء الواجهات بالقيم الافتراضية أولاً (لكي لا تظهر فارغة أبداً)
+    buildAllInterfaces();
+
+    // 3. محاولة جلب البيانات الحقيقية من السيرفر في الخلفية
+    await loadDataFromServerSafely();
 }
 
 // ============================================================================
-// جلب البيانات الأساسية
+// نظام الرسم الآمن
 // ============================================================================
-async function loadDataFromServer() {
-    const fetchedSettings = await fetchJsonData("settings");
-    const fetchedMessages = await fetchJsonData("messages");
-    const fetchedContent = await fetchJsonData("content");
-    
-    systemData.settings = fetchedSettings || {};
-    systemData.messages = fetchedMessages || ["أهلاً بكم في الشاشة الرقمية الذكية"];
-    systemData.content = fetchedContent || [];
+function buildAllInterfaces() {
+    try {
+        renderMainDashboard();
+        renderDisplayManager();
+        renderThemeManager();
+        renderPrayerWeatherManager();
+        renderMessagesManager();
+        if (typeof renderContentManager === 'function') {
+            renderContentManager();
+        }
+        console.log("✅ تم رسم جميع واجهات لوحة الإدارة بنجاح.");
+    } catch (error) {
+        console.error("❌ حدث خطأ أثناء رسم الواجهات الداخلية:", error);
+    }
+}
+
+// ============================================================================
+// جلب البيانات المحمي
+// ============================================================================
+async function loadDataFromServerSafely() {
+    try {
+        console.log("⏳ جاري سحب البيانات المحفوظة من السيرفر...");
+        const fetchedSettings = await fetchJsonData("settings");
+        const fetchedMessages = await fetchJsonData("messages");
+        const fetchedContent = await fetchJsonData("content");
+        
+        if (fetchedSettings && Object.keys(fetchedSettings).length > 0) {
+            systemData.settings = { ...systemData.settings, ...fetchedSettings };
+        }
+        if (fetchedMessages && Array.isArray(fetchedMessages)) {
+            systemData.messages = fetchedMessages;
+        }
+        if (fetchedContent && Array.isArray(fetchedContent)) {
+            systemData.content = fetchedContent;
+        }
+
+        // إعادة تحديث الشاشة بالبيانات الحقيقية بعد جلبها
+        buildAllInterfaces();
+        console.log("✅ تم تحديث الواجهات بالبيانات الفعلية من السيرفر.");
+    } catch (error) {
+        console.warn("⚠️ لم يتم العثور على بيانات سابقة في السيرفر، تم الإبقاء على الواجهة الافتراضية.");
+    }
 }
 
 // ============================================================================
@@ -73,47 +100,6 @@ function setupTabs() {
     });
 }
 
-// ============================================================================
-// بناء الواجهات وتفعيل الحفظ اللحظي
-// ============================================================================
-
-function renderMainDashboard() {
-    const section = document.getElementById("mainDashboard");
-    if (!section) return;
-
-    section.innerHTML = `
-        <h2>📊 الإحصائيات الحية</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div class="card" style="background:rgba(14, 165, 233, 0.1); padding:20px; border-radius:15px; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="margin-top:0;">حالة النظام</h3>
-                <p style="font-size:1.5rem; color:#0ea5e9; font-weight:bold; margin-bottom:0;">${navigator.onLine ? 'متصل بالإنترنت 🌐' : 'يعمل محلياً ⚡'}</p>
-            </div>
-            <div class="card" style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="margin-top:0;">الرسائل النشطة</h3>
-                <p style="font-size:2rem; font-weight:bold; margin-bottom:0;">${systemData.messages.length}</p>
-            </div>
-            <div class="card" style="background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="margin-top:0;">الشرائح النشطة</h3>
-                <p style="font-size:2rem; font-weight:bold; margin-bottom:0;">${systemData.content.length}</p>
-            </div>
-        </div>
-    `;
-}
-
-function renderDisplayManager() {
-    const section = document.getElementById("displayManager");
-    if (!section) return;
-
-    const controls = [
-        { id: 'showClock', label: 'إظهار الساعة' },
-        { id: 'showDate', label: 'إظهار التاريخ' },
-        { id: 'showWeather', label: 'إظهار الطقس' },
-        { id: 'showPrayers', label: 'إظهار أوقات الصلاة' },
-        { id: 'showMessages', label: 'إظهار الرسائل' },
-        { id: 'showLogos', label: 'إظهار الشعارات' },
-        { id: 'showQR', label: 'إظهار QR Code' }
-    ];
-
-    let html = `<h2>📺 التحكم المباشر بعناصر الشاشة</h2><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:15px;">`;
-    
-    controls.forEach(ctrl => {
+// ----------------------------------------------------------------------------
+// (اترك باقي الدوال كما هي: renderMainDashboard, renderDisplayManager ... إلخ)
+// ----------------------------------------------------------------------------
