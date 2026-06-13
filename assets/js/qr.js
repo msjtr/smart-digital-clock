@@ -1,30 +1,224 @@
-// assets/js/qr.js
+// ============================================================================
+// QR Manager
+// ============================================================================
+
+import { addLog } from "./logs.js";
+import { showNotification } from "./notifications.js";
 
 export function initQR() {
-    console.log("تم تفعيل نظام توليد رموز QR.");
+
+    console.log(
+        "✅ تم تشغيل نظام QR"
+    );
+
 }
 
-// دالة لتوليد وعرض QR Code
-export function generateQR(url, targetElementId) {
-    const container = document.getElementById(targetElementId);
-    if (!container || !url) return;
+// ============================================================================
+// إنشاء QR
+// ============================================================================
 
-    container.innerHTML = ''; // تنظيف الحاوية
+export function generateQR(
+    data,
+    targetElementId,
+    size = 200
+) {
 
-    // استخدام خدمة مجانية وموثوقة لتوليد الصورة
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=0d9488&bgcolor=ffffff`;
-    
-    const img = document.createElement('img');
-    img.src = qrImageUrl;
-    img.alt = 'رمز الاستجابة السريعة';
-    img.className = 'qr-code-image';
+    const container =
+        document.getElementById(
+            targetElementId
+        );
 
-    // معالجة الأخطاء بصمت في حال عدم توفر اتصال لإنشاء الصورة أو فشل المرفق
-    img.onerror = () => {
-        console.warn('تعذر توليد أو عرض رمز QR لعدم توفر الاتصال أو المرفق.');
-        img.style.display = 'none'; // منع ظهور المربع المكسور
-        container.innerHTML = '<span class="qr-error">الرمز غير متوفر حالياً</span>';
-    };
+    if (
+        !container ||
+        !data
+    ) return;
 
-    container.appendChild(img);
+    container.innerHTML = "";
+
+    const qrUrl =
+
+        `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+
+    const img =
+        document.createElement(
+            "img"
+        );
+
+    img.src = qrUrl;
+
+    img.alt =
+        "QR Code";
+
+    img.className =
+        "qr-code-image";
+
+    img.onerror =
+        () => {
+
+            container.innerHTML = `
+
+                <div class="qr-error">
+
+                    تعذر إنشاء رمز QR
+
+                </div>
+
+            `;
+
+        };
+
+    container.appendChild(
+        img
+    );
+
+    addDownloadButton(
+        container,
+        qrUrl
+    );
+
+    addLog(
+        "توليد QR",
+        data
+    );
+
+}
+
+// ============================================================================
+// QR للرابط الحالي
+// ============================================================================
+
+export function generateCurrentPageQR(
+    targetId
+) {
+
+    generateQR(
+        window.location.href,
+        targetId
+    );
+
+}
+
+// ============================================================================
+// QR للواي فاي
+// ============================================================================
+
+export function generateWifiQR(
+    ssid,
+    password,
+    targetId
+) {
+
+    const wifiData =
+
+        `WIFI:T:WPA;S:${ssid};P:${password};;`;
+
+    generateQR(
+        wifiData,
+        targetId
+    );
+
+}
+
+// ============================================================================
+// QR للبريد
+// ============================================================================
+
+export function generateEmailQR(
+    email,
+    targetId
+) {
+
+    generateQR(
+        `mailto:${email}`,
+        targetId
+    );
+
+}
+
+// ============================================================================
+// QR للهاتف
+// ============================================================================
+
+export function generatePhoneQR(
+    phone,
+    targetId
+) {
+
+    generateQR(
+        `tel:${phone}`,
+        targetId
+    );
+
+}
+
+// ============================================================================
+// تنزيل QR
+// ============================================================================
+
+function addDownloadButton(
+    container,
+    imageUrl
+) {
+
+    const button =
+        document.createElement(
+            "a"
+        );
+
+    button.href =
+        imageUrl;
+
+    button.download =
+        "qr-code.png";
+
+    button.target =
+        "_blank";
+
+    button.className =
+        "qr-download-btn";
+
+    button.textContent =
+        "⬇ تحميل QR";
+
+    container.appendChild(
+        button
+    );
+
+}
+
+// ============================================================================
+// QR للمحتوى الحالي
+// ============================================================================
+
+export function generateContentQR(
+    contentUrl,
+    targetId
+) {
+
+    generateQR(
+        contentUrl,
+        targetId,
+        250
+    );
+
+}
+
+// ============================================================================
+// QR لصفحة العرض الرئيسية
+// ============================================================================
+
+export function generateDisplayQR(
+    targetId
+) {
+
+    const displayUrl =
+
+        `${window.location.origin}/index.html`;
+
+    generateQR(
+        displayUrl,
+        targetId,
+        250
+    );
+
 }
