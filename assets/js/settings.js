@@ -1,26 +1,58 @@
-// assets/js/settings.js
+```javascript
+// ============================================================================
+// Settings Manager
+// ============================================================================
+
+import {
+    getFromLocal,
+    saveToLocal,
+    fetchJsonData
+} from "./storage.js";
 
 let currentSettings = null;
+
+// ============================================================================
+// Init
+// ============================================================================
 
 export async function initSettings() {
 
     console.log(
-        "تم تهيئة وحدة الإعدادات"
+        "⚙️ تم تشغيل نظام الإعدادات"
     );
 
     try {
 
-        const response =
-            await fetch(
-                "./data/settings.json"
+        currentSettings =
+            getFromLocal(
+                "system_settings"
             );
 
-        currentSettings =
-            await response.json();
+        if (!currentSettings) {
 
-        applySettings(
-            currentSettings
-        );
+            currentSettings =
+                await fetchJsonData(
+                    "settings"
+                );
+
+            if (currentSettings) {
+
+                saveToLocal(
+                    "system_settings",
+                    currentSettings
+                );
+
+            }
+
+        }
+
+        if (currentSettings) {
+
+            applySettings(
+                currentSettings
+            );
+
+        }
 
     } catch (error) {
 
@@ -33,24 +65,25 @@ export async function initSettings() {
 
 }
 
+// ============================================================================
+// Apply Settings
+// ============================================================================
+
 export function applySettings(
     settings
 ) {
 
-    if (!settings) return;
+    if (!settings)
+        return;
 
-    // الثيم
+    // Theme
 
-    if (settings.theme) {
+    document.body.setAttribute(
+        "data-theme",
+        settings.theme || "dark"
+    );
 
-        document.body.setAttribute(
-            "data-theme",
-            settings.theme
-        );
-
-    }
-
-    // وضع البروجكتور
+    // Projector Mode
 
     if (
         settings.projectorMode
@@ -60,9 +93,15 @@ export function applySettings(
             "projector-mode"
         );
 
+    } else {
+
+        document.body.classList.remove(
+            "projector-mode"
+        );
+
     }
 
-    // العناصر
+    // Elements Visibility
 
     const elementsToToggle = {
 
@@ -91,31 +130,41 @@ export function applySettings(
             settings.features?.showContent,
 
         newsTicker:
-            settings.features?.showNewsTicker
+            settings.features?.showNewsTicker,
+
+        weatherDetailsSection:
+            settings.features?.showWeatherDetails,
+
+        nextPrayerSection:
+            settings.features?.showNextPrayer,
+
+        qrSection:
+            settings.features?.showQR
 
     };
 
     Object.entries(
         elementsToToggle
-    ).forEach(([id, show]) => {
+    ).forEach(
+        ([id, visible]) => {
 
-        const element =
-            document.getElementById(
-                id
-            );
+            const el =
+                document.getElementById(
+                    id
+                );
 
-        if (element) {
+            if (!el)
+                return;
 
-            element.style.display =
-                show
-                    ? ""
-                    : "none";
+            el.style.display =
+                visible === false
+                    ? "none"
+                    : "";
 
         }
+    );
 
-    });
-
-    // الشعارات
+    // Logos
 
     const universityLogo =
         document.getElementById(
@@ -130,22 +179,30 @@ export function applySettings(
     if (universityLogo) {
 
         universityLogo.style.display =
-            settings.features?.showUniversityLogo
-                ? ""
-                : "none";
+            settings.features?.showUniversityLogo === false
+                ? "none"
+                : "";
 
     }
 
     if (collegeLogo) {
 
         collegeLogo.style.display =
-            settings.features?.showCollegeLogo
-                ? ""
-                : "none";
+            settings.features?.showCollegeLogo === false
+                ? "none"
+                : "";
 
     }
 
+    console.log(
+        "✅ تم تطبيق الإعدادات"
+    );
+
 }
+
+// ============================================================================
+// Get Settings
+// ============================================================================
 
 export function getSettings() {
 
@@ -153,18 +210,46 @@ export function getSettings() {
 
 }
 
+// ============================================================================
+// Save Settings
+// ============================================================================
+
+export function saveSettings(
+    settings
+) {
+
+    currentSettings =
+        settings;
+
+    saveToLocal(
+        "system_settings",
+        settings
+    );
+
+    applySettings(
+        settings
+    );
+
+}
+
+// ============================================================================
+// Update Setting
+// ============================================================================
+
 export function updateSetting(
     key,
     value
 ) {
 
-    if (!currentSettings) return;
+    if (!currentSettings)
+        return;
 
     currentSettings[key] =
         value;
 
-    applySettings(
+    saveSettings(
         currentSettings
     );
 
 }
+```
