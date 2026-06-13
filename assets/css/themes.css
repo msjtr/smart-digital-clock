@@ -1,69 +1,37 @@
-:root{
+/* assets/css/themes.css */
 
-    --primary:#2563eb;
-
-    --secondary:#1e293b;
-
-    --background:#0f172a;
-
-    --surface:#1e293b;
-
-    --text:#ffffff;
-
-    --success:#16a34a;
-
-    --warning:#f59e0b;
-
-    --danger:#dc2626;
-
-    --radius:16px;
-
+:root {
+    /* الألوان الأساسية */
+    --primary-color: #2563eb; /* Royal Blue */
+    --accent-color: #0d9488;  /* Teal */
+    
+    /* المتغيرات الافتراضية (الوضع الداكن) */
+    --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    
+    /* خصائص التأثير الزجاجي (Glassmorphism) */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-blur: blur(12px);
 }
 
-/* Dark Theme */
-
-body[data-theme="dark"]{
-
-    --background:#0f172a;
-
-    --surface:#1e293b;
-
-    --text:#ffffff;
-
+/* الوضع الفاتح */
+[data-theme="light"] {
+    --bg-gradient: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
-/* Light Theme */
-
-body[data-theme="light"]{
-
-    --background:#ffffff;
-
-    --surface:#f1f5f9;
-
-    --text:#111827;
-
-}
-
-/* Blue Theme */
-
-body[data-theme="blue"]{
-
-    --background:#082f49;
-
-    --surface:#0c4a6e;
-
-    --text:#ffffff;
-
-}
-
-/* Green Theme */
-
-body[data-theme="green"]{
-
-    --background:#052e16;
-
-    --surface:#14532d;
-
-    --text:#ffffff;
-
+/* وضع البروجكتور (تباين عالي) */
+body.projector-mode {
+    --bg-gradient: #000000;
+    --text-main: #ffffff;
+    --glass-bg: rgba(20, 20, 20, 0.9);
+    --glass-border: #ffffff;
 }
