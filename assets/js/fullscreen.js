@@ -1,13 +1,15 @@
-// assets/js/fullscreen.js
+// ============================================================================
+// Fullscreen Manager - إدارة وضع العرض الكامل (محدث)
+// ============================================================================
 
 export function initFullscreen() {
-    // يمكن تفعيل الشاشة الكاملة بالنقر المزدوج على ترويسة الصفحة
     const header = document.querySelector('header');
     
     if (!header) return;
 
+    // تفعيل وضع ملء الشاشة بالنقر المزدوج
     header.addEventListener('dblclick', toggleFullScreen);
-    header.style.cursor = 'pointer'; // تنبيه المستخدم أن المنطقة قابلة للنقر
+    header.style.cursor = 'pointer';
     header.title = "انقر نقراً مزدوجاً لملء الشاشة";
 
     function toggleFullScreen() {
@@ -22,7 +24,7 @@ export function initFullscreen() {
         }
     }
 
-    // استماع لتغير حالة الشاشة وتعديل الواجهة إن لزم الأمر
+    // استماع لتغير حالة الشاشة وتعديل الواجهة
     document.addEventListener('fullscreenchange', () => {
         if (document.fullscreenElement) {
             document.body.classList.add('is-fullscreen');
@@ -34,4 +36,16 @@ export function initFullscreen() {
     });
 
     console.log("تم تفعيل ميزة الشاشة الكاملة.");
+}
+
+/**
+ * وظيفة إضافية: ضمان بقاء الشاشة في وضع ملء الشاشة
+ * يمكن استدعاء هذه الدالة من app.js إذا لزم الأمر
+ */
+export function ensureFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.debug("نظام الحماية يمنع تفعيل ملء الشاشة تلقائياً بدون تفاعل المستخدم.");
+        });
+    }
 }
