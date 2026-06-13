@@ -1,26 +1,15 @@
-// server.js
-const express = require('express');
-const path = require('path');
-const app = express();
-
-// تحديد المنفذ (Port) من المتغيرات البيئية (لـ Render/Heroku) أو الافتراضي 3000
-const PORT = process.env.PORT || 3000;
-
-// إخبار السيرفر بتقديم الملفات من المجلد الحالي (__dirname)
-// هذا يضمن الوصول لملفات index.html, admin.html والمجلدات assets و data
-app.use(express.static(path.join(__dirname)));
-
-// مسار افتراضي (Fallback) لضمان عمل الـ PWA و 404
-app.get('*', (req, res) => {
-    // إذا كنت تستخدم React أو Vue أو Single Page App فاستخدم الكود التالي:
-    // res.sendFile(path.join(__dirname, 'index.html'));
-    
-    // في مشروعك الحالي، السيرفر سيقدم الملفات تلقائياً. 
-    // إذا لم يجد الملف، سيقوم السيرفر بإرسال 404 تلقائياً.
-    res.status(404).sendFile(path.join(__dirname, '404.html'));
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 السيرفر يعمل الآن على الرابط: http://localhost:${PORT}`);
-    console.log(`📂 المجلد المخدوم: ${__dirname}`);
-});
+{
+  "name": "smart-digital-clock",
+  "version": "1.0.0",
+  "description": "نظام عرض معلومات ذكي لكلية الشريعة والقانون بجامعة حائل",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
