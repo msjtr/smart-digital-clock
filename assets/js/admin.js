@@ -1,87 +1,368 @@
-// assets/js/admin.js
+// ============================================================================
+// Admin Panel Controller
+// ============================================================================
 
-export function initAdmin() {
-    // 1. نظام التنقل بين التبويبات (Tabs)
-    const menuItems = document.querySelectorAll('.sidebar-menu li[data-tab]');
-    const tabContents = document.querySelectorAll('.tab-pane');
-    const pageTitle = document.querySelector('.page-title');
+import {
+    getSettings,
+    saveSettings
+} from "./storage.js";
+
+import {
+    applySettings
+} from "./settings.js";
+
+export async function initAdmin() {
+
+    initTabs();
+
+    initAdminClock();
+
+    initSidebar();
+
+    initDisplayManager();
+
+    initThemeManager();
+
+    initProjectorMode();
+
+    console.log(
+        "✅ تم تهيئة لوحة الإدارة"
+    );
+
+}
+
+// ============================================================================
+// Tabs
+// ============================================================================
+
+function initTabs() {
+
+    const menuItems =
+        document.querySelectorAll(
+            ".sidebar-menu li[data-tab]"
+        );
+
+    const tabContents =
+        document.querySelectorAll(
+            ".tab-pane"
+        );
+
+    const pageTitle =
+        document.querySelector(
+            ".page-title"
+        );
 
     menuItems.forEach(item => {
-        item.addEventListener('click', () => {
-            // إزالة التفعيل من جميع الأزرار
-            menuItems.forEach(btn => btn.classList.remove('active'));
-            
-            // إخفاء جميع التبويبات برمجياً وتنسيقياً
-            tabContents.forEach(tab => {
-                tab.classList.remove('active');
-                tab.style.display = 'none'; 
-            });
 
-            // تفعيل الزر المختار
-            item.classList.add('active');
-            
-            // إظهار التبويب المطلوب
-            const targetId = item.getAttribute('data-tab');
-            const targetTab = document.getElementById(targetId);
-            
-            if (targetTab) {
-                targetTab.classList.add('active');
-                targetTab.style.display = 'block'; // فرض الإظهار
-                
-                // تحديث العنوان العلوي
-                if (pageTitle) {
-                    pageTitle.textContent = item.textContent.replace(/[^\u0600-\u06FF\s]/g, '').trim();
+        item.addEventListener(
+            "click",
+            () => {
+
+                menuItems.forEach(
+                    btn =>
+                    btn.classList.remove(
+                        "active"
+                    )
+                );
+
+                tabContents.forEach(
+                    tab => {
+
+                        tab.classList.remove(
+                            "active"
+                        );
+
+                        tab.style.display =
+                            "none";
+
+                    }
+                );
+
+                item.classList.add(
+                    "active"
+                );
+
+                const targetId =
+                    item.dataset.tab;
+
+                const targetTab =
+                    document.getElementById(
+                        targetId
+                    );
+
+                if (targetTab) {
+
+                    targetTab.classList.add(
+                        "active"
+                    );
+
+                    targetTab.style.display =
+                        "block";
+
                 }
+
+                if (pageTitle) {
+
+                    pageTitle.textContent =
+                        item.textContent.trim();
+
+                }
+
             }
-        });
+        );
+
     });
 
-    // 2. تحديث الساعة الحية في لوحة الإدارة
-    const timeDisplay = document.getElementById('adminCurrentTime');
-    if (timeDisplay) {
-        const updateAdminTime = () => {
-            const now = new Date();
-            timeDisplay.textContent = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-        };
-        updateAdminTime(); // تشغيل فوري
-        setInterval(updateAdminTime, 1000);
+}
+
+// ============================================================================
+// Admin Clock
+// ============================================================================
+
+function initAdminClock() {
+
+    const clock =
+        document.getElementById(
+            "adminCurrentTime"
+        );
+
+    if (!clock) return;
+
+    const updateClock = () => {
+
+        clock.textContent =
+            new Date()
+            .toLocaleTimeString(
+                "ar-SA"
+            );
+
+    };
+
+    updateClock();
+
+    setInterval(
+        updateClock,
+        1000
+    );
+
+}
+
+// ============================================================================
+// Sidebar
+// ============================================================================
+
+function initSidebar() {
+
+    const toggleBtn =
+        document.getElementById(
+            "toggleSidebar"
+        );
+
+    const sidebar =
+        document.querySelector(
+            ".admin-sidebar"
+        );
+
+    if (
+        !toggleBtn ||
+        !sidebar
+    ) return;
+
+    toggleBtn.addEventListener(
+        "click",
+        () => {
+
+            sidebar.classList.toggle(
+                "sidebar-hidden"
+            );
+
+        }
+    );
+
+}
+
+// ============================================================================
+// Display Manager
+// ============================================================================
+
+function initDisplayManager() {
+
+    const saveBtn =
+        document.querySelector(
+            "#displayManager .btn-primary"
+        );
+
+    if (!saveBtn) return;
+
+    saveBtn.addEventListener(
+        "click",
+        async () => {
+
+            const settings =
+                await getSettings() || {};
+
+            settings.features =
+                settings.features || {};
+
+            document
+                .querySelectorAll(
+                    "#displayManager input[type='checkbox']"
+                )
+                .forEach(
+                    checkbox => {
+
+                        const key =
+                            checkbox.dataset.setting;
+
+                        if (key) {
+
+                            settings.features[key] =
+                                checkbox.checked;
+
+                        }
+
+                    }
+                );
+
+            saveSettings(
+                settings
+            );
+
+            applySettings(
+                settings
+            );
+
+            refreshPreview();
+
+            showSavedMessage(
+                saveBtn
+            );
+
+        }
+    );
+
+}
+
+// ============================================================================
+// Theme Manager
+// ============================================================================
+
+function initThemeManager() {
+
+    const themeSelector =
+        document.getElementById(
+            "themeSelector"
+        );
+
+    if (!themeSelector)
+        return;
+
+    themeSelector.addEventListener(
+        "change",
+        async e => {
+
+            const settings =
+                await getSettings() || {};
+
+            settings.theme =
+                e.target.value;
+
+            saveSettings(
+                settings
+            );
+
+            applySettings(
+                settings
+            );
+
+            refreshPreview();
+
+        }
+    );
+
+}
+
+// ============================================================================
+// Projector Mode
+// ============================================================================
+
+function initProjectorMode() {
+
+    const projector =
+        document.getElementById(
+            "projectorMode"
+        );
+
+    if (!projector)
+        return;
+
+    projector.addEventListener(
+        "change",
+        async e => {
+
+            const settings =
+                await getSettings() || {};
+
+            settings.projectorMode =
+                e.target.checked;
+
+            saveSettings(
+                settings
+            );
+
+            applySettings(
+                settings
+            );
+
+            refreshPreview();
+
+        }
+    );
+
+}
+
+// ============================================================================
+// Live Preview
+// ============================================================================
+
+function refreshPreview() {
+
+    const frame =
+        document.getElementById(
+            "livePreviewFrame"
+        );
+
+    if (
+        frame &&
+        frame.contentWindow
+    ) {
+
+        frame.contentWindow
+            .location.reload();
+
     }
 
-    // 3. تهيئة زر القائمة الجانبية (للموبايل والشاشات الصغيرة)
-    const toggleSidebar = document.getElementById('toggleSidebar');
-    const sidebar = document.querySelector('.admin-sidebar');
-    if (toggleSidebar && sidebar) {
-        toggleSidebar.addEventListener('click', () => {
-            const isHidden = window.getComputedStyle(sidebar).display === 'none';
-            sidebar.style.display = isHidden ? 'flex' : 'none';
-        });
-    }
+}
 
-    // 4. إدارة العرض المباشر (إضافة حماية لتجنب الأخطاء إذا لم يوجد الزر)
-    const saveDisplayBtn = document.querySelector('#displayManager .btn-primary');
-    if (saveDisplayBtn) {
-        saveDisplayBtn.addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll('#displayManager input[type="checkbox"]');
-            let displaySettings = {};
-            checkboxes.forEach((cb) => {
-                const label = cb.parentElement.querySelector('.control-label').textContent.trim();
-                displaySettings[label] = cb.checked;
-            });
+// ============================================================================
+// Success Message
+// ============================================================================
 
-            console.log('تم حفظ إعدادات العرض:', displaySettings);
-            
-            // تغيير شكل الزر مؤقتاً للتأكيد
-            const originalText = saveDisplayBtn.textContent;
-            saveDisplayBtn.textContent = '✅ تم الحفظ';
-            setTimeout(() => { saveDisplayBtn.textContent = originalText; }, 2000);
+function showSavedMessage(
+    button
+) {
 
-            // تحديث المعاينة المباشرة
-            const previewFrame = document.getElementById('livePreviewFrame');
-            if (previewFrame) {
-                previewFrame.contentWindow.location.reload();
-            }
-        });
-    }
+    const oldText =
+        button.textContent;
 
-    console.log("✅ تم تهيئة نظام الإدارة بالكامل.");
+    button.textContent =
+        "✅ تم الحفظ";
+
+    setTimeout(() => {
+
+        button.textContent =
+            oldText;
+
+    }, 2000);
+
 }
