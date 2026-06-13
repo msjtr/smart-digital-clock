@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة غير موجودة - 404</title>
+    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .error-widget {
+            max-width: 500px;
+        }
+        .error-widget h1 {
+            font-size: 6rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="error-container">
+        <div class="widget error-widget fade-in">
+            <h1>404</h1>
+            <h2>الصفحة غير موجودة</h2>
+            <p>عذراً، المحتوى الذي تبحث عنه غير متوفر أو تم نقله.</p>
+            <a href="index.html" class="btn">العودة للشاشة الرئيسية</a>
+        </div>
+    </div>
+</body>
+</html>
