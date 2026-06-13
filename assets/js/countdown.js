@@ -14,9 +14,11 @@ export async function initCountdown() {
     let targetDate = null;
     let eventName = "";
 
-    // البحث عن أول فعالية قادمة في المستقبل
+    // البحث عن أقرب فعالية قادمة في المستقبل بغض النظر عن ترتيبها في الملف
     const now = new Date().getTime();
-    const upcomingEvent = events.find(event => new Date(event.date).getTime() > now);
+    const upcomingEvent = events
+        .filter(event => new Date(event.date).getTime() > now)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
     if (upcomingEvent) {
         targetDate = new Date(upcomingEvent.date).getTime();
@@ -65,5 +67,4 @@ export async function initCountdown() {
     setInterval(updateCountdown, 1000);
     updateCountdown();
     
-    console.log(`تم تفعيل العد التنازلي لفعالية: ${eventName}`);
-}
+    console.log(`تم تفعيل العد الت
