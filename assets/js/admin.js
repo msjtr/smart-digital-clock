@@ -1,17 +1,18 @@
+```javascript
 // ============================================================================
 // Admin Panel Controller
 // ============================================================================
 
 import {
-    getSettings,
-    saveSettings
+    getFromLocal,
+    saveToLocal
 } from "./storage.js";
 
 import {
     applySettings
 } from "./settings.js";
 
-export async function initAdmin() {
+export function initAdmin() {
 
     initTabs();
 
@@ -20,10 +21,6 @@ export async function initAdmin() {
     initSidebar();
 
     initDisplayManager();
-
-    initThemeManager();
-
-    initProjectorMode();
 
     console.log(
         "✅ تم تهيئة لوحة الإدارة"
@@ -196,10 +193,12 @@ function initDisplayManager() {
 
     saveBtn.addEventListener(
         "click",
-        async () => {
+        () => {
 
             const settings =
-                await getSettings() || {};
+                getFromLocal(
+                    "system_settings"
+                ) || {};
 
             settings.features =
                 settings.features || {};
@@ -224,7 +223,8 @@ function initDisplayManager() {
                     }
                 );
 
-            saveSettings(
+            saveToLocal(
+                "system_settings",
                 settings
             );
 
@@ -238,83 +238,9 @@ function initDisplayManager() {
                 saveBtn
             );
 
-        }
-    );
-
-}
-
-// ============================================================================
-// Theme Manager
-// ============================================================================
-
-function initThemeManager() {
-
-    const themeSelector =
-        document.getElementById(
-            "themeSelector"
-        );
-
-    if (!themeSelector)
-        return;
-
-    themeSelector.addEventListener(
-        "change",
-        async e => {
-
-            const settings =
-                await getSettings() || {};
-
-            settings.theme =
-                e.target.value;
-
-            saveSettings(
-                settings
+            console.log(
+                "✅ تم حفظ إعدادات العرض"
             );
-
-            applySettings(
-                settings
-            );
-
-            refreshPreview();
-
-        }
-    );
-
-}
-
-// ============================================================================
-// Projector Mode
-// ============================================================================
-
-function initProjectorMode() {
-
-    const projector =
-        document.getElementById(
-            "projectorMode"
-        );
-
-    if (!projector)
-        return;
-
-    projector.addEventListener(
-        "change",
-        async e => {
-
-            const settings =
-                await getSettings() || {};
-
-            settings.projectorMode =
-                e.target.checked;
-
-            saveSettings(
-                settings
-            );
-
-            applySettings(
-                settings
-            );
-
-            refreshPreview();
 
         }
     );
@@ -358,11 +284,15 @@ function showSavedMessage(
     button.textContent =
         "✅ تم الحفظ";
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        button.textContent =
-            oldText;
+            button.textContent =
+                oldText;
 
-    }, 2000);
+        },
+        2000
+    );
 
 }
+```
