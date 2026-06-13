@@ -1,4 +1,4 @@
-const CACHE_NAME = "hail-smart-clock-v3";
+const CACHE_NAME = "hail-smart-clock-v7";
 
 const ASSETS_TO_CACHE = [
     "./",
