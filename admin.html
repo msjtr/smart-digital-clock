@@ -155,19 +155,3 @@
                         </div>
                         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
                         <button class="btn-primary">حفظ وتطبيق على الشاشة</button>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-
-    <script type="module">
-        import { initAuth } from './assets/js/auth.js';
-        import { initAdmin } from './assets/js/admin.js';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. تشغيل نظام الحماية أولاً (لن تظهر لوحة الإدارة إلا بعد الدخول)
-            initAuth();
-            
-            // 2. تشغيل وظائف الإدارة (القائمة الجانبية والتبويبات)
