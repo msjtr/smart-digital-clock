@@ -1,8 +1,25 @@
 {
   "name": "smart-digital-clock",
   "version": "1.0.0",
+  "description": "نظام عرض معلومات ذكي لكلية الشريعة والقانون بجامعة حائل",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "digital-clock",
+    "pwa",
+    "university-hail",
+    "signage"
+  ],
+  "author": "Mohammed bin Saleh Al-Shammari",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
