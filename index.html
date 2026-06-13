@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الساعة الرقمية الذكية - جامعة حائل</title>
+    <title>الشاشة الرقمية الذكية - جامعة حائل</title>
     <meta name="description" content="نظام عرض المعلومات والساعة الرقمية لكلية الشريعة والقانون بجامعة حائل">
     <meta name="theme-color" content="#2563eb">
 
@@ -18,6 +18,8 @@
 <body data-theme="dark">
 
     <aside id="sidebar" role="navigation" aria-label="القائمة الجانبية">
+        <button id="closeSidebarBtn" class="close-sidebar">✖</button>
+        
         <div class="sidebar-header">
             <h2>القائمة الرئيسية</h2>
         </div>
@@ -32,6 +34,8 @@
 
     <header title="انقر نقراً مزدوجاً لملء الشاشة">
         <div class="logo-section">
+            <button id="menuToggleBtn" class="menu-btn">☰</button>
+            
             <img id="universityLogo" src="assets/images/logos/university-logo.png" alt="شعار الجامعة">
             <img id="collegeLogo" src="assets/images/logos/college-logo.png" alt="شعار الكلية">
             <div>
@@ -81,7 +85,7 @@
             <div id="messageDisplay">أهلاً بكم...</div>
         </section>
 
-        <section id="countdownSection" class="widget" style="display:none;">
+        <section id="countdownSection" class="widget">
             <h2>العد التنازلي</h2>
             <div id="countdown">--:--:--</div>
         </section>
@@ -97,7 +101,7 @@
     </footer>
 
     <div id="settingsPanel">
-        <h2>لوحة التحكم السريعة</h2>
+        <h2 style="color:var(--accent-color); margin-bottom: 15px;">لوحة التحكم السريعة</h2>
         <div class="setting-item"><label>إظهار الساعة</label><input type="checkbox" checked></div>
         <div class="setting-item"><label>إظهار التاريخ</label><input type="checkbox" checked></div>
         <div class="setting-item"><label>إظهار الرسائل</label><input type="checkbox" checked></div>
