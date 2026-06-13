@@ -14,10 +14,10 @@
 
 <div id="loginScreen" class="login-container">
     <div class="login-box">
-        <img src="assets/images/logos/university-logo.jpg" alt="Logo" style="width:120px; margin-bottom:15px;">
-        <h2>تسجيل الدخول</h2>
+        <img src="assets/images/logos/university-logo.jpg" alt="University Logo" style="width:120px; margin-bottom:15px;">
+        <h2>تسجيل الدخول للإدارة</h2>
         <input type="password" id="adminPassword" placeholder="كلمة المرور">
-        <button id="loginBtn">دخول</button>
+        <button id="loginBtn" class="btn-primary">دخول</button>
         <div id="loginError" style="color:red; margin-top:10px;"></div>
     </div>
 </div>
@@ -25,7 +25,7 @@
 <div id="adminDashboard" class="admin-layout" style="display:none;">
     <aside class="admin-sidebar">
         <div class="sidebar-header">
-            <img src="assets/images/logos/college-logo.jpg" alt="College Logo" style="width:40px; border-radius:50%;">
+            <img src="assets/images/logos/college-logo.jpg" alt="College Logo" style="width:40px; border-radius:50%; margin-left:10px;">
             <h3>لوحة الإدارة</h3>
         </div>
         <ul class="sidebar-menu">
@@ -47,23 +47,25 @@
 
     <main class="admin-main">
         <header class="top-bar">
-            <span class="page-title">لوحة التحكم</span>
-            <button id="logoutBtn">تسجيل الخروج</button>
+            <span class="page-title">لوحة التحكم الرئيسية</span>
+            <button id="logoutBtn" class="btn-danger">تسجيل الخروج</button>
         </header>
 
-        <section id="mainDashboard" class="tab-pane active"><h2>الإحصائيات</h2></section>
-        <section id="displayManager" class="tab-pane"><h2>إدارة العرض</h2></section>
-        <section id="timeSettings" class="tab-pane"><h2>الوقت والتاريخ</h2></section>
-        <section id="messagesSettings" class="tab-pane"><h2>الرسائل</h2></section>
-        <section id="occasionsSettings" class="tab-pane"><h2>المناسبات</h2></section>
-        <section id="contentSettings" class="tab-pane"><h2>المحتوى</h2></section>
-        <section id="countdownSettings" class="tab-pane"><h2>العد التنازلي</h2></section>
-        <section id="prayerWeatherSettings" class="tab-pane"><h2>الطقس والصلاة</h2></section>
-        <section id="logosSettings" class="tab-pane"><h2>الشعارات و QR</h2></section>
-        <section id="usersSettings" class="tab-pane"><h2>المستخدمون</h2></section>
-        <section id="logsSettings" class="tab-pane"><h2>السجلات</h2></section>
-        <section id="backupSettings" class="tab-pane"><h2>النسخ الاحتياطي</h2></section>
-        <section id="systemSettings" class="tab-pane"><h2>النظام</h2></section>
+        <div class="content-wrapper">
+            <section id="mainDashboard" class="tab-pane active"><h2>📊 الإحصائيات العامة</h2></section>
+            <section id="displayManager" class="tab-pane"><h2>📺 إدارة العرض</h2></section>
+            <section id="timeSettings" class="tab-pane"><h2>⏰ الوقت والتاريخ</h2></section>
+            <section id="messagesSettings" class="tab-pane"><h2>💬 الرسائل</h2></section>
+            <section id="occasionsSettings" class="tab-pane"><h2>🎉 المناسبات</h2></section>
+            <section id="contentSettings" class="tab-pane"><h2>📁 المحتوى</h2></section>
+            <section id="countdownSettings" class="tab-pane"><h2>⏳ العد التنازلي</h2></section>
+            <section id="prayerWeatherSettings" class="tab-pane"><h2>🌦️ الطقس والصلاة</h2></section>
+            <section id="logosSettings" class="tab-pane"><h2>🖼️ الشعارات و QR</h2></section>
+            <section id="usersSettings" class="tab-pane"><h2>👥 المستخدمون</h2></section>
+            <section id="logsSettings" class="tab-pane"><h2>📝 سجلات النظام</h2></section>
+            <section id="backupSettings" class="tab-pane"><h2>💾 النسخ الاحتياطي</h2></section>
+            <section id="systemSettings" class="tab-pane"><h2>⚙️ إعدادات النظام</h2></section>
+        </div>
     </main>
 </div>
 
