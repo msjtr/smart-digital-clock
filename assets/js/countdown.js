@@ -67,4 +67,5 @@ export async function initCountdown() {
     setInterval(updateCountdown, 1000);
     updateCountdown();
     
-    console.log(`تم تفعيل العد الت
+    console.log(`تم تفعيل العد التنازلي لفعالية: ${eventName}`);
+}
