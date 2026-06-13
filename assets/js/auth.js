@@ -5,30 +5,47 @@
 import { addLog } from "./logs.js";
 import { showNotification } from "./notifications.js";
 
+// ============================================================================
+// Users Database
+// ============================================================================
+
 const USERS = [
 
     {
         username: "superadmin",
         password: "123456",
-        role: "super_admin"
+        role: "super_admin",
+        permissions: ["all"]
     },
 
     {
         username: "admin",
         password: "123456",
-        role: "admin"
+        role: "admin",
+        permissions: [
+            "messages",
+            "occasions",
+            "content",
+            "countdown",
+            "settings",
+            "weather",
+            "prayers"
+        ]
     },
 
     {
         username: "viewer",
         password: "123456",
-        role: "viewer"
+        role: "viewer",
+        permissions: [
+            "view"
+        ]
     }
 
 ];
 
 // ============================================================================
-// تشغيل النظام
+// Init Auth
 // ============================================================================
 
 export function initAuth() {
@@ -67,9 +84,14 @@ export function initAuth() {
             "adminDashboard"
         );
 
-    if (
-        isLoggedIn()
-    ) {
+    const logoutBtn =
+        document.getElementById(
+            "logoutBtn"
+        );
+
+    // فحص الجلسة الحالية
+
+    if (isLoggedIn()) {
 
         showDashboard(
             loginScreen,
@@ -79,6 +101,8 @@ export function initAuth() {
         applyPermissions();
 
     }
+
+    // تسجيل الدخول
 
     loginBtn?.addEventListener(
         "click",
@@ -110,10 +134,14 @@ export function initAuth() {
 
                 }
 
-                addLog(
-                    "فشل تسجيل الدخول",
-                    username
-                );
+                try {
+
+                    addLog(
+                        "فشل تسجيل الدخول",
+                        username
+                    );
+
+                } catch (e) {}
 
                 return;
 
@@ -121,20 +149,26 @@ export function initAuth() {
 
             sessionStorage.setItem(
                 "admin_session",
-                JSON.stringify(
-                    user
-                )
+                JSON.stringify(user)
             );
 
-            addLog(
-                "تسجيل دخول",
-                `${user.username} (${user.role})`
-            );
+            try {
 
-            showNotification(
-                "تم تسجيل الدخول بنجاح",
-                "success"
-            );
+                addLog(
+                    "تسجيل دخول",
+                    `${user.username} (${user.role})`
+                );
+
+            } catch (e) {}
+
+            try {
+
+                showNotification(
+                    "تم تسجيل الدخول بنجاح",
+                    "success"
+                );
+
+            } catch (e) {}
 
             showDashboard(
                 loginScreen,
@@ -145,6 +179,15 @@ export function initAuth() {
 
         }
     );
+
+    // تسجيل الخروج
+
+    logoutBtn?.addEventListener(
+        "click",
+        logout
+    );
+
+    // زر Enter
 
     passwordInput?.addEventListener(
         "keypress",
@@ -164,7 +207,7 @@ export function initAuth() {
 }
 
 // ============================================================================
-// تسجيل خروج
+// Logout
 // ============================================================================
 
 export function logout() {
@@ -173,16 +216,20 @@ export function logout() {
         "admin_session"
     );
 
-    addLog(
-        "تسجيل خروج"
-    );
+    try {
+
+        addLog(
+            "تسجيل خروج"
+        );
+
+    } catch (e) {}
 
     location.reload();
 
 }
 
 // ============================================================================
-// التحقق من الجلسة
+// Session Check
 // ============================================================================
 
 export function isLoggedIn() {
@@ -194,7 +241,7 @@ export function isLoggedIn() {
 }
 
 // ============================================================================
-// المستخدم الحالي
+// Current User
 // ============================================================================
 
 export function getCurrentUser() {
@@ -207,14 +254,26 @@ export function getCurrentUser() {
     if (!session)
         return null;
 
-    return JSON.parse(
-        session
-    );
+    try {
+
+        return JSON.parse(
+            session
+        );
+
+    } catch {
+
+        sessionStorage.removeItem(
+            "admin_session"
+        );
+
+        return null;
+
+    }
 
 }
 
 // ============================================================================
-// عرض لوحة التحكم
+// Show Dashboard
 // ============================================================================
 
 function showDashboard(
@@ -239,7 +298,7 @@ function showDashboard(
 }
 
 // ============================================================================
-// الصلاحيات
+// Permissions
 // ============================================================================
 
 function applyPermissions() {
@@ -259,11 +318,13 @@ function applyPermissions() {
     ) {
 
         hideElements([
+
             ".btn-save",
             ".btn-delete",
             ".btn-edit",
             ".admin-settings",
             ".backup-tools"
+
         ]);
 
     }
@@ -274,7 +335,9 @@ function applyPermissions() {
     ) {
 
         hideElements([
+
             ".super-admin-only"
+
         ]);
 
     }
@@ -282,7 +345,7 @@ function applyPermissions() {
 }
 
 // ============================================================================
-// إخفاء عناصر
+// Hide Elements
 // ============================================================================
 
 function hideElements(
