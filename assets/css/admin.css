@@ -1,0 +1,80 @@
+/* تنسيقات شاشة تسجيل الدخول */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: var(--bg-gradient);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h2 { color: var(--text-main); margin-bottom: 10px; }
+.login-box p { color: var(--text-muted); margin-bottom: 25px; }
+
+.login-box input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+
+.error-msg { color: #ef4444; font-size: 0.9rem; margin-top: 10px; }
+
+/* الأزرار العامة */
+button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+.btn-primary { background: var(--primary-color); color: white; width: 100%; padding: 15px; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-secondary { background: #64748b; color: white; text-decoration: none; display: inline-block; }
+.btn-success { background: #10b981; color: white; }
+.btn-danger { background: #ef4444; color: white; }
+
+/* تخطيط لوحة التحكم (Grid Layout) */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: 100vh;
+    background: #f8fafc;
+}
+
+.admin-sidebar {
+    background: #1e293b;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand { padding: 20px; text-align: center; border-bottom: 1px solid #334155; }
+.admin-menu { list-style: none; padding: 0; flex: 1; }
+.admin-menu li { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #334155; transition: 0.3s; }
+.admin-menu li:hover, .admin-menu li.active { background: var(--primary-color); }
+.logout-btn { margin: 20px; }
+
+.admin-content { padding: 30px; overflow-y: auto; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+/* البطاقات والنماذج */
+.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.mt-20 { margin-top: 20px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #334; }
+.form-group select, .form-group input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+
+/* الجداول */
+.admin-table { width: 100%; border-collapse: collapse; text-align: right; }
+.admin-table th, .admin-table td { padding: 15px; border-bottom: 1px solid #eee; }
+.admin-table th { background: #f1f5f9; }
+
+/* التبويبات */
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.4s ease; }
