@@ -1,71 +1,80 @@
 // ============================================================================
-// Authentication Manager - (النسخة المستقلة الآمنة)
+// Authentication Manager - (النسخة النهائية - جاهزة للربط)
 // ============================================================================
 
 export function initAuth() {
-    console.log("✅ ملف auth.js يعمل الآن (النسخة المستقلة)");
+    const runAuth = () => {
+        const loginBtn = document.getElementById("loginBtn");
+        const passwordInput = document.getElementById("adminPassword");
+        const errorMsg = document.getElementById("loginError");
+        const loginScreen = document.getElementById("loginScreen");
+        const dashboard = document.getElementById("adminDashboard");
+        const logoutBtn = document.getElementById("logoutBtn");
 
-    const loginBtn = document.getElementById("loginBtn");
-    const passwordInput = document.getElementById("adminPassword");
-    const errorMsg = document.getElementById("loginError");
-    const loginScreen = document.getElementById("loginScreen");
-    const dashboard = document.getElementById("adminDashboard");
-    const logoutBtn = document.getElementById("logoutBtn");
+        // حماية: إذا لم نكن في صفحة الإدارة، نخرج لتجنب الأخطاء
+        if (!loginScreen || !dashboard) return;
 
-    const ACCESS_PASSWORD = "123";
-
-    // التحقق المباشر عند تحديث الصفحة
-    if (sessionStorage.getItem("is_admin_logged_in") === "true") {
-        showDashboard(loginScreen, dashboard);
-    }
-
-    if (loginBtn) {
-        // إزالة أي أحداث سابقة لتجنب التكرار
-        loginBtn.onclick = null; 
+        console.log("🔒 نظام المصادقة مفعل.");
         
-        // ربط الزر بحدث النقر
-        loginBtn.onclick = function(e) {
-            e.preventDefault(); // منع أي تحديث افتراضي
-            console.log("👆 تم الضغط على زر الدخول!"); 
-            
-            if (!passwordInput) return;
-            const password = passwordInput.value.trim();
+        const ACCESS_PASSWORD = "123";
+        const SESSION_KEY = "is_admin_logged_in";
 
-            if (password === ACCESS_PASSWORD) {
-                console.log("🔓 كلمة المرور صحيحة، جاري فتح اللوحة...");
-                sessionStorage.setItem("is_admin_logged_in", "true");
-                showDashboard(loginScreen, dashboard);
-            } else {
-                console.log("❌ كلمة المرور خاطئة!");
-                if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                passwordInput.value = "";
-            }
-        };
-    } else {
-        console.error("❌ المتصفح لا يرى زر الدخول (loginBtn) في الصفحة!");
-    }
+        // 1. التحقق الفوري من الجلسة عند تحميل الصفحة
+        if (sessionStorage.getItem(SESSION_KEY) === "true") {
+            showDashboard(loginScreen, dashboard);
+        } else {
+            // إخفاء اللوحة وإظهار شاشة الدخول إذا لم يكن مسجلاً
+            dashboard.style.display = "none";
+            loginScreen.style.display = "flex";
+        }
 
-    // تسجيل الخروج
-    if (logoutBtn) {
-        logoutBtn.onclick = function() {
-            sessionStorage.removeItem("is_admin_logged_in");
-            location.reload();
-        };
-    }
-
-    // دعم الدخول عبر زر Enter
-    if (passwordInput) {
-        passwordInput.onkeypress = function(e) {
-            if (e.key === "Enter" && loginBtn) {
+        // 2. معالجة زر تسجيل الدخول
+        if (loginBtn) {
+            loginBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                loginBtn.click();
-            }
-        };
+                const password = passwordInput ? passwordInput.value.trim() : "";
+
+                if (password === ACCESS_PASSWORD) {
+                    sessionStorage.setItem(SESSION_KEY, "true");
+                    showDashboard(loginScreen, dashboard);
+                } else {
+                    if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
+                    if (passwordInput) passwordInput.value = "";
+                }
+            });
+        }
+
+        // 3. معالجة زر تسجيل الخروج
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                sessionStorage.removeItem(SESSION_KEY);
+                location.reload();
+            });
+        }
+
+        // 4. دعم زر Enter في لوحة المفاتيح
+        if (passwordInput) {
+            passwordInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") loginBtn.click();
+            });
+        }
+    };
+
+    // تنفيذ الكود عند جاهزية الصفحة (تجنب أخطاء غياب العناصر)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runAuth);
+    } else {
+        runAuth();
     }
 }
 
+/**
+ * دالة الانتقال للوحة التحكم وإخفاء شاشة الدخول
+ */
 function showDashboard(screen, dash) {
     if (screen) screen.style.display = "none";
-    // ⚠️ الإصلاح هنا: استخدام flex بدلاً من grid ليتوافق مع تنسيق admin.css
-    if (dash) dash.style.display = "flex"; 
+    if (dash) {
+        dash.style.display = "flex";
+        document.body.setAttribute("data-admin-state", "logged-in");
+    }
 }
