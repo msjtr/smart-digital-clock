@@ -1,58 +1,21 @@
-export const Layouts = {
+// assets/js/layouts.js
 
-    init() {
+export function initLayouts(settings = {}) {
+    const mainContainer = document.querySelector('main');
+    if (!mainContainer) return;
 
-        this.updateLayout();
+    // تطبيق تخطيط محدد من الإعدادات (مثلاً: grid, column, focus-clock)
+    const layoutType = settings.layout || 'default';
+    mainContainer.setAttribute('data-layout', layoutType);
 
-        window.addEventListener(
-            "resize",
-            () => this.updateLayout()
-        );
-
-    },
-
-    updateLayout() {
-
-        const visibleWidgets =
-            document.querySelectorAll(
-                ".widget:not(.hidden)"
-            );
-
-        document.body.setAttribute(
-            "data-widgets",
-            visibleWidgets.length
-        );
-
-    },
-
-    show(id) {
-
-        const element =
-            document.getElementById(id);
-
-        if (!element) return;
-
-        element.classList.remove(
-            "hidden"
-        );
-
-        this.updateLayout();
-
-    },
-
-    hide(id) {
-
-        const element =
-            document.getElementById(id);
-
-        if (!element) return;
-
-        element.classList.add(
-            "hidden"
-        );
-
-        this.updateLayout();
-
+    if (layoutType === 'focus-clock') {
+        // إعطاء أولوية قصوى لقسم الساعة
+        const clockSection = document.getElementById('clockSection');
+        if (clockSection) {
+            clockSection.style.order = '-1';
+            clockSection.classList.add('highlighted-widget');
+        }
     }
 
-};
+    console.log(`تم تطبيق التخطيط الهيكلي: ${layoutType}`);
+}
