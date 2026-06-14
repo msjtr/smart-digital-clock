@@ -57,3 +57,19 @@ export function sanitize(str) {
     div.textContent = str;
     return div.innerHTML;
 }
+
+
+// 10. إشعارات النظام
+export function showToast(message, type = "info") {
+    console.log(`[${type}] ${message}`);
+
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
