@@ -1,3 +1,4 @@
+// --- بداية الملف ---
 // ============================================================================
 // Admin Master Controller - المحرك الرئيسي للوحة التحكم (مع دعم الصلاحيات)
 // ============================================================================
@@ -157,4 +158,82 @@ function renderMessages() {
                 
                 ${systemData.messages.map((msg, index) => `
                     <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #334155;">
-                        <span style="font-size:
+                        <span style="font-size: 1.1rem;">${msg}</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-danger delete-msg-btn" data-index="${index}" data-permission="manage_messages" style="padding: 8px 12px; font-size: 0.9rem;">🗑️ حذف</button>
+                        </div>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+    `;
+
+    applyPermissionsToContainer(pane);
+    bindMessagesEvents();
+}
+
+function bindMessagesEvents() {
+    const addBtn = document.getElementById("addMessageBtn");
+    const input = document.getElementById("newMessageInput");
+
+    if (addBtn && input) {
+        addBtn.addEventListener("click", async () => {
+            const val = input.value.trim();
+            if (val) {
+                systemData.messages.push(val);
+                await saveJsonData("messages", systemData.messages);
+                showToast("تمت إضافة الرسالة بنجاح", "success");
+                renderMessages(); 
+                renderDashboardStats();
+            } else {
+                showToast("الرجاء كتابة محتوى الرسالة", "error");
+            }
+        });
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addBtn.click();
+        });
+    }
+
+    const deleteButtons = document.querySelectorAll(".delete-msg-btn");
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            if (!hasPermission("manage_messages")) return;
+
+            const index = parseInt(e.target.getAttribute("data-index"));
+            if (confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
+                systemData.messages.splice(index, 1);
+                await saveJsonData("messages", systemData.messages);
+                showToast("تم حذف الرسالة", "success");
+                renderMessages(); 
+                renderDashboardStats();
+            }
+        });
+    });
+}
+
+// ============================================================================
+// دالة مساعدة لتطبيق الصلاحيات ديناميكياً
+// ============================================================================
+function applyPermissionsToContainer(container) {
+    const elements = container.querySelectorAll("[data-permission]");
+    
+    elements.forEach(el => {
+        const requiredPerm = el.getAttribute("data-permission");
+        
+        if (!hasPermission(requiredPerm)) {
+            if (el.tagName === "BUTTON" || el.tagName === "INPUT") {
+                el.disabled = true;
+                el.style.opacity = "0.5";
+                el.style.cursor = "not-allowed";
+                el.title = "لا تملك صلاحية للقيام بهذا الإجراء";
+            } else {
+                el.style.display = "none";
+            }
+        }
+    });
+}
+
+// تنفيذ النظام عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", initAdmin);
+// --- نهاية الملف ---
