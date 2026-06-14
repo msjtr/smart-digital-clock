@@ -1,5 +1,5 @@
 // ============================================================================
-// Authentication Manager - (النسخة الكاملة والمحدثة)
+// Authentication Manager - (النسخة الكاملة والمتوافقة مع جميع الصفحات)
 // ============================================================================
 import { showToast } from "./utils.js";
 
@@ -12,8 +12,9 @@ export function initAuth() {
     const dashboard = document.getElementById("adminDashboard");
     const logoutBtn = document.getElementById("logoutBtn");
 
+    // إذا لم تكن العناصر موجودة (مثل صفحة العرض الرئيسية)، نخرج بهدوء
     if (!loginScreen || !dashboard) {
-        console.error("❌ Auth: عناصر شاشة الدخول غير موجودة!");
+        console.info("ℹ️ Auth: نظام الدخول غير متاح في هذه الصفحة (وهذا طبيعي في شاشة العرض).");
         return;
     }
 
@@ -53,7 +54,7 @@ export function initAuth() {
         });
     }
 
-    // دعم Enter
+    // دعم مفتاح Enter
     passwordInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") loginBtn.click();
     });
@@ -66,7 +67,3 @@ function showDashboard(screen, dash) {
         document.body.setAttribute("data-admin-state", "logged-in");
     }
 }
-
-
-
-
