@@ -1,5 +1,5 @@
 // ============================================================================
-// Date Manager - نظام التاريخ (ميلادي/هجري) - نسخة البحث المستمر
+// Date Manager - نظام التاريخ (ميلادي/هجري) - متوافق مع HTML
 // ============================================================================
 
 import { padZero } from './utils.js';
@@ -8,48 +8,33 @@ export function initDate() {
     console.log("📅 جاري تهيئة نظام التاريخ...");
 
     function updateDate() {
-        const dayElement = document.getElementById('dayName');
-        const gregorianElement = document.getElementById('gregorianDate');
-        const hijriElement = document.getElementById('hijriDate');
-
-        // فحص وجود العناصر
-        if (!dayElement && !gregorianElement && !hijriElement) {
-            console.warn("⚠️ التاريخ: العناصر غير موجودة في الصفحة حالياً. سأحاول لاحقاً.");
-            return;
-        }
+        // البحث عن الحاوية الرئيسية
+        const container = document.getElementById('dateSection');
+        
+        // التحقق من وجود الحاوية (في حال لم يتم تحميلها بعد)
+        if (!container) return;
 
         const now = new Date();
+
+        // تحديث المحتوى داخل الحاوية ديناميكياً
+        // نستخدم innerHTML هنا لأننا نتعامل مع حاوية dateSection
+        const dayName = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+        const gregDate = now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
         
-        // 1. اليوم
-        if (dayElement) {
-            dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+        let hijriDate = "التاريخ الهجري غير متاح";
+        try {
+            hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            }).format(now);
+        } catch (e) {
+            console.warn("تعذر تنسيق الهجري");
         }
 
-        // 2. التاريخ الميلادي
-        if (gregorianElement) {
-            gregorianElement.textContent = now.toLocaleDateString('ar-SA', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-        }
-
-        // 3. التاريخ الهجري (مع fallback للمتصفحات التي لا تدعم التقويم المتقدم)
-        if (hijriElement) {
-            try {
-                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric'
-                });
-                hijriElement.textContent = hijriFormatter.format(now);
-            } catch (e) {
-                // محاولة عرض أي تاريخ هجري قياسي إذا فشل أم القرى
-                hijriElement.textContent = now.toLocaleDateString('ar-u-ca-islamic', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                });
-            }
-        }
+        container.innerHTML = `
+            <div id="dayName" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">${dayName}</div>
+            <div id="gregorianDate" style="font-size: 1.2rem; margin-bottom: 5px;">${gregDate}</div>
+            <div id="hijriDate" style="font-size: 1.2rem;">${hijriDate}</div>
+        `;
     }
 
     // التنفيذ الفوري
@@ -58,5 +43,5 @@ export function initDate() {
     // التحديث كل دقيقة
     setInterval(updateDate, 60000); 
     
-    console.log("✅ نظام التاريخ مفعل.");
+    console.log("✅ نظام التاريخ مفعل ومربوط.");
 }
