@@ -2,8 +2,11 @@
 // Authentication Manager - نظام المصادقة المتكامل مع الإشعارات
 // ============================================================================
 
-import { showToast } from "./utils.js"; // استدعاء نظام الإشعارات
+import { showToast } from "./utils.js"; 
 
+/**
+ * تهيئة نظام المصادقة
+ */
 export function initAuth() {
     const runAuth = () => {
         const loginBtn = document.getElementById("loginBtn");
@@ -13,10 +16,13 @@ export function initAuth() {
         const dashboard = document.getElementById("adminDashboard");
         const logoutBtn = document.getElementById("logoutBtn");
 
-        // حماية: إذا لم نكن في صفحة الإدارة، نخرج لتجنب الأخطاء
-        if (!loginScreen || !dashboard) return;
+        // حماية: إذا لم تكن العناصر موجودة، لا تكمل التنفيذ لتجنب أخطاء برمجية
+        if (!loginScreen || !dashboard) {
+            console.warn("🔒 نظام المصادقة: لم يتم العثور على شاشة الدخول أو لوحة التحكم.");
+            return;
+        }
 
-        console.log("🔒 نظام المصادقة مفعل.");
+        console.log("🔒 نظام المصادقة مفعل وجاهز.");
         
         const ACCESS_PASSWORD = "123";
         const SESSION_KEY = "is_admin_logged_in";
@@ -39,10 +45,10 @@ export function initAuth() {
                 if (password === ACCESS_PASSWORD) {
                     sessionStorage.setItem(SESSION_KEY, "true");
                     showDashboard(loginScreen, dashboard);
-                    showToast("تم تسجيل الدخول بنجاح! مرحباً بك.", "success"); // إشعار النجاح
+                    showToast("تم تسجيل الدخول بنجاح!", "success");
                 } else {
                     if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                    showToast("كلمة المرور غير صحيحة!", "error"); // إشعار الخطأ
+                    showToast("كلمة المرور غير صحيحة!", "error");
                     if (passwordInput) {
                         passwordInput.value = "";
                         passwordInput.focus();
@@ -55,19 +61,19 @@ export function initAuth() {
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
                 sessionStorage.removeItem(SESSION_KEY);
-                location.reload(); // سيقوم بتحديث الصفحة وإعادتك لشاشة الدخول
+                location.reload(); // تحديث الصفحة للعودة لشاشة الدخول
             });
         }
 
         // 4. دعم زر Enter في لوحة المفاتيح
         if (passwordInput) {
             passwordInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter") loginBtn.click();
+                if (e.key === "Enter" && loginBtn) loginBtn.click();
             });
         }
     };
 
-    // تنفيذ الكود عند جاهزية الصفحة (تجنب أخطاء غياب العناصر)
+    // تنفيذ الكود عند جاهزية الصفحة
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', runAuth);
     } else {
