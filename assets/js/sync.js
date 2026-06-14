@@ -1,27 +1,43 @@
 // ============================================================================
-// Sync Engine - محرك المزامنة اللحظية
+// Sync Engine - محرك المزامنة اللحظية (آمن وقوي)
 // ============================================================================
 
-// فتح قناة اتصال محلية
+// فتح قناة اتصال موحدة للنظام
 const syncChannel = new BroadcastChannel('smart_clock_channel');
 
 /**
  * دالة الإرسال (تُستخدم في لوحة الإدارة)
- * @param {string} action - نوع الحدث (مثلاً: TOGGLE_VISIBILITY)
- * @param {object} payload - البيانات المرسلة
  */
 export function broadcastUpdate(action, payload) {
-    syncChannel.postMessage({ action, payload });
-    console.log(`📤 تم إرسال تحديث:`, action, payload);
+    try {
+        syncChannel.postMessage({ action, payload, timestamp: Date.now() });
+        console.log(`📤 تم إرسال تحديث:`, action);
+    } catch (error) {
+        console.error(`❌ فشل إرسال التحديث عبر محرك المزامنة:`, error);
+    }
 }
 
 /**
  * دالة الاستقبال (تُستخدم في شاشة العرض الرئيسية)
- * @param {Function} callback - الدالة التي ستتفاعل مع البيانات المستلمة
  */
 export function listenForUpdates(callback) {
     syncChannel.onmessage = (event) => {
-        console.log(`📥 تم استقبال تحديث:`, event.data.action);
-        callback(event.data);
+        try {
+            if (!event.data || !event.data.action) {
+                console.warn("⚠️ تم استقبال رسالة فارغة أو بتنسيق غير مدعوم.");
+                return;
+            }
+
+            console.log(`📥 تم استقبال تحديث:`, event.data.action);
+            
+            // تنفيذ الـ callback مع التأكد أنه دالة
+            if (typeof callback === 'function') {
+                callback(event.data);
+            }
+        } catch (error) {
+            console.error(`❌ خطأ في معالجة الرسالة المستقبلة:`, error);
+        }
     };
+    
+    console.log("📡 نظام المزامنة اللحظية جاهز للاستقبال.");
 }
