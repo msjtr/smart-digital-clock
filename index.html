@@ -5,37 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الشاشة الرقمية الذكية - جامعة حائل</title>
     
-    <link rel="stylesheet" href="assets/css/themes.css">
+    <link rel="icon" href="assets/images/icons/icon-1.png" type="image/png">
+
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/animations.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
 
     <style>
+        /* تنسيقات الهيدر والشعارات لضمان عدم تشوهها */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid var(--border-color, #334155);
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo-section img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--primary, #3b82f6);
+        }
+        .logo-section h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--text-main, #f8fafc);
+        }
+        .logo-section p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--text-muted, #94a3b8);
+        }
+
         /* نظام العرض المتسلسل (Slider) */
         .widget-container { 
             position: relative; 
             width: 100%; 
-            min-height: 500px; 
+            min-height: 60vh; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            align-items: center;
+            overflow: hidden;
         }
         .widget { 
             display: none; 
             width: 100%; 
             text-align: center; 
-            animation: fadeIn 1s;
+            animation: fadeIn 1s ease-in-out;
         }
         .widget.active { display: block; }
         
         .admin-login-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 20px;
             border-radius: 20px;
             text-decoration: none;
+            font-weight: bold;
             transition: all 0.3s ease;
+        }
+        .admin-login-btn:hover {
+            background: var(--primary, #3b82f6);
+            border-color: var(--primary, #3b82f6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -44,7 +89,7 @@
     <header>
         <div class="logo-section">
             <img src="assets/images/logos/university-logo.jpg" alt="جامعة حائل">
-            <img src="assets/images/logos/college-logo.jpg" alt="الكلية">
+            <img src="assets/images/logos/college-logo.jpg" alt="كلية الشريعة والقانون">
             <div>
                 <h1>الساعة الرقمية الذكية</h1>
                 <p>جامعة حائل - كلية الشريعة والقانون</p>
@@ -53,34 +98,37 @@
         <a href="admin.html" class="admin-login-btn">الإدارة 🔒</a>
     </header>
 
-    <main class="widget-container">
-        <section class="widget active"><h2>المناسبات</h2><div id="occasionBox"></div></section>
-        <section class="widget"><h2>الوقت</h2><div id="clock">--:--:--</div></section>
-        <section class="widget"><h2>التاريخ</h2><div id="dateSection"></div></section>
+    <main class="widget-container" id="mainDisplayArea">
+        <section class="widget active"><h2>المناسبات</h2><div id="occasionBox">جاري التحميل...</div></section>
+        <section class="widget"><h2>الوقت</h2><div id="clock" style="font-size: 5rem; font-weight: bold; direction: ltr;">--:--:--</div></section>
+        <section class="widget"><h2>التاريخ</h2><div id="dateSection">جاري التحميل...</div></section>
         <section class="widget"><h2>الطقس</h2><div id="weatherInfo">جاري التحديث...</div></section>
         <section class="widget"><h2>الصلاة</h2><div id="prayerTimes">جاري التحديث...</div></section>
-        <section class="widget"><h2>الرسائل</h2><div id="messageDisplay">أهلاً بكم...</div></section>
-        <section class="widget"><h2>العد التنازلي</h2><div id="countdown">--:--:--</div></section>
+        <section class="widget"><h2>الرسائل</h2><div id="messageDisplay">أهلاً بكم في جامعة حائل...</div></section>
+        <section class="widget"><h2>العد التنازلي</h2><div id="countdown" style="font-size: 4rem; direction: ltr;">--:--:--</div></section>
         <section class="widget"><h2>المحتوى</h2><div id="contentArea">لا يوجد محتوى حالياً</div></section>
     </main>
 
-    <footer id="newsTicker">
-        <div class="ticker-content">جامعة حائل - كلية الشريعة والقانون</div>
+    <footer id="newsTicker" style="background: var(--bg-card, #1e293b); padding: 12px; text-align: center; color: white; border-top: 1px solid #334155;">
+        <div class="ticker-content" style="font-size: 1.2rem;">جامعة حائل - كلية الشريعة والقانون | الشاشة الرقمية الذكية</div>
     </footer>
 
-    <script type="module">
-        // نظام التبديل التلقائي
+    <script>
         document.addEventListener("DOMContentLoaded", () => {
             const widgets = document.querySelectorAll('.widget');
             let index = 0;
             
-            setInterval(() => {
-                widgets[index].classList.remove('active');
-                index = (index + 1) % widgets.length;
-                widgets[index].classList.add('active');
-            }, 5000); // 5 ثواني
+            // التأكد من وجود عناصر قبل تشغيل المؤقت
+            if (widgets.length > 0) {
+                setInterval(() => {
+                    widgets[index].classList.remove('active');
+                    index = (index + 1) % widgets.length;
+                    widgets[index].classList.add('active');
+                }, 8000); // 8 ثواني لتناسب القراءة
+            }
         });
     </script>
+
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
