@@ -1,6 +1,8 @@
 // ============================================================================
-// Authentication Manager - (النسخة النهائية - جاهزة للربط)
+// Authentication Manager - نظام المصادقة المتكامل مع الإشعارات
 // ============================================================================
+
+import { showToast } from "./utils.js"; // استدعاء نظام الإشعارات
 
 export function initAuth() {
     const runAuth = () => {
@@ -37,9 +39,14 @@ export function initAuth() {
                 if (password === ACCESS_PASSWORD) {
                     sessionStorage.setItem(SESSION_KEY, "true");
                     showDashboard(loginScreen, dashboard);
+                    showToast("تم تسجيل الدخول بنجاح! مرحباً بك.", "success"); // إشعار النجاح
                 } else {
                     if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                    if (passwordInput) passwordInput.value = "";
+                    showToast("كلمة المرور غير صحيحة!", "error"); // إشعار الخطأ
+                    if (passwordInput) {
+                        passwordInput.value = "";
+                        passwordInput.focus();
+                    }
                 }
             });
         }
@@ -48,7 +55,7 @@ export function initAuth() {
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
                 sessionStorage.removeItem(SESSION_KEY);
-                location.reload();
+                location.reload(); // سيقوم بتحديث الصفحة وإعادتك لشاشة الدخول
             });
         }
 
