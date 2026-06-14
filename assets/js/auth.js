@@ -1,12 +1,23 @@
 // ============================================================================
-// Authentication Manager - نظام المصادقة المتكامل مع الإشعارات
+// Authentication Manager - (نسخة مكتفية ذاتياً لحل مشاكل الـ Import)
 // ============================================================================
 
-import { showToast } from "./utils.js"; 
-
 /**
- * تهيئة نظام المصادقة
+ * دالة إشعار محلية لحل تعارضات الـ Import
  */
+function showLocalToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    toast.style.cssText = "background: #1e293b; padding: 15px; margin: 10px; border-radius: 8px; color: white; border-right: 4px solid " + (type === 'success' ? '#10b981' : '#ef4444');
+    
+    toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'} ${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
 export function initAuth() {
     const runAuth = () => {
         const loginBtn = document.getElementById("loginBtn");
@@ -16,27 +27,19 @@ export function initAuth() {
         const dashboard = document.getElementById("adminDashboard");
         const logoutBtn = document.getElementById("logoutBtn");
 
-        // حماية: إذا لم تكن العناصر موجودة، لا تكمل التنفيذ لتجنب أخطاء برمجية
-        if (!loginScreen || !dashboard) {
-            console.warn("🔒 نظام المصادقة: لم يتم العثور على شاشة الدخول أو لوحة التحكم.");
-            return;
-        }
+        if (!loginScreen || !dashboard) return;
 
-        console.log("🔒 نظام المصادقة مفعل وجاهز.");
-        
+        console.log("🔒 نظام المصادقة مفعل.");
         const ACCESS_PASSWORD = "123";
         const SESSION_KEY = "is_admin_logged_in";
 
-        // 1. التحقق الفوري من الجلسة عند تحميل الصفحة
         if (sessionStorage.getItem(SESSION_KEY) === "true") {
             showDashboard(loginScreen, dashboard);
         } else {
-            // إخفاء اللوحة وإظهار شاشة الدخول إذا لم يكن مسجلاً
             dashboard.style.display = "none";
             loginScreen.style.display = "flex";
         }
 
-        // 2. معالجة زر تسجيل الدخول
         if (loginBtn) {
             loginBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -45,10 +48,10 @@ export function initAuth() {
                 if (password === ACCESS_PASSWORD) {
                     sessionStorage.setItem(SESSION_KEY, "true");
                     showDashboard(loginScreen, dashboard);
-                    showToast("تم تسجيل الدخول بنجاح!", "success");
+                    showLocalToast("تم تسجيل الدخول بنجاح!", "success");
                 } else {
                     if (errorMsg) errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                    showToast("كلمة المرور غير صحيحة!", "error");
+                    showLocalToast("كلمة المرور غير صحيحة!", "error");
                     if (passwordInput) {
                         passwordInput.value = "";
                         passwordInput.focus();
@@ -57,15 +60,13 @@ export function initAuth() {
             });
         }
 
-        // 3. معالجة زر تسجيل الخروج
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
                 sessionStorage.removeItem(SESSION_KEY);
-                location.reload(); // تحديث الصفحة للعودة لشاشة الدخول
+                location.reload();
             });
         }
 
-        // 4. دعم زر Enter في لوحة المفاتيح
         if (passwordInput) {
             passwordInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter" && loginBtn) loginBtn.click();
@@ -73,7 +74,6 @@ export function initAuth() {
         }
     };
 
-    // تنفيذ الكود عند جاهزية الصفحة
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', runAuth);
     } else {
@@ -81,9 +81,6 @@ export function initAuth() {
     }
 }
 
-/**
- * دالة الانتقال للوحة التحكم وإخفاء شاشة الدخول
- */
 function showDashboard(screen, dash) {
     if (screen) screen.style.display = "none";
     if (dash) {
