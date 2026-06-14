@@ -1,6 +1,12 @@
-// assets/js/date.js
+// ============================================================================
+// Date Manager - نظام التاريخ (ميلادي/هجري)
+// ============================================================================
+
 import { padZero } from './utils.js';
 
+/**
+ * تهيئة نظام عرض التاريخ
+ */
 export function initDate() {
     const dayElement = document.getElementById('dayName');
     const gregorianElement = document.getElementById('gregorianDate');
@@ -11,12 +17,12 @@ export function initDate() {
 
     function updateDate() {
         const now = new Date();
-        const dateString = now.toDateString(); // مثال: "Sun Jun 14 2026"
+        const dateString = now.toDateString(); 
 
-        // التحديث فقط إذا تغير اليوم فعلياً (لمنع التحديث غير الضروري)
+        // التحديث فقط إذا تغير اليوم فعلياً
         if (dateString !== lastDateString) {
             
-            // 1. اليوم
+            // 1. اليوم (اسم اليوم)
             if (dayElement) {
                 dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
             }
@@ -30,14 +36,19 @@ export function initDate() {
                 });
             }
 
-            // 3. التاريخ الهجري
+            // 3. التاريخ الهجري (مع معالجة استثنائية للمتصفحات)
             if (hijriElement) {
-                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric'
-                });
-                hijriElement.textContent = hijriFormatter.format(now);
+                try {
+                    const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric'
+                    });
+                    hijriElement.textContent = hijriFormatter.format(now);
+                } catch (e) {
+                    console.warn("⚠️ تعذر تنسيق التاريخ الهجري، يتم استخدام التنسيق الاحتياطي.");
+                    hijriElement.textContent = "التاريخ الهجري غير متاح";
+                }
             }
 
             lastDateString = dateString;
@@ -45,8 +56,11 @@ export function initDate() {
         }
     }
 
+    // التنفيذ الفوري
     updateDate();
-    // التحقق كل دقيقة بدلاً من ساعة لضمان الدقة المطلقة عند منتصف الليل
+    
+    // التحقق كل دقيقة لضمان الدقة عند منتصف الليل
     setInterval(updateDate, 60000); 
-    console.log("تم تفعيل نظام التاريخ (ميلادي/هجري).");
+    
+    console.log("✅ نظام التاريخ مفعل ومربوط.");
 }
