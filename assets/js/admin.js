@@ -1,9 +1,10 @@
 // ============================================================================
-// Admin Master Controller - النسخة النهائية المتكاملة والمصلحة
+// Admin Master Controller - النسخة النهائية المتكاملة والمحمية من الأخطاء
 // ============================================================================
 
 import { fetchJsonData, saveJsonData } from "./storage.js";
 import { broadcastUpdate } from "./sync.js";
+import { initAuth } from "./auth.js"; // تأكد من استدعاء المصادقة هنا
 
 // قاعدة بيانات النظام (قيم افتراضية)
 let systemData = {
@@ -15,6 +16,9 @@ let systemData = {
 export async function initAdmin() {
     console.log("🚀 جاري تهيئة لوحة الإدارة...");
     
+    // 0. تفعيل نظام المصادقة (تسجيل الدخول)
+    initAuth();
+
     // 1. تحميل البيانات الفعلية من السيرفر
     await loadDataFromServer();
 
@@ -73,11 +77,15 @@ function setupTabs() {
 // نظام بناء وحقن المحتوى (Dynamic Render)
 // ============================================================================
 function renderAllTabs() {
+    // التأكد الدائم من أن المصفوفات سليمة قبل محاولة استخراج طولها
+    const safeMessagesCount = Array.isArray(systemData.messages) ? systemData.messages.length : 0;
+    const safeContentCount = Array.isArray(systemData.content) ? systemData.content.length : 0;
+
     const contentMap = {
         "mainDashboard": `<h2>📊 الإحصائيات العامة</h2>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
-                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>رسائل النظام</h3><p style="font-size:24px; font-weight:bold; color:#38bdf8;">${systemData.messages.length}</p></div>
-                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>عدد الشرائح</h3><p style="font-size:24px; font-weight:bold; color:#38bdf8;">${systemData.content.length}</p></div>
+                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>رسائل النظام</h3><p style="font-size:24px; font-weight:bold; color:#38bdf8;">${safeMessagesCount}</p></div>
+                <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>عدد الشرائح</h3><p style="font-size:24px; font-weight:bold; color:#38bdf8;">${safeContentCount}</p></div>
                 <div class="card" style="background:#1e293b; padding:20px; border-radius:10px;"><h3>حالة الاتصال</h3><p style="font-size:24px; font-weight:bold; color:#4ade80;">${navigator.onLine ? 'متصل' : 'غير متصل'}</p></div>
             </div>`,
             
@@ -117,8 +125,11 @@ function renderAllTabs() {
     // 2. تحديث وعرض قائمة الرسائل ديناميكياً مع زر الحذف لكل رسالة
     const msgList = document.getElementById("msgList");
     if (msgList) {
-        msgList.innerHTML = systemData.messages.map((msg, index) => `
-            <li style="background:#1e293b; padding:12px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:between; align-items:center; border:1px solid #334155;">
+        // حماية إضافية لتجنب خطأ .map()
+        const safeMessages = Array.isArray(systemData.messages) ? systemData.messages : [];
+        
+        msgList.innerHTML = safeMessages.map((msg, index) => `
+            <li style="background:#1e293b; padding:12px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; border:1px solid #334155;">
                 <span style="flex:1; text-align:right;">${msg}</span>
                 <button class="btn-danger" style="padding:4px 10px; font-size:12px; margin-right:10px;" data-index="${index}">حذف</button>
             </li>
@@ -127,8 +138,9 @@ function renderAllTabs() {
         // ربط أحداث الحذف للرسائل
         msgList.querySelectorAll("button[data-index]").forEach(btn => {
             btn.addEventListener("click", (e) => {
-                const idx = e.target.getAttribute("data-index");
-                systemData.messages.splice(idx, 1);
+                const idx = parseInt(e.target.getAttribute("data-index"), 10);
+                safeMessages.splice(idx, 1);
+                systemData.messages = safeMessages; // تحديث المصفوفة الأصلية
                 saveJsonData("messages", systemData.messages);
                 broadcastUpdate("messages", systemData.messages);
                 renderAllTabs(); // إعادة بناء لتحديث الداشبورد والقائمة معاً
@@ -141,6 +153,9 @@ function renderAllTabs() {
         const input = document.getElementById("msgInput");
         const val = input ? input.value.trim() : "";
         if (val) {
+            // التأكد من أن الرسائل مصفوفة قبل الإضافة
+            if (!Array.isArray(systemData.messages)) systemData.messages = [];
+            
             systemData.messages.push(val);
             saveJsonData("messages", systemData.messages);
             broadcastUpdate("messages", systemData.messages);
@@ -150,16 +165,20 @@ function renderAllTabs() {
 }
 
 // ============================================================================
-// جلب البيانات من المجلد / السيرفر المحلي
+// جلب البيانات من المجلد / السيرفر المحلي مع تنظيفها (Sanitization)
 // ============================================================================
 async function loadDataFromServer() {
     try {
         const s = await fetchJsonData("settings");
         const m = await fetchJsonData("messages");
         const c = await fetchJsonData("content");
-        if(s) systemData.settings = s;
-        if(m) systemData.messages = m;
-        if(c) systemData.content = c;
+        
+        if (s) systemData.settings = s;
+        
+        // إجبار البيانات أن تكون مصفوفة في حال كانت كائن أو فارغة
+        if (m) systemData.messages = Array.isArray(m) ? m : (m.messages || []);
+        if (c) systemData.content = Array.isArray(c) ? c : (c.content || []);
+        
     } catch (e) {
         console.warn("⚠️ السيرفر غير مستجيب، يتم استخدام مصفوفة البيانات الافتراضية محلياً.");
     }
