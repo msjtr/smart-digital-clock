@@ -1,12 +1,9 @@
 // ============================================================================
-// Dashboard Manager - المحدث (يدعم التحديث اللحظي من السيرفر)
+// Dashboard Manager - النسخة النهائية المربوطة بمدير التخزين الموحد
 // ============================================================================
 
+import { fetchJsonData } from "./storage.js"; // الدالة الموحدة لجلب البيانات
 import { getLogs } from "./logs.js";
-import { getMessages } from "./storage.js"; // تأكد أن هذه الدالة تجلب آخر نسخة
-import { getOccasions } from "./occasions.js";
-import { getContent } from "./content.js";
-import { getEvents } from "./countdown.js";
 
 export function initDashboard() {
     console.log("✅ تم تشغيل لوحة التحكم");
@@ -19,31 +16,39 @@ export function initDashboard() {
 }
 
 // ============================================================================
-// تحديث الإحصائيات والحالة
+// تحديث الإحصائيات والحالة (نظام غير متزامن)
 // ============================================================================
-function updateDashboard() {
-    updateStatistics();
+async function updateDashboard() {
+    await updateStatistics();
     updateSystemStatus();
 }
 
-function updateStatistics() {
-    // نستخدم الدوال التي تجلب البيانات المحدثة من الذاكرة أو السيرفر
-    setValue("statMessages", getMessages()?.length || 0);
-    setValue("statOccasions", getOccasions()?.length || 0);
-    setValue("statContent", getContent()?.length || 0);
-    setValue("statEvents", getEvents()?.length || 0);
-    setValue("statLogs", getLogs()?.length || 0);
+async function updateStatistics() {
+    // جلب البيانات مباشرة باستخدام fetchJsonData الموحدة
+    const messages = await fetchJsonData("messages") || [];
+    const occasions = await fetchJsonData("occasions") || [];
+    const content = await fetchJsonData("content") || [];
+    const events = await fetchJsonData("schedules") || []; // تم تعديل الاسم ليتوافق مع مجلد data
+    const logs = getLogs() || [];
+
+    setValue("statMessages", messages.length);
+    setValue("statOccasions", occasions.length);
+    setValue("statContent", content.length);
+    setValue("statEvents", events.length);
+    setValue("statLogs", logs.length);
 }
 
 function updateSystemStatus() {
-    // حالة الإنترنت (مباشرة من المتصفح)
+    // حالة الإنترنت
     setValue("internetStatus", navigator.onLine ? "🟢 متصل" : "🔴 غير متصل");
 
-    // جلب الطقس (مع معالجة الأخطاء)
+    // جلب بيانات الطقس من التخزين المحلي
     try {
-        const weather = JSON.parse(localStorage.getItem("weather_cache"));
+        const weather = JSON.parse(localStorage.getItem("admin_weather"));
         if (weather && weather.temperature) {
             setValue("currentWeather", `${weather.temperature}°C`);
+        } else {
+            setValue("currentWeather", "غير متاح");
         }
     } catch (e) {
         setValue("currentWeather", "غير متاح");
@@ -55,7 +60,7 @@ function updateSystemStatus() {
 }
 
 // ============================================================================
-// الدوال المساعدة (تم الحفاظ عليها كما هي)
+// الدوال المساعدة
 // ============================================================================
 function initSidebar() {
     const sidebar = document.getElementById("sidebar");
