@@ -1,4 +1,4 @@
-const CACHE_NAME = "hail-smart-clock-v26"; // تم تحديث الإصدار
+const CACHE_NAME = "hail-smart-clock-v27"; // تم تحديث الإصدار
 
 // تم إضافة جميع الملفات والوحدات اللازمة لتجنب كسر النظام أوفلاين
 const ASSETS_TO_CACHE = [
