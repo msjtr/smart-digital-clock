@@ -1,5 +1,5 @@
 // ============================================================================
-// Content Manager - النسخة المحدثة (دعم السيرفر + المزامنة)
+// Content Manager - النسخة النهائية المكتملة
 // ============================================================================
 
 import { fetchJsonData, saveJsonData } from "./storage.js";
@@ -9,22 +9,37 @@ let contentItems = [];
 let currentIndex = 0;
 let rotationTimer = null;
 
+/**
+ * دالة تهيئة النظام
+ */
 export async function initContent() {
-    // 1. جلب البيانات من السيرفر (مع استخدام المحلي كاحتياطي)
+    // 1. جلب البيانات من السيرفر
     const contentData = await fetchJsonData("content");
     contentItems = Array.isArray(contentData) ? contentData : (contentData?.items || []);
 
     startRotation();
-    console.log("✅ تم تشغيل نظام المحتوى");
+    console.log("✅ نظام المحتوى يعمل بكفاءة.");
 }
 
-// 2. تحديث المحتوى من الخارج (عند استقبال أمر من الإدارة)
+/**
+ * دالة مطلوبة من dashboard.js لاسترجاع قائمة المحتوى
+ */
+export function getContent() {
+    return contentItems;
+}
+
+/**
+ * تحديث القائمة (تُستخدم عند استقبال تحديث من لوحة الإدارة)
+ */
 export function updateContentList(newList) {
-    contentItems = newList;
-    currentIndex = 0; // إعادة الضبط عند تغيير القائمة
+    contentItems = Array.isArray(newList) ? newList : [];
+    currentIndex = 0;
     showContent();
 }
 
+/**
+ * نظام التدوير التلقائي
+ */
 function startRotation() {
     if (contentItems.length === 0) { showEmpty(); return; }
     showContent();
@@ -35,6 +50,7 @@ function startRotation() {
 }
 
 function nextContent() {
+    if (contentItems.length === 0) return;
     currentIndex = (currentIndex + 1) % contentItems.length;
     showContent();
 }
@@ -48,10 +64,10 @@ function showContent() {
 
     area.innerHTML = "";
     
-    // دعم أنواع الملفات المرفوعة عبر السيرفر
+    // عرض المحتوى بناءً على النوع
     switch (item.type) {
         case "image":
-            area.innerHTML = `<img src="${item.url}" class="content-image">`;
+            area.innerHTML = `<img src="${item.url}" class="content-image" alt="Content">`;
             break;
         case "video":
             area.innerHTML = `<video autoplay muted loop class="content-video"><source src="${item.url}"></video>`;
@@ -60,7 +76,7 @@ function showContent() {
             area.innerHTML = `<iframe src="${item.url}" class="content-pdf"></iframe>`;
             break;
         default:
-            area.innerHTML = `<h3>${item.title || ""}</h3><p>${item.text || ""}</p>`;
+            area.innerHTML = `<div class="text-content"><h3>${item.title || ""}</h3><p>${item.text || ""}</p></div>`;
     }
 }
 
@@ -70,11 +86,10 @@ function showEmpty() {
 }
 
 // ============================================================================
-// عمليات الحفظ (مرتبطة الآن بالسيرفر)
+// عمليات الحفظ والإدارة
 // ============================================================================
 
 async function saveContent() {
-    // حفظ في السيرفر (ملف content.json)
     await saveJsonData("content", contentItems);
 }
 
@@ -82,10 +97,12 @@ export async function addContent(item) {
     contentItems.push(item);
     await saveContent();
     addLog("إضافة محتوى", item.title || item.type);
+    showContent(); // تحديث فوري
 }
 
 export async function deleteContent(index) {
     const deleted = contentItems.splice(index, 1);
     await saveContent();
     addLog("حذف محتوى", deleted[0].title || "");
+    showContent(); // تحديث فوري
 }
