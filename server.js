@@ -39,9 +39,14 @@ ensureDirectories();
 const server = http.createServer((req, res) => {
     
     // ========================================================================
+    // 💡 الإصلاح الجذري: فصل الرابط عن أي استعلامات (Query Strings)
+    // ========================================================================
+    const reqPath = req.url.split('?')[0]; // يحول "/data/settings.json?v=123" إلى "/data/settings.json"
+
+    // ========================================================================
     // 1. نظام استقبال وحفظ بيانات الإعدادات والرسائل (JSON API)
     // ========================================================================
-    if (req.method === "POST" && req.url === "/api/save") {
+    if (req.method === "POST" && reqPath === "/api/save") {
         let body = "";
         
         req.on("data", chunk => {
@@ -80,7 +85,7 @@ const server = http.createServer((req, res) => {
     // ========================================================================
     // 2. نظام رفع الملفات (صور، فيديو، PDF) للمحتوى (Upload API)
     // ========================================================================
-    if (req.method === "POST" && req.url === "/api/upload") {
+    if (req.method === "POST" && reqPath === "/api/upload") {
         const fileNameHeader = req.headers["x-file-name"];
         
         if (!fileNameHeader) {
@@ -123,10 +128,11 @@ const server = http.createServer((req, res) => {
     // 3. نظام عرض الملفات الأساسي (Static File Server)
     // ========================================================================
     
-    const safePath = path.normalize(decodeURIComponent(req.url)).replace(/^(\.\.[\/\\])+/, '');
+    // استخدام reqPath بدلاً من req.url لتجنب مشكلة الـ Query Strings
+    const safePath = path.normalize(decodeURIComponent(reqPath)).replace(/^(\.\.[\/\\])+/, '');
     let filePath = path.join(__dirname, safePath);
 
-    if (req.url === "/") {
+    if (reqPath === "/") {
         filePath = path.join(__dirname, "index.html");
     }
 
