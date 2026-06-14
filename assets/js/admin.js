@@ -2,7 +2,7 @@
 // Admin Master Controller - المحرك الرئيسي للوحة التحكم (مع دعم الصلاحيات)
 // ============================================================================
 
-import { fetchJsonData } from "./storage.js";
+import { fetchJsonData, saveJsonData } from "./storage.js";
 import { initAuth, hasPermission } from "./auth.js"; 
 import { getOccasions } from "./occasions.js";
 import { showToast } from "./utils.js";
@@ -16,8 +16,11 @@ let systemData = {
 
 export async function initAdmin() {
     console.log("🛠️ جاري تهيئة لوحة التحكم...");
+    
+    // 1. تشغيل المصادقة وتطبيق الصلاحيات الأولية
     initAuth();
     
+    // 2. التحقق من وجود جلسة صالحة قبل تحميل البيانات
     if (sessionStorage.getItem("current_user_session") !== null) {
         await loadSystemData();
         setupTabs();
@@ -25,20 +28,6 @@ export async function initAdmin() {
         
         // تشغيل واجهة الرسائل
         renderMessages(); 
-    }
-}
-    // 1. تشغيل المصادقة (وتطبيق الصلاحيات الأولية على الـ HTML الثابت)
-    initAuth();
-    
-    // 2. إذا لم يكن المستخدم مسجلاً للدخول، يتم إيقاف تحميل باقي البيانات
-    if (sessionStorage.getItem("current_user_session") !== null) {
-        await loadSystemData();
-        setupTabs();
-        renderDashboardStats();
-        
-        // سيتم استدعاء دوال رسم باقي الأقسام هنا في الخطوات القادمة
-        // renderMessages();
-        // renderOccasions();
     }
 }
 
@@ -66,7 +55,7 @@ function setupTabs() {
     
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
-            // منع النقر والتنقل إذا كان التبويب مخفياً بسبب الصلاحيات
+            // منع النقر إذا كان التبويب مخفياً بسبب الصلاحيات
             if (window.getComputedStyle(tab).display === "none") return;
 
             // إزالة التفعيل من جميع التبويبات
@@ -90,13 +79,12 @@ function setupTabs() {
 }
 
 // ============================================================================
-// بناء شاشة الإحصائيات (Dashboard)
+// 1. بناء شاشة الإحصائيات (Dashboard)
 // ============================================================================
 function renderDashboardStats() {
     const dashboardPane = document.getElementById("mainDashboard");
     if (!dashboardPane) return;
 
-    // استخراج معلومات المستخدم الحالي من الجلسة
     const sessionStr = sessionStorage.getItem("current_user_session");
     const user = sessionStr ? JSON.parse(sessionStr) : { role: "viewer", username: "زائر" };
 
@@ -104,7 +92,6 @@ function renderDashboardStats() {
         user.role === "super_admin" ? "مدير نظام أعلى (Super Admin)" :
         user.role === "admin" ? "مدير محتوى (Admin)" : "مشاهد (Viewer)";
 
-    // بناء الواجهة (HTML) للإحصائيات ديناميكياً
     dashboardPane.innerHTML = `
         <div style="margin-bottom: 30px; padding: 20px; background: var(--bg-card, #1e293b); border-radius: 10px; border-left: 5px solid var(--primary, #3b82f6);">
             <h2 style="margin:0 0 10px 0;">مرحباً، ${user.username} 👋</h2>
@@ -141,47 +128,16 @@ function renderDashboardStats() {
         </div>
     `;
 
-    // تطبيق فلتر الصلاحيات على العناصر التي تم إنشاؤها للتو بداخل هذه الشاشة
     applyPermissionsToContainer(dashboardPane);
 }
 
 // ============================================================================
-// دالة مساعدة لتطبيق الصلاحيات ديناميكياً
+// 2. إدارة الرسائل (Messages Management)
 // ============================================================================
-function applyPermissionsToContainer(container) {
-    const elements = container.querySelectorAll("[data-permission]");
-    
-    elements.forEach(el => {
-        const requiredPerm = el.getAttribute("data-permission");
-        
-        if (!hasPermission(requiredPerm)) {
-            if (el.tagName === "BUTTON" || el.tagName === "INPUT") {
-                // للنماذج والأزرار: تعطيلها لتبقى مرئية ولكن غير قابلة للاستخدام (كإجراء أمني إضافي)
-                el.disabled = true;
-                el.style.opacity = "0.5";
-                el.style.cursor = "not-allowed";
-                el.title = "لا تملك صلاحية للقيام بهذا الإجراء";
-            } else {
-                // للبطاقات والأقسام (مثل بطاقة المستخدمين): إخفاؤها بالكامل
-                el.style.display = "none";
-            }
-        }
-    });
-}
-
-// تنفيذ النظام عند تحميل الصفحة
-document.addEventListener("DOMContentLoaded", initAdmin);
-
-// ============================================================================
-// إدارة الرسائل (Messages Management)
-// ============================================================================
-import { saveJsonData } from "./storage.js";
-
 function renderMessages() {
     const pane = document.getElementById("messagesSettings");
     if (!pane) return;
 
-    // رسم واجهة الرسائل
     pane.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2>💬 إدارة الرسائل</h2>
@@ -195,69 +151,4 @@ function renderMessages() {
             <button id="addMessageBtn" class="btn-primary" data-permission="manage_messages">➕ إضافة رسالة</button>
         </div>
 
-        <div style="background: #1e293b; border-radius: 10px; overflow: hidden;">
-            <ul id="messagesList" style="list-style: none; padding: 0; margin: 0;">
-                ${systemData.messages.length === 0 ? '<li style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد رسائل حالياً</li>' : ''}
-                
-                ${systemData.messages.map((msg, index) => `
-                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #334155;">
-                        <span style="font-size: 1.1rem;">${msg}</span>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn-danger delete-msg-btn" data-index="${index}" data-permission="manage_messages" style="padding: 8px 12px; font-size: 0.9rem;">🗑️ حذف</button>
-                        </div>
-                    </li>
-                `).join('')}
-            </ul>
-        </div>
-    `;
-
-    // تطبيق الصلاحيات ديناميكياً لإخفاء/تعطيل أزرار الحذف والإضافة للمشاهدين
-    applyPermissionsToContainer(pane);
-
-    // ربط الأحداث (Event Listeners)
-    bindMessagesEvents();
-}
-
-function bindMessagesEvents() {
-    // 1. إضافة رسالة
-    const addBtn = document.getElementById("addMessageBtn");
-    const input = document.getElementById("newMessageInput");
-
-    if (addBtn && input) {
-        addBtn.addEventListener("click", async () => {
-            const val = input.value.trim();
-            if (val) {
-                systemData.messages.push(val);
-                await saveJsonData("messages", systemData.messages);
-                showToast("تمت إضافة الرسالة بنجاح", "success");
-                renderMessages(); // إعادة رسم القائمة
-                renderDashboardStats(); // تحديث العداد في الرئيسية
-            } else {
-                showToast("الرجاء كتابة محتوى الرسالة", "error");
-            }
-        });
-
-        // دعم زر Enter
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") addBtn.click();
-        });
-    }
-
-    // 2. حذف رسالة
-    const deleteButtons = document.querySelectorAll(".delete-msg-btn");
-    deleteButtons.forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            // نتحقق من الصلاحية مرة أخرى برمجياً كطبقة حماية ثانية
-            if (!hasPermission("manage_messages")) return;
-
-            const index = parseInt(e.target.getAttribute("data-index"));
-            if (confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
-                systemData.messages.splice(index, 1);
-                await saveJsonData("messages", systemData.messages);
-                showToast("تم حذف الرسالة", "success");
-                renderMessages(); 
-                renderDashboardStats();
-            }
-        });
-    });
-}
+        <div style
