@@ -1,5 +1,5 @@
 // ============================================================================
-// Date Manager - نظام التاريخ (ميلادي/هجري)
+// Date Manager - نظام التاريخ (ميلادي/هجري) - النسخة النهائية
 // ============================================================================
 
 import { padZero } from './utils.js';
@@ -8,51 +8,48 @@ import { padZero } from './utils.js';
  * تهيئة نظام عرض التاريخ
  */
 export function initDate() {
-    const dayElement = document.getElementById('dayName');
-    const gregorianElement = document.getElementById('gregorianDate');
-    const hijriElement = document.getElementById('hijriDate');
-
-    // تخزين اليوم الحالي للمقارنة
-    let lastDateString = "";
+    console.log("📅 جاري تهيئة نظام التاريخ...");
 
     function updateDate() {
+        const dayElement = document.getElementById('dayName');
+        const gregorianElement = document.getElementById('gregorianDate');
+        const hijriElement = document.getElementById('hijriDate');
+
+        // إذا لم توجد العناصر، نخرج بسلام
+        if (!dayElement && !gregorianElement && !hijriElement) {
+            console.warn("⚠️ تحذير: لم يتم العثور على أي عنصر تاريخ (dayName, gregorianDate, hijriDate) في الصفحة.");
+            return;
+        }
+
         const now = new Date();
-        const dateString = now.toDateString(); 
+        
+        // 1. اليوم (اسم اليوم)
+        if (dayElement) {
+            dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+        }
 
-        // التحديث فقط إذا تغير اليوم فعلياً
-        if (dateString !== lastDateString) {
-            
-            // 1. اليوم (اسم اليوم)
-            if (dayElement) {
-                dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
-            }
+        // 2. التاريخ الميلادي
+        if (gregorianElement) {
+            gregorianElement.textContent = now.toLocaleDateString('ar-SA', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
-            // 2. التاريخ الميلادي
-            if (gregorianElement) {
-                gregorianElement.textContent = now.toLocaleDateString('ar-SA', { 
-                    year: 'numeric', 
+        // 3. التاريخ الهجري (مع معالجة استثنائية للمتصفحات)
+        if (hijriElement) {
+            try {
+                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                    day: 'numeric', 
                     month: 'long', 
-                    day: 'numeric' 
+                    year: 'numeric'
                 });
+                hijriElement.textContent = hijriFormatter.format(now);
+            } catch (e) {
+                console.error("❌ خطأ في تنسيق التاريخ الهجري:", e);
+                hijriElement.textContent = "التاريخ الهجري غير متاح";
             }
-
-            // 3. التاريخ الهجري (مع معالجة استثنائية للمتصفحات)
-            if (hijriElement) {
-                try {
-                    const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric'
-                    });
-                    hijriElement.textContent = hijriFormatter.format(now);
-                } catch (e) {
-                    console.warn("⚠️ تعذر تنسيق التاريخ الهجري، يتم استخدام التنسيق الاحتياطي.");
-                    hijriElement.textContent = "التاريخ الهجري غير متاح";
-                }
-            }
-
-            lastDateString = dateString;
-            console.log("📅 تم تحديث التاريخ إلى: " + dateString);
         }
     }
 
