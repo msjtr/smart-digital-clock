@@ -7,116 +7,69 @@
     
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/themes.css">
-    <link rel="stylesheet" href="assets/css/admin.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/admin.css"> <link rel="stylesheet" href="assets/css/responsive.css">
+    
+    <link rel="icon" href="assets/images/icons/icon-1.png" type="image/png">
 </head>
 <body class="admin-body">
 
-<div id="loginScreen" class="login-container">
-    <div class="login-box">
-        <img src="assets/images/logos/university-logo.jpg" alt="University Logo" style="width:120px; margin-bottom:15px; border-radius:8px;">
-        <h2>تسجيل الدخول</h2>
-        <input type="password" id="adminPassword" placeholder="كلمة المرور">
-        <button id="loginBtn" class="btn-primary">دخول</button>
-        <div id="loginError" style="color:#ef4444; margin-top:10px; font-weight:bold;"></div>
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <img src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة" class="login-logo">
+            <h2>تسجيل الدخول للنظام</h2>
+            <input type="password" id="adminPassword" placeholder="كلمة المرور..." class="form-input">
+            <button id="loginBtn" class="btn-primary w-full">دخول</button>
+            <div id="loginError" class="error-text"></div>
+        </div>
     </div>
-</div>
 
-<div id="adminDashboard" class="admin-layout" style="display:none;">
-    
-    <aside class="admin-sidebar">
-        <div class="sidebar-header">
-            <img src="assets/images/logos/college-logo.jpg" alt="College Logo" style="width:40px; border-radius:50%; margin-left:10px;">
-            <h3>لوحة الإدارة</h3>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
-            <li data-tab="displayManager">📺 إدارة العرض</li>
-            <li data-tab="timeSettings">⏰ الوقت والتاريخ</li>
-            <li data-tab="messagesSettings">💬 الرسائل</li>
-            <li data-tab="occasionsSettings">🎉 المناسبات</li>
-            <li data-tab="contentSettings">📁 المحتوى</li>
-            <li data-tab="countdownSettings">⏳ العد التنازلي</li>
-            <li data-tab="prayerWeatherSettings">🌦️ الطقس والصلاة</li>
-            <li data-tab="logosSettings">🖼️ الشعارات و QR</li>
-            <li data-tab="usersSettings">👥 المستخدمون</li>
-            <li data-tab="logsSettings">📝 السجلات</li>
-            <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
-            <li data-tab="systemSettings">⚙️ النظام</li>
-        </ul>
-    </aside>
+    <div id="adminDashboard" class="admin-layout" style="display:none;">
+        
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/logos/college-logo.jpg" alt="شعار الكلية" class="sidebar-logo">
+                <h3>لوحة الإدارة</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
+                <li data-tab="displayManager">📺 إدارة العرض المباشر</li>
+                <li data-tab="themeSettings">🎨 الألوان والثيمات</li>
+                <li data-tab="headerSettings">🔝 إدارة الهيدر</li>
+                <li data-tab="messagesSettings">💬 إدارة الرسائل</li>
+                <li data-tab="newsTickerSettings">📰 الشريط الإخباري</li>
+                <li data-tab="occasionsSettings">🎉 إدارة المناسبات</li>
+                <li data-tab="contentSettings">📁 إدارة المحتوى</li>
+                <li data-tab="slidesSettings">📑 إدارة الشرائح</li>
+                <li data-tab="countdownSettings">⏳ العد التنازلي</li>
+                <li data-tab="weatherSettings">🌦️ إدارة الطقس</li>
+                <li data-tab="prayerSettings">🕌 أوقات الصلاة</li>
+                <li data-tab="qrSettings">📱 إدارة QR Code</li>
+                <li data-tab="usersSettings">👥 المستخدمون</li>
+                <li data-tab="logsSettings">📝 السجلات</li>
+                <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
+                <li data-tab="systemSettings">⚙️ النظام</li>
+            </ul>
+        </aside>
 
-    <main class="admin-main">
-        <header class="top-bar">
-            <span class="page-title">لوحة التحكم الرئيسية</span>
-            <button id="logoutBtn" class="btn-danger">تسجيل الخروج</button>
-        </header>
+        <main class="admin-main">
+            <header class="top-bar">
+                <span class="page-title">لوحة التحكم الرئيسية</span>
+                <div class="top-bar-actions">
+                    <span id="connectionStatus" class="status-badge online">متصل 🟢</span>
+                    <button id="logoutBtn" class="btn-danger">تسجيل الخروج</button>
+                </div>
+            </header>
 
-        <div class="content-wrapper">
-            <section id="mainDashboard" class="tab-pane active" style="display:block;"></section>
-            <section id="displayManager" class="tab-pane" style="display:none;"></section>
-            <section id="timeSettings" class="tab-pane" style="display:none;"></section>
-            <section id="messagesSettings" class="tab-pane" style="display:none;"></section>
-            <section id="occasionsSettings" class="tab-pane" style="display:none;"></section>
-            <section id="contentSettings" class="tab-pane" style="display:none;"></section>
-            <section id="countdownSettings" class="tab-pane" style="display:none;"></section>
-            <section id="prayerWeatherSettings" class="tab-pane" style="display:none;"></section>
-            <section id="logosSettings" class="tab-pane" style="display:none;"></section>
-            <section id="usersSettings" class="tab-pane" style="display:none;"></section>
-            <section id="logsSettings" class="tab-pane" style="display:none;"></section>
-            <section id="backupSettings" class="tab-pane" style="display:none;"></section>
-            <section id="systemSettings" class="tab-pane" style="display:none;"></section>
-        </div>
-    </main>
-</div>
+            <div class="content-wrapper">
+                <section id="mainDashboard" class="tab-pane active" style="display:block;"></section>
+                <section id="displayManager" class="tab-pane" style="display:none;"></section>
+                <section id="themeSettings" class="tab-pane" style="display:none;"></section>
+                </div>
+        </main>
+    </div>
 
-<script type="module" src="./assets/js/admin.js"></script>
+    <div id="toastContainer" class="toast-container"></div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const loginBtn = document.getElementById("loginBtn");
-        const passwordInput = document.getElementById("adminPassword");
-        const loginScreen = document.getElementById("loginScreen");
-        const dashboard = document.getElementById("adminDashboard");
-        const errorMsg = document.getElementById("loginError");
-        const logoutBtn = document.getElementById("logoutBtn");
-
-        // 1. التحقق من حالة الجلسة عند تحديث الصفحة
-        if (sessionStorage.getItem("isAdminLoggedIn") === "true") {
-            loginScreen.style.display = "none";
-            dashboard.style.display = "flex";
-        }
-
-        // 2. وظيفة زر الدخول
-        if (loginBtn) {
-            loginBtn.addEventListener("click", () => {
-                if (passwordInput.value === "123") { // كلمة المرور الحالية
-                    sessionStorage.setItem("isAdminLoggedIn", "true");
-                    loginScreen.style.display = "none";
-                    dashboard.style.display = "flex";
-                } else {
-                    errorMsg.textContent = "كلمة المرور غير صحيحة!";
-                    passwordInput.value = "";
-                }
-            });
-        }
-
-        // 3. دعم زر Enter لتسجيل الدخول
-        if (passwordInput) {
-            passwordInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter") loginBtn.click();
-            });
-        }
-
-        // 4. وظيفة تسجيل الخروج
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", () => {
-                sessionStorage.removeItem("isAdminLoggedIn");
-                location.reload(); // إعادة تحميل الصفحة للعودة لشاشة الدخول
-            });
-        }
-    });
-</script>
-
+    <script type="module" src="./assets/js/admin.js"></script>
 </body>
 </html>
