@@ -4,6 +4,7 @@
 
 // استيراد كافة وحدات النظام
 import { initClock } from "./clock.js";
+import { initDate } from "./date.js"; // تم إضافة نظام التاريخ
 import { initAuth } from "./auth.js";
 import { initWeather } from "./weather.js";
 import { initPrayers } from "./prayers.js";
@@ -30,6 +31,7 @@ async function initApp() {
     const modules = [
         { name: "Auth", init: initAuth },
         { name: "Clock", init: initClock },
+        { name: "Date", init: initDate }, // تم إضافة التاريخ للقائمة
         { name: "Weather", init: initWeather },
         { name: "Prayers", init: initPrayers },
         { name: "Messages", init: initMessages },
