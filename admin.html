@@ -3,88 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة إدارة الساعة الرقمية الذكية</title>
+    <title>لوحة الإدارة - الشاشة الرقمية الذكية</title>
     
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/admin.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
-    
-    <link rel="icon" href="assets/images/icons/icon-1.png" type="image/png">
 </head>
-<body class="admin-body">
+<body data-theme="dark">
 
-    <div id="loginScreen" class="login-container">
-        <div class="login-box">
-            <img src="assets/images/logos/university-logo.jpg" alt="شعار الجامعة" class="login-logo">
-            <h2>تسجيل الدخول للنظام</h2>
-            <input type="password" id="adminPassword" placeholder="كلمة المرور..." class="form-input">
-            <button id="loginBtn" class="btn-primary w-full">دخول</button>
-            <div id="loginError" class="error-text"></div>
-        </div>
+    <div id="loginScreen">
+        <h2 style="margin-bottom: 30px; color: #f8fafc;">تسجيل الدخول للإدارة</h2>
+        <input type="text" id="adminUsername" placeholder="اسم المستخدم">
+        <input type="password" id="adminPassword" placeholder="كلمة المرور">
+        <button id="loginBtn">دخول</button>
+        <a href="index.html" style="margin-top: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem;">العودة لشاشة العرض الرئيسية</a>
     </div>
 
-    <div id="adminDashboard" class="admin-layout" style="display:none;">
+    <div id="adminDashboard">
         
         <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <img src="assets/images/logos/college-logo.jpg" alt="شعار الكلية" class="sidebar-logo">
-                <h3>لوحة الإدارة</h3>
-            </div>
+            <h2>الإدارة المركزية</h2>
             <ul class="sidebar-menu">
-                <li class="active" data-tab="mainDashboard">📊 لوحة التحكم</li>
-                <li data-tab="displayManager">📺 إدارة العرض المباشر</li>
-                <li data-tab="themeSettings">🎨 الألوان والثيمات</li>
-                <li data-tab="headerSettings">🔝 إدارة الهيدر</li>
-                <li data-tab="messagesSettings">💬 إدارة الرسائل</li>
-                <li data-tab="newsTickerSettings">📰 الشريط الإخباري</li>
-                <li data-tab="occasionsSettings">🎉 إدارة المناسبات</li>
-                <li data-tab="contentSettings">📁 إدارة المحتوى</li>
-                <li data-tab="slidesSettings">📑 إدارة الشرائح</li>
-                <li data-tab="countdownSettings">⏳ العد التنازلي</li>
-                <li data-tab="weatherSettings">🌦️ إدارة الطقس</li>
-                <li data-tab="prayerSettings">🕌 أوقات الصلاة</li>
-                <li data-tab="qrSettings">📱 إدارة QR Code</li>
-                <li data-tab="usersSettings">👥 المستخدمون</li>
-                <li data-tab="logsSettings">📝 السجلات</li>
-                <li data-tab="backupSettings">💾 النسخ الاحتياطي</li>
-                <li data-tab="systemSettings">⚙️ النظام</li>
+                <li data-tab="mainDashboard" class="active">📊 الإحصائيات وحالة النظام</li>
+                
+                <li data-tab="displaySettings" data-permission="manage_display">🖥️ إدارة العرض</li>
+                <li data-tab="messagesSettings" data-permission="manage_messages">💬 الرسائل</li>
+                <li data-tab="occasionsSettings" data-permission="manage_occasions">🎉 المناسبات</li>
+                <li data-tab="newsSettings" data-permission="manage_news">📰 الشريط الإخباري</li>
+                <li data-tab="contentSettings" data-permission="manage_content">📂 إدارة المحتوى</li>
+                <li data-tab="slidesSettings" data-permission="manage_slides">🖼️ الشرائح</li>
+                <li data-tab="countdownSettings" data-permission="manage_countdown">⏳ العد التنازلي</li>
+                
+                <li data-tab="weatherSettings" data-permission="toggle_weather">🌤️ الطقس</li>
+                <li data-tab="prayerSettings" data-permission="toggle_prayers">🕌 الصلاة</li>
+                <li data-tab="qrSettings" data-permission="edit_qr">📱 إدارة QR</li>
+                
+                <li data-tab="themeSettings" data-permission="manage_themes">🎨 الثيمات والألوان</li>
+                <li data-tab="usersSettings" data-permission="manage_users">👥 إدارة المستخدمين</li>
+                <li data-tab="logsSettings" data-permission="manage_logs">📋 سجلات النظام</li>
+                <li data-tab="systemSettings" data-permission="manage_settings">⚙️ إعدادات النظام</li>
             </ul>
+            <button id="logoutBtn">تسجيل الخروج 🚪</button>
         </aside>
 
-        <main class="admin-main">
-            <header class="top-bar">
-                <span class="page-title">لوحة التحكم الرئيسية</span>
-                <div class="top-bar-actions">
-                    <span id="connectionStatus" class="status-badge online">متصل 🟢</span>
-                    <button id="logoutBtn" class="btn-danger">تسجيل الخروج</button>
+        <main class="admin-content">
+            
+            <div id="mainDashboard" class="tab-pane active">
+                <div style="text-align: center; color: #94a3b8; margin-top: 50px;">
+                    <h3>جاري تحميل البيانات...</h3>
                 </div>
-            </header>
-
-            <div class="content-wrapper">
-                <section id="mainDashboard" class="tab-pane active" style="display:block;"></section>
-                <section id="displayManager" class="tab-pane" style="display:none;"></section>
-                <section id="themeSettings" class="tab-pane" style="display:none;"></section>
-                <section id="headerSettings" class="tab-pane" style="display:none;"></section>
-                <section id="messagesSettings" class="tab-pane" style="display:none;"></section>
-                <section id="newsTickerSettings" class="tab-pane" style="display:none;"></section>
-                <section id="occasionsSettings" class="tab-pane" style="display:none;"></section>
-                <section id="contentSettings" class="tab-pane" style="display:none;"></section>
-                <section id="slidesSettings" class="tab-pane" style="display:none;"></section>
-                <section id="countdownSettings" class="tab-pane" style="display:none;"></section>
-                <section id="weatherSettings" class="tab-pane" style="display:none;"></section>
-                <section id="prayerSettings" class="tab-pane" style="display:none;"></section>
-                <section id="qrSettings" class="tab-pane" style="display:none;"></section>
-                <section id="usersSettings" class="tab-pane" style="display:none;"></section>
-                <section id="logsSettings" class="tab-pane" style="display:none;"></section>
-                <section id="backupSettings" class="tab-pane" style="display:none;"></section>
-                <section id="systemSettings" class="tab-pane" style="display:none;"></section>
             </div>
+
+            <div id="displaySettings" class="tab-pane"><h2>🖥️ إدارة العرض</h2><hr style="border-color:#334155;"></div>
+            <div id="messagesSettings" class="tab-pane"><h2>💬 إدارة الرسائل</h2><hr style="border-color:#334155;"></div>
+            <div id="occasionsSettings" class="tab-pane"><h2>🎉 إدارة المناسبات</h2><hr style="border-color:#334155;"></div>
+            <div id="newsSettings" class="tab-pane"><h2>📰 الشريط الإخباري</h2><hr style="border-color:#334155;"></div>
+            <div id="contentSettings" class="tab-pane"><h2>📂 إدارة المحتوى</h2><hr style="border-color:#334155;"></div>
+            <div id="slidesSettings" class="tab-pane"><h2>🖼️ إدارة الشرائح</h2><hr style="border-color:#334155;"></div>
+            <div id="countdownSettings" class="tab-pane"><h2>⏳ العد التنازلي</h2><hr style="border-color:#334155;"></div>
+            
+            <div id="weatherSettings" class="tab-pane"><h2>🌤️ إعدادات الطقس</h2><hr style="border-color:#334155;"></div>
+            <div id="prayerSettings" class="tab-pane"><h2>🕌 إعدادات الصلاة</h2><hr style="border-color:#334155;"></div>
+            <div id="qrSettings" class="tab-pane"><h2>📱 إدارة QR</h2><hr style="border-color:#334155;"></div>
+            
+            <div id="themeSettings" class="tab-pane"><h2>🎨 الثيمات والألوان</h2><hr style="border-color:#334155;"></div>
+            <div id="usersSettings" class="tab-pane"><h2>👥 إدارة المستخدمين</h2><hr style="border-color:#334155;"></div>
+            <div id="logsSettings" class="tab-pane"><h2>📋 سجلات النظام</h2><hr style="border-color:#334155;"></div>
+            <div id="systemSettings" class="tab-pane"><h2>⚙️ إعدادات النظام</h2><hr style="border-color:#334155;"></div>
+            
         </main>
     </div>
 
-    <div id="toastContainer" class="toast-container"></div>
+    <script type="module" src="assets/js/admin.js"></script>
 
-    <script type="module" src="./assets/js/admin.js"></script>
 </body>
 </html>
