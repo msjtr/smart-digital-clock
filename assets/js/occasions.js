@@ -1,352 +1,133 @@
 // ============================================================================
-// Occasions Manager
+// Occasions Manager - نظام إدارة المناسبات (النسخة النهائية)
 // ============================================================================
 
-import {
-    fetchJsonData,
-    saveToLocal,
-    getFromLocal
-} from "./storage.js";
-
-import {
-    addLog
-} from "./logs.js";
+import { fetchJsonData, saveToLocal, getFromLocal } from "./storage.js";
+import { addLog } from "./logs.js";
 
 let occasions = [];
-
 let activeOccasion = null;
 
-// ============================================================================
-// تشغيل المناسبات
-// ============================================================================
-
+/**
+ * تهيئة نظام المناسبات
+ */
 export async function initOccasions() {
+    // محاولة الجلب من التخزين المحلي أولاً
+    const localData = getFromLocal("occasions");
 
-    const localData =
-        getFromLocal(
-            "occasions"
-        );
-
-    if (
-        localData &&
-        localData.length
-    ) {
-
-        occasions =
-            localData;
-
+    if (localData && Array.isArray(localData) && localData.length > 0) {
+        occasions = localData;
     } else {
-
-        const jsonData =
-            await fetchJsonData(
-                "occasions"
-            );
-
-        occasions =
-            jsonData?.list || [];
-
-        saveToLocal(
-            "occasions",
-            occasions
-        );
-
+        // إذا لم يوجد محلياً، جلب من السيرفر
+        const jsonData = await fetchJsonData("occasions");
+        occasions = jsonData?.list || [];
+        saveToLocal("occasions", occasions);
     }
 
     selectActiveOccasion();
-
     renderOccasion();
-
-    console.log(
-        "✅ تم تشغيل نظام المناسبات"
-    );
-
+    console.log("✅ تم تشغيل نظام المناسبات بنجاح.");
 }
 
-// ============================================================================
-// اختيار المناسبة الحالية
-// ============================================================================
-
+/**
+ * اختيار المناسبة النشطة بناءً على التاريخ أو الحالة
+ */
 function selectActiveOccasion() {
+    const today = new Date();
+    
+    // البحث عن مناسبة ضمن نطاق التاريخ ومفعلة
+    activeOccasion = occasions.find(occ => {
+        if (!occ.isActive) return false;
+        const start = new Date(occ.startDate);
+        const end = new Date(occ.endDate);
+        return today >= start && today <= end;
+    });
 
-    const today =
-        new Date();
-
-    activeOccasion =
-        occasions.find(
-            occasion => {
-
-                if (
-                    !occasion.isActive
-                ) return false;
-
-                const start =
-                    new Date(
-                        occasion.startDate
-                    );
-
-                const end =
-                    new Date(
-                        occasion.endDate
-                    );
-
-                return (
-                    today >= start &&
-                    today <= end
-                );
-
-            }
-        );
-
-    if (
-        !activeOccasion &&
-        occasions.length
-    ) {
-
-        activeOccasion =
-            occasions.find(
-                o => o.isActive
-            );
-
+    // إذا لم توجد مناسبة في النطاق، نختار أول مناسبة مفعلة
+    if (!activeOccasion) {
+        activeOccasion = occasions.find(o => o.isActive);
     }
-
 }
 
-// ============================================================================
-// عرض المناسبة
-// ============================================================================
-
+/**
+ * عرض المناسبة في الواجهة
+ */
 function renderOccasion() {
-
-    const box =
-        document.getElementById(
-            "occasionBox"
-        );
-
-    if (!box)
-        return;
+    const box = document.getElementById("occasionBox");
+    if (!box) return;
 
     if (!activeOccasion) {
-
         box.innerHTML = `
-
-            <h2>
-                🎉 مرحباً بكم
-            </h2>
-
-            <p>
-                أهلاً بكم في
-                كلية الشريعة والقانون
-            </p>
-
+            <h2>🎉 مرحباً بكم</h2>
+            <p>أهلاً بكم في كلية الشريعة والقانون</p>
         `;
-
         return;
-
     }
 
     box.innerHTML = `
-
-        <h2>
-            ${activeOccasion.title}
-        </h2>
-
-        <p>
-            ${activeOccasion.description}
-        </p>
-
+        <h2>${activeOccasion.title}</h2>
+        <p>${activeOccasion.description}</p>
     `;
 
-    if (
-        activeOccasion.imagePath
-    ) {
-
-        const image =
-            document.createElement(
-                "img"
-            );
-
-        image.src =
-            activeOccasion.imagePath;
-
-        image.alt =
-            activeOccasion.title;
-
-        image.className =
-            "occasion-image";
-
-        image.onerror =
-            () =>
-            image.remove();
-
-        box.appendChild(
-            image
-        );
-
+    if (activeOccasion.imagePath) {
+        const image = document.createElement("img");
+        image.src = activeOccasion.imagePath;
+        image.alt = activeOccasion.title;
+        image.className = "occasion-image";
+        image.onerror = () => image.remove();
+        box.appendChild(image);
     }
-
 }
 
 // ============================================================================
-// إضافة مناسبة
+// دوال إدارة البيانات (Admin API)
 // ============================================================================
 
-export function addOccasion(
-    occasion
-) {
-
-    occasions.push(
-        occasion
-    );
-
+export function addOccasion(occasion) {
+    occasions.push(occasion);
     saveOccasions();
-
-    addLog(
-        "إضافة مناسبة",
-        occasion.title
-    );
-
+    addLog("إضافة مناسبة", occasion.title);
     selectActiveOccasion();
-
     renderOccasion();
-
 }
 
-// ============================================================================
-// تعديل مناسبة
-// ============================================================================
-
-export function updateOccasion(
-    index,
-    data
-) {
-
-    if (
-        !occasions[index]
-    ) return;
-
-    occasions[index] = {
-
-        ...occasions[index],
-
-        ...data
-
-    };
-
+export function updateOccasion(index, data) {
+    if (!occasions[index]) return;
+    occasions[index] = { ...occasions[index], ...data };
     saveOccasions();
-
-    addLog(
-        "تعديل مناسبة",
-        occasions[index].title
-    );
-
+    addLog("تعديل مناسبة", occasions[index].title);
     selectActiveOccasion();
-
     renderOccasion();
-
 }
 
-// ============================================================================
-// حذف مناسبة
-// ============================================================================
-
-export function deleteOccasion(
-    index
-) {
-
-    if (
-        !occasions[index]
-    ) return;
-
-    const deleted =
-        occasions[index];
-
-    occasions.splice(
-        index,
-        1
-    );
-
+export function deleteOccasion(index) {
+    if (!occasions[index]) return;
+    const deleted = occasions.splice(index, 1);
     saveOccasions();
-
-    addLog(
-        "حذف مناسبة",
-        deleted.title
-    );
-
+    addLog("حذف مناسبة", deleted[0].title);
     selectActiveOccasion();
-
     renderOccasion();
-
 }
 
-// ============================================================================
-// تفعيل مناسبة
-// ============================================================================
-
-export function activateOccasion(
-    index
-) {
-
-    occasions.forEach(
-        occasion => {
-
-            occasion.isActive =
-                false;
-
-        }
-    );
-
-    if (
-        occasions[index]
-    ) {
-
-        occasions[index]
-            .isActive = true;
-
-        addLog(
-            "تفعيل مناسبة",
-            occasions[index]
-                .title
-        );
-
+export function activateOccasion(index) {
+    occasions.forEach(o => o.isActive = false);
+    if (occasions[index]) {
+        occasions[index].isActive = true;
+        addLog("تفعيل مناسبة", occasions[index].title);
     }
-
     saveOccasions();
-
     selectActiveOccasion();
-
     renderOccasion();
-
 }
-
-// ============================================================================
-// حفظ المناسبات
-// ============================================================================
 
 function saveOccasions() {
-
-    saveToLocal(
-        "occasions",
-        occasions
-    );
-
+    saveToLocal("occasions", occasions);
 }
-
-// ============================================================================
-// جلب جميع المناسبات
-// ============================================================================
 
 export function getOccasions() {
-
     return occasions;
-
 }
 
-// ============================================================================
-// جلب المناسبة الحالية
-// ============================================================================
-
 export function getActiveOccasion() {
-
     return activeOccasion;
-
 }
