@@ -1,342 +1,187 @@
-/* ============================================================================
-   ملف التنسيق الخاص بلوحة الإدارة (Admin Dashboard)
-   المشروع: الساعة الرقمية الذكية - جامعة حائل
-============================================================================ */
+/* ==========================================================================
+   Admin Dashboard Styles - تنسيقات لوحة الإدارة (Dark Theme)
+   ========================================================================== */
 
-/* --- إصلاح التداخل (Box Sizing Reset) --- */
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
-/* --- المتغيرات الأساسية للوحة الإدارة --- */
 :root {
-    --admin-bg: #0f172a;
-    --admin-sidebar: rgba(30, 41, 59, 0.9);
-    --admin-card: rgba(255, 255, 255, 0.05);
-    --admin-border: rgba(255, 255, 255, 0.1);
-    --admin-text: #f8fafc;
-    --admin-text-muted: #94a3b8;
-    --admin-primary: #0ea5e9;
-    --admin-primary-hover: #0284c7;
-    --admin-danger: #ef4444;
-    --admin-danger-hover: #dc2626;
-    --glass-blur: blur(12px);
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --success: #10b981;
 }
 
-/* --- الإعدادات العامة --- */
-.admin-body {
+body.admin-body {
     margin: 0;
-    padding: 0;
-    background: var(--admin-bg);
-    color: var(--admin-text);
-    font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden; /* يمنع التمرير للصفحة بالكامل، التمرير سيكون داخلياً فقط */
-    width: 100vw;
-    height: 100vh;
+    font-family: 'Tajawal', system-ui, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
 }
 
-/* ============================================================================
-   1. شاشة تسجيل الدخول
-============================================================================ */
+/* --- نظام تسجيل الدخول --- */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 9999;
+    height: 100vh;
 }
 
 .login-box {
-    background: var(--admin-card);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--admin-border);
+    background: var(--bg-card);
     padding: 40px;
-    border-radius: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     text-align: center;
-    width: 90%;
+    width: 100%;
     max-width: 400px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: fadeInUp 0.6s ease-out;
 }
 
-.login-box h2 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 1.5rem;
-    color: var(--admin-text);
-}
-
-.login-box input[type="password"],
-.login-box input[type="text"] {
-    width: 100%;
-    padding: 12px 15px;
+.login-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
     margin-bottom: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--admin-border);
-    color: white;
-    border-radius: 10px;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.3s;
+    border: 3px solid var(--border-color);
 }
 
-.login-box input[type="password"]:focus {
-    border-color: var(--admin-primary);
-    box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
-}
-
-/* ============================================================================
-   2. الأزرار
-============================================================================ */
-button {
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    outline: none;
-}
-
-.btn-primary {
-    width: 100%;
-    padding: 12px;
-    background: var(--admin-primary);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: bold;
-}
-
-.btn-primary:hover {
-    background: var(--admin-primary-hover);
-    transform: translateY(-2px);
-}
-
-.btn-danger {
-    padding: 8px 20px;
-    background: var(--admin-danger);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-danger:hover {
-    background: var(--admin-danger-hover);
-}
-
-/* ============================================================================
-   3. تخطيط لوحة الإدارة المقاوم للتداخل (Bulletproof Layout)
-============================================================================ */
+/* --- الهيكل الرئيسي --- */
 .admin-layout {
     display: flex;
-    width: 100vw;
     height: 100vh;
     overflow: hidden;
 }
 
 /* --- القائمة الجانبية --- */
 .admin-sidebar {
-    flex: 0 0 260px; /* يمنع القائمة من التمدد أو الانكماش */
     width: 260px;
-    background: var(--admin-sidebar);
-    backdrop-filter: var(--glass-blur);
-    border-left: 1px solid var(--admin-border);
+    background-color: var(--bg-card);
+    border-left: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    z-index: 100;
+    overflow-y: auto;
 }
 
 .sidebar-header {
-    flex: 0 0 80px; /* ارتفاع ثابت للهيدر الجانبي */
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--admin-border);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.sidebar-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--admin-primary);
+.sidebar-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-left: 15px;
 }
 
 .sidebar-menu {
     list-style: none;
-    padding: 15px;
+    padding: 0;
     margin: 0;
-    overflow-y: auto; /* يسمح بتمرير القائمة إذا طالت */
-    flex: 1;
 }
 
 .sidebar-menu li {
-    padding: 12px 15px;
-    margin-bottom: 5px;
-    border-radius: 10px;
+    padding: 15px 20px;
     cursor: pointer;
-    font-size: 1rem;
-    color: var(--admin-text-muted);
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
 }
 
-.sidebar-menu li:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--admin-text);
-}
-
-.sidebar-menu li.active {
-    background: var(--admin-primary);
+.sidebar-menu li:hover, .sidebar-menu li.active {
+    background-color: var(--primary);
     color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
 }
 
 /* --- المحتوى الرئيسي --- */
 .admin-main {
-    flex: 1; /* يأخذ باقي مساحة الشاشة */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
-    overflow: hidden; /* يمنع خروج المحتوى عن الإطار */
-    min-width: 0; /* إصلاح لبعض مشاكل Flexbox */
 }
 
-/* --- الهيدر العلوي وزر الخروج --- */
 .top-bar {
-    flex: 0 0 70px; /* ارتفاع ثابت يمنع التداخل */
+    background-color: var(--bg-card);
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px;
-    background: rgba(15, 23, 42, 0.95);
-    border-bottom: 1px solid var(--admin-border);
-    z-index: 10;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.page-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: var(--admin-text);
-    margin: 0;
-}
-
-/* --- منطقة التبويبات والمحتوى --- */
 .content-wrapper {
-    flex: 1;
     padding: 30px;
-    overflow-y: auto; /* هنا فقط يحدث التمرير (Scroll) */
+    overflow-y: auto;
+    flex: 1;
 }
 
-/* ============================================================================
-   4. التبويبات والبطاقات
-============================================================================ */
-.tab-pane {
-    display: none;
-    animation: fadeIn 0.4s ease;
+/* --- العناصر المشتركة (أزرار وحقول) --- */
+.btn-primary, .btn-danger {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: 0.3s;
 }
 
-.tab-pane.active {
-    display: block;
+.btn-primary { background-color: var(--primary); }
+.btn-primary:hover { background-color: var(--primary-hover); }
+
+.btn-danger { background-color: var(--danger); }
+.btn-danger:hover { background-color: var(--danger-hover); }
+
+.w-full { width: 100%; }
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-dark);
+    color: white;
+    box-sizing: border-box;
 }
 
-.tab-pane h2 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--admin-border);
-    color: var(--admin-primary);
+.error-text { color: var(--danger); font-weight: bold; margin-top: 10px; }
+
+/* --- الإشعارات المنبثقة (Toast Notifications) --- */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* تنسيق Checkboxes ولوحات التحكم */
-.tab-pane label {
+.toast {
+    background-color: var(--bg-card);
+    border-right: 4px solid var(--primary);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 15px 20px;
-    background: var(--admin-card);
-    border: 1px solid var(--admin-border);
-    margin-bottom: 12px;
-    border-radius: 12px;
-    cursor: pointer;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateX(-20px);
     transition: all 0.3s ease;
 }
 
-.tab-pane label:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-5px);
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
 }
 
-.tab-pane input[type="checkbox"] {
-    margin-left: 15px;
-    width: 20px;
-    height: 20px;
-    accent-color: var(--admin-primary);
-    cursor: pointer;
-}
-
-/* ============================================================================
-   5. الحركات (Animations)
-============================================================================ */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================================================================
-   6. التوافق مع الشاشات الصغيرة (Mobile Responsive)
-============================================================================ */
-@media (max-width: 768px) {
-    .admin-layout {
-        flex-direction: column;
-    }
-    
-    .admin-sidebar {
-        flex: 0 0 auto;
-        width: 100%;
-        border-left: none;
-        border-bottom: 1px solid var(--admin-border);
-    }
-
-    .sidebar-header {
-        justify-content: space-between;
-        padding: 10px 20px;
-        flex: 0 0 60px;
-    }
-
-    .sidebar-menu {
-        display: flex;
-        overflow-x: auto;
-        padding: 10px;
-        white-space: nowrap;
-    }
-
-    .sidebar-menu li {
-        margin-bottom: 0;
-        margin-left: 10px;
-        flex: 0 0 auto;
-    }
-
-    .top-bar {
-        padding: 0 20px;
-    }
-
-    .content-wrapper {
-        padding: 20px;
-    }
-}
+.toast-success { border-color: var(--success); }
+.toast-error { border-color: var(--danger); }
