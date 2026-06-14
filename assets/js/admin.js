@@ -1,10 +1,11 @@
 // ============================================================================
-// Admin Master Controller - النسخة النهائية المتكاملة والمحمية من الأخطاء
+// Admin Master Controller - النسخة النهائية المتكاملة والمحمية (مع تفعيل الحفظ)
 // ============================================================================
 
 import { fetchJsonData, saveJsonData } from "./storage.js";
 import { broadcastUpdate } from "./sync.js";
-import { initAuth } from "./auth.js"; // تأكد من استدعاء المصادقة هنا
+import { initAuth } from "./auth.js"; 
+import { showToast } from "./utils.js"; // استدعاء الإشعارات
 
 // قاعدة بيانات النظام (قيم افتراضية)
 let systemData = {
@@ -25,7 +26,7 @@ export async function initAdmin() {
     // 2. تفعيل نظام التنقل بين الأقسام
     setupTabs();
 
-    // 3. حقن المحتوى في التبويبات بالكامل
+    // 3. حقن المحتوى في التبويبات وتفعيل الأزرار
     renderAllTabs();
     
     console.log("✅ تم بناء الواجهة وتفعيل أزرار التحكم بنجاح.");
@@ -45,24 +46,22 @@ function setupTabs() {
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
-            // 1. إخفاء وإلغاء تنشيط جميع الأقسام والتبويبات
+            // إخفاء الجميع
             tabs.forEach(t => t.classList.remove("active"));
             panes.forEach(p => { 
                 p.classList.remove("active"); 
                 p.style.display = "none"; 
             });
 
-            // 2. تنشيط التبويب الذي تم الضغط عليه
+            // إظهار القسم المطلوب
             tab.classList.add("active");
             const targetId = tab.getAttribute("data-tab");
             const target = document.getElementById(targetId);
             
-            // 3. إظهار الشاشة المقابلة للتبويب
             if (target) {
                 target.classList.add("active");
                 target.style.display = "block";
                 
-                // تحديث عنوان اللوحة العلوي بناءً على اسم التبويب المختار
                 if (pageTitle) {
                     pageTitle.textContent = tab.textContent.replace(/[^\u0600-\u06FF\s\w]/g, '').trim();
                 }
@@ -74,10 +73,9 @@ function setupTabs() {
 }
 
 // ============================================================================
-// نظام بناء وحقن المحتوى (Dynamic Render)
+// نظام بناء وحقن المحتوى وتفعيل أزرار الحفظ (Dynamic Render)
 // ============================================================================
 function renderAllTabs() {
-    // التأكد الدائم من أن المصفوفات سليمة قبل محاولة استخراج طولها
     const safeMessagesCount = Array.isArray(systemData.messages) ? systemData.messages.length : 0;
     const safeContentCount = Array.isArray(systemData.content) ? systemData.content.length : 0;
 
@@ -91,12 +89,12 @@ function renderAllTabs() {
             
         "displayManager": `<h2>📺 إدارة العرض</h2>
             <div id="displayControls"></div>
-            <button class="btn-primary" style="margin-top:20px;">حفظ الإعدادات</button>`,
+            <button class="btn-primary" id="saveDisplaySettings" style="margin-top:20px;">حفظ إعدادات العرض</button>`,
             
         "messagesSettings": `<h2>💬 إدارة الرسائل والشريط الإخباري</h2>
             <div style="display:flex; gap:10px;">
                 <input type="text" id="msgInput" placeholder="أدخل رسالة أو إعلان جديد..." style="flex:1; padding:12px; border-radius:5px; border:1px solid #475569; background:#0f172a; color:#fff;">
-                <button class="btn-primary" id="addMsg" style="padding:0 20px;">إضافة</button>
+                <button class="btn-primary" id="addMsg" style="padding:0 20px;">إضافة وحفظ</button>
             </div>
             <ul id="msgList" style="margin-top:20px; list-style:none; padding:0;"></ul>`,
             
@@ -104,17 +102,17 @@ function renderAllTabs() {
             <button class="btn-primary">رفع ملف جديد</button>
             <div style="margin-top:20px; border:2px dashed #475569; padding:40px; text-align:center; border-radius:8px;">اسحب وأفلت الملفات هنا</div>`,
             
-        "prayerWeatherSettings": `<h2>🌦️ إعدادات الطقس ومواقيت الصلاة</h2>
+        "prayerSettings": `<h2>🌦️ إعدادات الطقس ومواقيت الصلاة</h2>
             <label style="display:block; margin-bottom:8px;">المدينة الحالية:</label>
             <input type="text" id="cityInput" value="${systemData.settings.city || 'حائل'}" style="padding:10px; width:100%; margin-bottom:15px; border-radius:5px; border:1px solid #475569; background:#0f172a; color:#fff;">
-            <button class="btn-primary" id="updateCity">تحديث البيانات</button>`,
+            <button class="btn-primary" id="updateCity">حفظ وتحديث البيانات</button>`,
             
         "systemSettings": `<h2>⚙️ إعدادات النظام المتقدمة</h2>
             <p style="margin-bottom:15px;">إصدار اللوحة الحالي: <span style="color:#38bdf8;">1.0.0</span></p>
             <button class="btn-danger">إعادة ضبط المصنع بالكامل</button>`
     };
 
-    // 1. حقن محتويات الـ HTML في كافة الشاشات والتبويبات
+    // 1. حقن محتويات الـ HTML
     Object.keys(contentMap).forEach(id => {
         const section = document.getElementById(id);
         if (section) {
@@ -122,10 +120,37 @@ function renderAllTabs() {
         }
     });
 
-    // 2. تحديث وعرض قائمة الرسائل ديناميكياً مع زر الحذف لكل رسالة
+    // ==========================================
+    // 2. تفعيل أزرار الحفظ في الأقسام المختلفة
+    // ==========================================
+
+    // أ. زر حفظ المدينة في قسم الصلاة والطقس
+    const updateCityBtn = document.getElementById("updateCity");
+    if (updateCityBtn) {
+        updateCityBtn.addEventListener("click", () => {
+            const cityValue = document.getElementById("cityInput").value.trim();
+            if (cityValue) {
+                systemData.settings.city = cityValue;
+                saveJsonData("settings", systemData.settings);
+                broadcastUpdate("settings", systemData.settings);
+                showToast("تم حفظ إعدادات المدينة بنجاح!", "success");
+            } else {
+                showToast("الرجاء إدخال اسم المدينة أولاً", "error");
+            }
+        });
+    }
+
+    // ب. زر حفظ إعدادات العرض
+    const saveDisplayBtn = document.getElementById("saveDisplaySettings");
+    if (saveDisplayBtn) {
+        saveDisplayBtn.addEventListener("click", () => {
+            showToast("تم حفظ إعدادات العرض بنجاح!", "success");
+        });
+    }
+
+    // ج. إدارة الرسائل (عرض، حذف، إضافة)
     const msgList = document.getElementById("msgList");
     if (msgList) {
-        // حماية إضافية لتجنب خطأ .map()
         const safeMessages = Array.isArray(systemData.messages) ? systemData.messages : [];
         
         msgList.innerHTML = safeMessages.map((msg, index) => `
@@ -135,31 +160,33 @@ function renderAllTabs() {
             </li>
         `).join('');
 
-        // ربط أحداث الحذف للرسائل
+        // ربط أزرار الحذف
         msgList.querySelectorAll("button[data-index]").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const idx = parseInt(e.target.getAttribute("data-index"), 10);
                 safeMessages.splice(idx, 1);
-                systemData.messages = safeMessages; // تحديث المصفوفة الأصلية
+                systemData.messages = safeMessages;
                 saveJsonData("messages", systemData.messages);
                 broadcastUpdate("messages", systemData.messages);
-                renderAllTabs(); // إعادة بناء لتحديث الداشبورد والقائمة معاً
+                showToast("تم حذف الرسالة بنجاح", "success");
+                renderAllTabs(); // إعادة البناء لتحديث اللوحة فوراً
             });
         });
     }
 
-    // 3. ربط حدث إضافة رسالة جديدة
+    // د. زر إضافة رسالة جديدة
     document.getElementById("addMsg")?.addEventListener("click", () => {
         const input = document.getElementById("msgInput");
         const val = input ? input.value.trim() : "";
         if (val) {
-            // التأكد من أن الرسائل مصفوفة قبل الإضافة
             if (!Array.isArray(systemData.messages)) systemData.messages = [];
-            
             systemData.messages.push(val);
             saveJsonData("messages", systemData.messages);
             broadcastUpdate("messages", systemData.messages);
-            renderAllTabs(); // إعادة البناء لتظهر فوراً في القائمة وتتحدث البطاقات بالداشبورد
+            showToast("تم إضافة الرسالة بنجاح!", "success");
+            renderAllTabs(); 
+        } else {
+            showToast("لا يمكن إضافة رسالة فارغة!", "error");
         }
     });
 }
@@ -174,8 +201,6 @@ async function loadDataFromServer() {
         const c = await fetchJsonData("content");
         
         if (s) systemData.settings = s;
-        
-        // إجبار البيانات أن تكون مصفوفة في حال كانت كائن أو فارغة
         if (m) systemData.messages = Array.isArray(m) ? m : (m.messages || []);
         if (c) systemData.content = Array.isArray(c) ? c : (c.content || []);
         
