@@ -11,7 +11,7 @@ import { showToast } from "./utils.js";
 let systemData = {
     messages: [],
     occasions: [],
-    usersCount: 3 // رقم افتراضي لحين بناء شاشة إدارة المستخدمين
+    usersCount: 3
 };
 
 export async function initAdmin() {
@@ -24,15 +24,15 @@ export async function initAdmin() {
     if (sessionStorage.getItem("current_user_session") !== null) {
         await loadSystemData();
         setupTabs();
-        renderDashboardStats();
         
-        // تشغيل واجهة الرسائل
+        // تشغيل الواجهات
+        renderDashboardStats();
         renderMessages(); 
     }
 }
 
 // ============================================================================
-// تحميل البيانات الأساسية للإحصائيات
+// تحميل البيانات الأساسية
 // ============================================================================
 async function loadSystemData() {
     try {
@@ -79,7 +79,7 @@ function setupTabs() {
 }
 
 // ============================================================================
-// 1. بناء شاشة الإحصائيات (Dashboard)
+// 1. شاشة الإحصائيات (Dashboard)
 // ============================================================================
 function renderDashboardStats() {
     const dashboardPane = document.getElementById("mainDashboard");
@@ -151,4 +151,10 @@ function renderMessages() {
             <button id="addMessageBtn" class="btn-primary" data-permission="manage_messages">➕ إضافة رسالة</button>
         </div>
 
-        <div style
+        <div style="background: #1e293b; border-radius: 10px; overflow: hidden;">
+            <ul id="messagesList" style="list-style: none; padding: 0; margin: 0;">
+                ${systemData.messages.length === 0 ? '<li style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد رسائل حالياً</li>' : ''}
+                
+                ${systemData.messages.map((msg, index) => `
+                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #334155;">
+                        <span style="font-size:
