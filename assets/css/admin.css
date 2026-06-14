@@ -1,187 +1,160 @@
-/* ==========================================================================
-   Admin Dashboard Styles - تنسيقات لوحة الإدارة (Dark Theme)
-   ========================================================================== */
+/* ============================================================================
+   Admin Panel Styles - تنسيقات لوحة الإدارة
+   ============================================================================ */
 
-:root {
-    --bg-dark: #0f172a;
-    --bg-card: #1e293b;
-    --border-color: #334155;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
-    --danger: #ef4444;
-    --danger-hover: #dc2626;
-    --success: #10b981;
+/* التنسيقات الأساسية */
+body { 
+    margin: 0; 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background: #0f172a; 
+    color: #f8fafc; 
 }
 
-body.admin-body {
-    margin: 0;
-    font-family: 'Tajawal', system-ui, sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
+/* -----------------------------------------
+   شاشة تسجيل الدخول
+----------------------------------------- */
+#loginScreen { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100vh; 
+    background: #0f172a; 
+}
+#loginScreen input { 
+    margin-bottom: 15px; 
+    padding: 12px; 
+    width: 300px; 
+    border-radius: 8px; 
+    border: 1px solid #334155; 
+    background: #1e293b; 
+    color: #fff; 
+    font-size: 1rem; 
+}
+#loginScreen input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+#loginScreen button { 
+    padding: 12px 20px; 
+    width: 300px; 
+    border-radius: 8px; 
+    border: none; 
+    background: #3b82f6; 
+    color: white; 
+    font-size: 1.1rem; 
+    cursor: pointer; 
+    font-weight: bold; 
+    transition: background 0.3s;
+}
+#loginScreen button:hover { 
+    background: #2563eb; 
 }
 
-/* --- نظام تسجيل الدخول --- */
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* -----------------------------------------
+   لوحة التحكم الرئيسية والقائمة الجانبية
+----------------------------------------- */
+#adminDashboard { 
+    display: none; /* مخفية حتى يتم تسجيل الدخول */
+    height: 100vh; 
 }
 
-.login-box {
-    background: var(--bg-card);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
+.admin-sidebar { 
+    width: 280px; 
+    background: #1e293b; 
+    border-left: 1px solid #334155; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 20px 0; 
+    overflow-y: auto; 
+}
+.admin-sidebar h2 { 
+    text-align: center; 
+    color: #3b82f6; 
+    margin-bottom: 20px; 
+    padding: 0 20px; 
+    font-size: 1.5rem;
+}
+.sidebar-menu { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+    flex: 1; 
+}
+.sidebar-menu li { 
+    padding: 15px 25px; 
+    cursor: pointer; 
+    border-bottom: 1px solid #334155; 
+    transition: background 0.3s; 
+    color: #cbd5e1;
+}
+.sidebar-menu li:hover, 
+.sidebar-menu li.active { 
+    background: #334155; 
+    border-right: 4px solid #3b82f6; 
+    color: #fff;
 }
 
-.login-logo {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 20px;
-    border: 3px solid var(--border-color);
-}
-
-/* --- الهيكل الرئيسي --- */
-.admin-layout {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* --- القائمة الجانبية --- */
-.admin-sidebar {
-    width: 260px;
-    background-color: var(--bg-card);
-    border-left: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-logo {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    margin-left: 15px;
-}
-
-.sidebar-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar-menu li {
-    padding: 15px 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-}
-
-.sidebar-menu li:hover, .sidebar-menu li.active {
-    background-color: var(--primary);
-    color: white;
-}
-
-/* --- المحتوى الرئيسي --- */
-.admin-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.top-bar {
-    background-color: var(--bg-card);
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.content-wrapper {
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-/* --- العناصر المشتركة (أزرار وحقول) --- */
-.btn-primary, .btn-danger {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+#logoutBtn { 
+    margin: 20px; 
+    padding: 12px; 
+    background: #ef4444; 
+    color: #fff; 
+    text-align: center; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    border: none; 
     font-weight: bold;
-    color: white;
-    transition: 0.3s;
+    transition: background 0.3s;
+}
+#logoutBtn:hover { 
+    background: #dc2626; 
 }
 
-.btn-primary { background-color: var(--primary); }
-.btn-primary:hover { background-color: var(--primary-hover); }
-
-.btn-danger { background-color: var(--danger); }
-.btn-danger:hover { background-color: var(--danger-hover); }
-
-.w-full { width: 100%; }
-
-.form-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background-color: var(--bg-dark);
-    color: white;
-    box-sizing: border-box;
+/* -----------------------------------------
+   منطقة المحتوى والتبويبات
+----------------------------------------- */
+.admin-content { 
+    flex: 1; 
+    padding: 30px; 
+    overflow-y: auto; 
+    background: #0f172a; 
+}
+.tab-pane { 
+    display: none; 
+    animation: fadeIn 0.3s ease-in-out; 
+}
+.tab-pane.active { 
+    display: block; 
 }
 
-.error-text { color: var(--danger); font-weight: bold; margin-top: 10px; }
-
-/* --- الإشعارات المنبثقة (Toast Notifications) --- */
-.toast-container {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* -----------------------------------------
+   أزرار عامة
+----------------------------------------- */
+.btn-primary { 
+    background: #3b82f6; 
+    color: white; 
+    border: none; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+.btn-primary:hover { 
+    background: #2563eb; 
+}
+.btn-danger { 
+    background: #ef4444; 
+    color: white; 
+    border: none; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+.btn-danger:hover { 
+    background: #dc2626; 
 }
 
-.toast {
-    background-color: var(--bg-card);
-    border-right: 4px solid var(--primary);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    opacity: 0;
-    transform: translateX(-20px);
-    transition: all 0.3s ease;
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(5px); } 
+    to { opacity: 1; transform: translateY(0); } 
 }
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.toast-success { border-color: var(--success); }
-.toast-error { border-color: var(--danger); }
