@@ -1,87 +1,172 @@
-/**
+// ============================================================================
+// Smart Digital Clock - Main Application Controller
+// File: assets/js/app.js
+// ============================================================================
 
-* =====================================================================
-* Smart Digital Clock - Main Application Controller
-* File: assets/js/app.js
-* =====================================================================
-  */
+import { initClock } from "./clock.js";
 
-console.log("🚀 بدء تشغيل الشاشة الرقمية الذكية...");
+// سيتم تفعيل هذه الوحدات تلقائياً إذا كانت موجودة
+let initDate = null;
+let initWeather = null;
+let initPrayers = null;
+let initMessages = null;
+let initCountdown = null;
+let initOccasions = null;
+let initContent = null;
 
 // تحميل الوحدات بشكل آمن
-async function initModules() {
+async function loadModules() {
 
 ```
-const modules = [
-    "./clock.js",
-    "./date.js",
-    "./weather.js",
-    "./prayers.js",
-    "./messages.js",
-    "./countdown.js",
-    "./occasions.js",
-    "./content.js"
-];
+try {
+    const dateModule = await import("./date.js");
+    initDate = dateModule.initDate || null;
+} catch (e) {
+    console.warn("⚠️ date.js غير متوفر أو يحتوي على خطأ");
+}
 
-for (const modulePath of modules) {
+try {
+    const weatherModule = await import("./weather.js");
+    initWeather = weatherModule.initWeather || null;
+} catch (e) {
+    console.warn("⚠️ weather.js غير متوفر أو يحتوي على خطأ");
+}
 
-    try {
+try {
+    const prayersModule = await import("./prayers.js");
+    initPrayers = prayersModule.initPrayers || null;
+} catch (e) {
+    console.warn("⚠️ prayers.js غير متوفر أو يحتوي على خطأ");
+}
 
-        const module = await import(modulePath);
+try {
+    const messagesModule = await import("./messages.js");
+    initMessages = messagesModule.initMessages || null;
+} catch (e) {
+    console.warn("⚠️ messages.js غير متوفر أو يحتوي على خطأ");
+}
 
-        const initFunction =
-            module.initClock ||
-            module.initDate ||
-            module.initWeather ||
-            module.initPrayers ||
-            module.initMessages ||
-            module.initCountdown ||
-            module.initOccasions ||
-            module.initContent;
+try {
+    const countdownModule = await import("./countdown.js");
+    initCountdown = countdownModule.initCountdown || null;
+} catch (e) {
+    console.warn("⚠️ countdown.js غير متوفر أو يحتوي على خطأ");
+}
 
-        if (typeof initFunction === "function") {
-            await initFunction();
-            console.log(`✅ تم تشغيل ${modulePath}`);
-        }
+try {
+    const occasionsModule = await import("./occasions.js");
+    initOccasions = occasionsModule.initOccasions || null;
+} catch (e) {
+    console.warn("⚠️ occasions.js غير متوفر أو يحتوي على خطأ");
+}
 
-    } catch (error) {
-        console.warn(`⚠️ تعذر تشغيل ${modulePath}`, error);
-    }
+try {
+    const contentModule = await import("./content.js");
+    initContent = contentModule.initContent || null;
+} catch (e) {
+    console.warn("⚠️ content.js غير متوفر أو يحتوي على خطأ");
 }
 ```
 
 }
 
-// تحديث حالة الاتصال
+// مراقبة حالة الاتصال
 function monitorConnection() {
 
 ```
 window.addEventListener("online", () => {
-    console.log("🟢 عاد الاتصال بالإنترنت");
+    console.log("🟢 تم استعادة الاتصال بالإنترنت");
 });
 
 window.addEventListener("offline", () => {
-    console.log("🔴 انقطع الاتصال بالإنترنت");
+    console.log("🔴 تم فقد الاتصال بالإنترنت");
 });
 ```
 
 }
 
-// بدء النظام
-async function initApp() {
+// تشغيل الوحدات
+async function startModules() {
 
 ```
 try {
 
-    monitorConnection();
+    // الساعة
+    if (typeof initClock === "function") {
+        initClock();
+        console.log("✅ Clock Started");
+    }
 
-    await initModules();
+    // التاريخ
+    if (typeof initDate === "function") {
+        initDate();
+        console.log("✅ Date Started");
+    }
 
-    console.log("✅ تم تشغيل الشاشة الرقمية بنجاح");
+    // الطقس
+    if (typeof initWeather === "function") {
+        await initWeather();
+        console.log("✅ Weather Started");
+    }
+
+    // الصلاة
+    if (typeof initPrayers === "function") {
+        await initPrayers();
+        console.log("✅ Prayer Times Started");
+    }
+
+    // الرسائل
+    if (typeof initMessages === "function") {
+        initMessages();
+        console.log("✅ Messages Started");
+    }
+
+    // العد التنازلي
+    if (typeof initCountdown === "function") {
+        initCountdown();
+        console.log("✅ Countdown Started");
+    }
+
+    // المناسبات
+    if (typeof initOccasions === "function") {
+        initOccasions();
+        console.log("✅ Occasions Started");
+    }
+
+    // المحتوى
+    if (typeof initContent === "function") {
+        initContent();
+        console.log("✅ Content Started");
+    }
 
 } catch (error) {
 
-    console.error("❌ فشل تشغيل النظام", error);
+    console.error("❌ خطأ أثناء تشغيل الوحدات", error);
+
+}
+```
+
+}
+
+// التهيئة الرئيسية
+async function initApp() {
+
+```
+console.log("🚀 بدء تشغيل الشاشة الرقمية الذكية");
+
+try {
+
+    monitorConnection();
+
+    await loadModules();
+
+    await startModules();
+
+    console.log("🎉 تم تشغيل النظام بنجاح");
+
+} catch (error) {
+
+    console.error("❌ فشل تشغيل التطبيق", error);
 
 }
 ```
