@@ -1,12 +1,9 @@
 // ============================================================================
-// Date Manager - نظام التاريخ (ميلادي/هجري) - النسخة النهائية
+// Date Manager - نظام التاريخ (ميلادي/هجري) - نسخة البحث المستمر
 // ============================================================================
 
 import { padZero } from './utils.js';
 
-/**
- * تهيئة نظام عرض التاريخ
- */
 export function initDate() {
     console.log("📅 جاري تهيئة نظام التاريخ...");
 
@@ -15,15 +12,15 @@ export function initDate() {
         const gregorianElement = document.getElementById('gregorianDate');
         const hijriElement = document.getElementById('hijriDate');
 
-        // إذا لم توجد العناصر، نخرج بسلام
+        // فحص وجود العناصر
         if (!dayElement && !gregorianElement && !hijriElement) {
-            console.warn("⚠️ تحذير: لم يتم العثور على أي عنصر تاريخ (dayName, gregorianDate, hijriDate) في الصفحة.");
+            console.warn("⚠️ التاريخ: العناصر غير موجودة في الصفحة حالياً. سأحاول لاحقاً.");
             return;
         }
 
         const now = new Date();
         
-        // 1. اليوم (اسم اليوم)
+        // 1. اليوم
         if (dayElement) {
             dayElement.textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
         }
@@ -37,7 +34,7 @@ export function initDate() {
             });
         }
 
-        // 3. التاريخ الهجري (مع معالجة استثنائية للمتصفحات)
+        // 3. التاريخ الهجري (مع fallback للمتصفحات التي لا تدعم التقويم المتقدم)
         if (hijriElement) {
             try {
                 const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
@@ -47,8 +44,10 @@ export function initDate() {
                 });
                 hijriElement.textContent = hijriFormatter.format(now);
             } catch (e) {
-                console.error("❌ خطأ في تنسيق التاريخ الهجري:", e);
-                hijriElement.textContent = "التاريخ الهجري غير متاح";
+                // محاولة عرض أي تاريخ هجري قياسي إذا فشل أم القرى
+                hijriElement.textContent = now.toLocaleDateString('ar-u-ca-islamic', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
             }
         }
     }
@@ -56,8 +55,8 @@ export function initDate() {
     // التنفيذ الفوري
     updateDate();
     
-    // التحقق كل دقيقة لضمان الدقة عند منتصف الليل
+    // التحديث كل دقيقة
     setInterval(updateDate, 60000); 
     
-    console.log("✅ نظام التاريخ مفعل ومربوط.");
+    console.log("✅ نظام التاريخ مفعل.");
 }
