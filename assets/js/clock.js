@@ -1,7 +1,9 @@
 // ============================================================================
-// Clock Manager - محرك الساعة الذكي
+// Clock Manager - محرك الساعة الذكي (النسخة المستقلة والمصلحة)
 // ============================================================================
-import { padZero } from './utils.js';
+
+// تم إضافة الدالة محلياً لتجنب أخطاء الاستدعاء (Import Errors)
+const padZero = (num) => num.toString().padStart(2, '0');
 
 /**
  * تهيئة الساعة الرقمية
@@ -17,7 +19,7 @@ export function initClock(settings = {}) {
 
     // دالة محرك الساعة المحدثة
     function updateClock() {
-        // نستخدم الإعدادات الممررة، مع محاولة جلب التحديثات من المتغير العالمي (window.appSettings) إن وجد
+        // نستخدم الإعدادات الممررة، مع محاولة جلب التحديثات من المتغير العالمي إن وجد
         const currentSettings = window.appSettings || settings;
         
         const is12HourFormat = currentSettings?.clockFormat !== '24'; 
@@ -33,7 +35,7 @@ export function initClock(settings = {}) {
         // نظام 12 ساعة وإضافة (ص/م)
         if (is12HourFormat) {
             amPm = hours >= 12 ? ' م' : ' ص';
-            hours = hours % 12 || 12;
+            hours = hours % 12 || 12; // تحويل الصفر إلى 12 لمنتصف الليل
         }
 
         hours = padZero(hours);
@@ -43,7 +45,7 @@ export function initClock(settings = {}) {
             ? `${hours}:${minutes}:${seconds}${amPm}`
             : `${hours}:${minutes}${amPm}`;
 
-        // عرض الوقت على الشاشة
+        // عرض الوقت على الشاشة فقط إذا تغير (لتحسين الأداء)
         if (clockElement.textContent !== timeString) {
             clockElement.textContent = timeString;
         }
