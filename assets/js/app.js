@@ -1,176 +1,78 @@
 // ============================================================================
-// Smart Digital Clock - Main Application Controller
-// File: assets/js/app.js
+// Main Application Controller - المحرك الرئيسي للشاشة الرقمية
 // ============================================================================
 
 import { initClock } from "./clock.js";
+import { fetchLiveWeather, fetchLivePrayers } from "./api.js";
+import { fetchJsonData } from "./storage.js";
 
-// سيتم تفعيل هذه الوحدات تلقائياً إذا كانت موجودة
-let initDate = null;
-let initWeather = null;
-let initPrayers = null;
-let initMessages = null;
-let initCountdown = null;
-let initOccasions = null;
-let initContent = null;
-
-// تحميل الوحدات بشكل آمن
-async function loadModules() {
-
-```
-try {
-    const dateModule = await import("./date.js");
-    initDate = dateModule.initDate || null;
-} catch (e) {
-    console.warn("⚠️ date.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const weatherModule = await import("./weather.js");
-    initWeather = weatherModule.initWeather || null;
-} catch (e) {
-    console.warn("⚠️ weather.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const prayersModule = await import("./prayers.js");
-    initPrayers = prayersModule.initPrayers || null;
-} catch (e) {
-    console.warn("⚠️ prayers.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const messagesModule = await import("./messages.js");
-    initMessages = messagesModule.initMessages || null;
-} catch (e) {
-    console.warn("⚠️ messages.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const countdownModule = await import("./countdown.js");
-    initCountdown = countdownModule.initCountdown || null;
-} catch (e) {
-    console.warn("⚠️ countdown.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const occasionsModule = await import("./occasions.js");
-    initOccasions = occasionsModule.initOccasions || null;
-} catch (e) {
-    console.warn("⚠️ occasions.js غير متوفر أو يحتوي على خطأ");
-}
-
-try {
-    const contentModule = await import("./content.js");
-    initContent = contentModule.initContent || null;
-} catch (e) {
-    console.warn("⚠️ content.js غير متوفر أو يحتوي على خطأ");
-}
-```
-
-}
-
-// مراقبة حالة الاتصال
-function monitorConnection() {
-
-```
-window.addEventListener("online", () => {
-    console.log("🟢 تم استعادة الاتصال بالإنترنت");
-});
-
-window.addEventListener("offline", () => {
-    console.log("🔴 تم فقد الاتصال بالإنترنت");
-});
-```
-
-}
-
-// تشغيل الوحدات
-async function startModules() {
-
-```
-try {
-
-    // الساعة
-    if (typeof initClock === "function") {
-        initClock();
-        console.log("✅ Clock Started");
-    }
-
-    // التاريخ
-    if (typeof initDate === "function") {
-        initDate();
-        console.log("✅ Date Started");
-    }
-
-    // الطقس
-    if (typeof initWeather === "function") {
-        await initWeather();
-        console.log("✅ Weather Started");
-    }
-
-    // الصلاة
-    if (typeof initPrayers === "function") {
-        await initPrayers();
-        console.log("✅ Prayer Times Started");
-    }
-
-    // الرسائل
-    if (typeof initMessages === "function") {
-        initMessages();
-        console.log("✅ Messages Started");
-    }
-
-    // العد التنازلي
-    if (typeof initCountdown === "function") {
-        initCountdown();
-        console.log("✅ Countdown Started");
-    }
-
-    // المناسبات
-    if (typeof initOccasions === "function") {
-        initOccasions();
-        console.log("✅ Occasions Started");
-    }
-
-    // المحتوى
-    if (typeof initContent === "function") {
-        initContent();
-        console.log("✅ Content Started");
-    }
-
-} catch (error) {
-
-    console.error("❌ خطأ أثناء تشغيل الوحدات", error);
-
-}
-```
-
-}
-
-// التهيئة الرئيسية
 async function initApp() {
+    console.log("🚀 جاري تهيئة الشاشة الرئيسية...");
 
-```
-console.log("🚀 بدء تشغيل الشاشة الرقمية الذكية");
+    try {
+        // 1. تهيئة الساعة فوراً
+        initClock();
 
-try {
+        // 2. تحميل البيانات التفاعلية
+        await loadDynamicData();
 
-    monitorConnection();
+        // 3. تفعيل نظام التبديل بين الـ Widgets (الذي أنشأناه في index.html)
+        setupSlider();
 
-    await loadModules();
-
-    await startModules();
-
-    console.log("🎉 تم تشغيل النظام بنجاح");
-
-} catch (error) {
-
-    console.error("❌ فشل تشغيل التطبيق", error);
-
-}
-```
-
+        console.log("✅ تم بناء الشاشة الرئيسية بنجاح.");
+    } catch (error) {
+        console.error("❌ خطأ أثناء تهيئة التطبيق:", error);
+    }
 }
 
-document.addEventListener("DOMContentLoaded", initApp);
+// ============================================================================
+// جلب البيانات من API و LocalStorage
+// ============================================================================
+async function loadDynamicData() {
+    // جلب الطقس
+    const weather = await fetchLiveWeather();
+    if (weather) {
+        const weatherEl = document.getElementById("weatherInfo");
+        if (weatherEl) weatherEl.innerHTML = `${weather.city}: ${weather.temperature}°C`;
+    }
+
+    // جلب أوقات الصلاة
+    const prayers = await fetchLivePrayers();
+    if (prayers) {
+        const prayerEl = document.getElementById("prayerTimes");
+        if (prayerEl) {
+            prayerEl.innerHTML = `الفجر: ${prayers.Fajr} | الظهر: ${prayers.Dhuhr}`;
+        }
+    }
+
+    // جلب الرسائل من ملف JSON المحلي
+    const messages = await fetchJsonData("messages");
+    if (messages && Array.isArray(messages)) {
+        const msgEl = document.getElementById("messageDisplay");
+        if (msgEl) msgEl.textContent = messages[0] || "أهلاً بكم في جامعة حائل";
+    }
+}
+
+// ============================================================================
+// نظام التنقل بين الشرائح (Slider System)
+// ============================================================================
+function setupSlider() {
+    const widgets = document.querySelectorAll('.widget');
+    if (widgets.length === 0) return;
+
+    let index = 0;
+    setInterval(() => {
+        widgets[index].classList.remove('active');
+        index = (index + 1) % widgets.length;
+        widgets[index].classList.add('active');
+    }, 8000); // 8 ثوانٍ لكل شريحة
+}
+
+// ============================================================================
+// التشغيل عند جاهزية المتصفح
+// ============================================================================
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initApp);
+} else {
+    initApp();
+}
