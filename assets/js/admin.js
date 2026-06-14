@@ -16,7 +16,17 @@ let systemData = {
 
 export async function initAdmin() {
     console.log("🛠️ جاري تهيئة لوحة التحكم...");
+    initAuth();
     
+    if (sessionStorage.getItem("current_user_session") !== null) {
+        await loadSystemData();
+        setupTabs();
+        renderDashboardStats();
+        
+        // تشغيل واجهة الرسائل
+        renderMessages(); 
+    }
+}
     // 1. تشغيل المصادقة (وتطبيق الصلاحيات الأولية على الـ HTML الثابت)
     initAuth();
     
@@ -161,3 +171,93 @@ function applyPermissionsToContainer(container) {
 
 // تنفيذ النظام عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", initAdmin);
+
+// ============================================================================
+// إدارة الرسائل (Messages Management)
+// ============================================================================
+import { saveJsonData } from "./storage.js";
+
+function renderMessages() {
+    const pane = document.getElementById("messagesSettings");
+    if (!pane) return;
+
+    // رسم واجهة الرسائل
+    pane.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>💬 إدارة الرسائل</h2>
+            <span style="color: var(--text-muted);">إجمالي الرسائل: ${systemData.messages.length}</span>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 30px; background: #1e293b; padding: 20px; border-radius: 10px;">
+            <input type="text" id="newMessageInput" placeholder="اكتب رسالة جديدة هنا..." 
+                   style="flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: #fff;"
+                   data-permission="manage_messages">
+            <button id="addMessageBtn" class="btn-primary" data-permission="manage_messages">➕ إضافة رسالة</button>
+        </div>
+
+        <div style="background: #1e293b; border-radius: 10px; overflow: hidden;">
+            <ul id="messagesList" style="list-style: none; padding: 0; margin: 0;">
+                ${systemData.messages.length === 0 ? '<li style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد رسائل حالياً</li>' : ''}
+                
+                ${systemData.messages.map((msg, index) => `
+                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #334155;">
+                        <span style="font-size: 1.1rem;">${msg}</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-danger delete-msg-btn" data-index="${index}" data-permission="manage_messages" style="padding: 8px 12px; font-size: 0.9rem;">🗑️ حذف</button>
+                        </div>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+    `;
+
+    // تطبيق الصلاحيات ديناميكياً لإخفاء/تعطيل أزرار الحذف والإضافة للمشاهدين
+    applyPermissionsToContainer(pane);
+
+    // ربط الأحداث (Event Listeners)
+    bindMessagesEvents();
+}
+
+function bindMessagesEvents() {
+    // 1. إضافة رسالة
+    const addBtn = document.getElementById("addMessageBtn");
+    const input = document.getElementById("newMessageInput");
+
+    if (addBtn && input) {
+        addBtn.addEventListener("click", async () => {
+            const val = input.value.trim();
+            if (val) {
+                systemData.messages.push(val);
+                await saveJsonData("messages", systemData.messages);
+                showToast("تمت إضافة الرسالة بنجاح", "success");
+                renderMessages(); // إعادة رسم القائمة
+                renderDashboardStats(); // تحديث العداد في الرئيسية
+            } else {
+                showToast("الرجاء كتابة محتوى الرسالة", "error");
+            }
+        });
+
+        // دعم زر Enter
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addBtn.click();
+        });
+    }
+
+    // 2. حذف رسالة
+    const deleteButtons = document.querySelectorAll(".delete-msg-btn");
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            // نتحقق من الصلاحية مرة أخرى برمجياً كطبقة حماية ثانية
+            if (!hasPermission("manage_messages")) return;
+
+            const index = parseInt(e.target.getAttribute("data-index"));
+            if (confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
+                systemData.messages.splice(index, 1);
+                await saveJsonData("messages", systemData.messages);
+                showToast("تم حذف الرسالة", "success");
+                renderMessages(); 
+                renderDashboardStats();
+            }
+        });
+    });
+}
