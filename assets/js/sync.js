@@ -2,13 +2,19 @@
 // Sync Engine - محرك المزامنة اللحظية (آمن وقوي)
 // ============================================================================
 
-// فتح قناة اتصال موحدة للنظام
-const syncChannel = new BroadcastChannel('smart_clock_channel');
+// التحقق من دعم المتصفح للتقنية
+const isSupported = typeof BroadcastChannel !== 'undefined';
+const syncChannel = isSupported ? new BroadcastChannel('smart_clock_channel') : null;
 
 /**
  * دالة الإرسال (تُستخدم في لوحة الإدارة)
  */
 export function broadcastUpdate(action, payload) {
+    if (!isSupported) {
+        console.warn("⚠️ متصفحك لا يدعم المزامنة اللحظية.");
+        return;
+    }
+
     try {
         syncChannel.postMessage({ action, payload, timestamp: Date.now() });
         console.log(`📤 تم إرسال تحديث:`, action);
@@ -21,6 +27,8 @@ export function broadcastUpdate(action, payload) {
  * دالة الاستقبال (تُستخدم في شاشة العرض الرئيسية)
  */
 export function listenForUpdates(callback) {
+    if (!isSupported) return;
+
     syncChannel.onmessage = (event) => {
         try {
             if (!event.data || !event.data.action) {
@@ -30,7 +38,6 @@ export function listenForUpdates(callback) {
 
             console.log(`📥 تم استقبال تحديث:`, event.data.action);
             
-            // تنفيذ الـ callback مع التأكد أنه دالة
             if (typeof callback === 'function') {
                 callback(event.data);
             }
@@ -40,4 +47,14 @@ export function listenForUpdates(callback) {
     };
     
     console.log("📡 نظام المزامنة اللحظية جاهز للاستقبال.");
+}
+
+/**
+ * تنظيف القناة (تُستخدم عند الخروج)
+ */
+export function closeSync() {
+    if (syncChannel) {
+        syncChannel.close();
+        console.log("🔌 تم إغلاق قناة المزامنة.");
+    }
 }
