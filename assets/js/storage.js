@@ -1,9 +1,10 @@
 // ============================================================================
-// Storage Manager - مدير البيانات والتواصل مع السيرفر (النسخة الكاملة)
+// Storage Manager - مدير البيانات والتواصل مع السيرفر
 // ============================================================================
 
 /**
  * جلب البيانات من ملفات JSON في مجلد data
+ * إذا تعذر الاتصال بالسيرفر، يقوم تلقائياً بجلب النسخة الاحتياطية من LocalStorage
  */
 export async function fetchJsonData(fileName) {
     try {
@@ -14,17 +15,24 @@ export async function fetchJsonData(fileName) {
             throw new Error(`تعذر العثور على ملف ${fileName}.json`);
         }
         
-        return await response.json();
+        const data = await response.json();
+        // حفظ نسخة محدثة محلياً عند نجاح الجلب من السيرفر
+        saveToLocal(fileName, data);
+        return data;
     } catch (error) {
-        console.warn(`⚠️ تنبيه: خطأ في قراءة ${fileName}، سيتم استخدام البيانات المحلية إن وجدت.`, error);
-        return getFromLocal(fileName); // استدعاء الدالة المضافة
+        console.warn(`⚠️ تنبيه: خطأ في قراءة ${fileName} من السيرفر، يتم المحاولة من التخزين المحلي...`, error);
+        return getFromLocal(fileName); 
     }
 }
 
 /**
- * إرسال البيانات للسيرفر لحفظها
+ * إرسال البيانات للسيرفر لحفظها (POST Request)
+ * يقوم بالتحديث المحلي فوراً لضمان سرعة الاستجابة
  */
 export async function saveJsonData(fileName, content) {
+    // 1. تحديث محلي فوري (لضمان تجربة مستخدم سريعة)
+    saveToLocal(fileName, content);
+
     try {
         const response = await fetch('/api/save', {
             method: 'POST',
@@ -36,19 +44,18 @@ export async function saveJsonData(fileName, content) {
         
         if (result.success) {
             console.log(`💾 تم حفظ ${fileName}.json في السيرفر بنجاح`);
-            saveToLocal(fileName, content);
             return true;
+        } else {
+            throw new Error(result.error || "خطأ غير معروف");
         }
-        return false;
     } catch (error) {
         console.error(`❌ فشل الاتصال بالسيرفر أثناء حفظ ${fileName}:`, error);
-        saveToLocal(fileName, content);
         return false;
     }
 }
 
 /**
- * الحفظ المحلي الدائم
+ * الحفظ في LocalStorage (تخزين محلي دائم)
  */
 export function saveToLocal(key, data) {
     try {
@@ -60,7 +67,7 @@ export function saveToLocal(key, data) {
 }
 
 /**
- * دالة الجلب المحلي (مهمة جداً لربطها مع باقي الملفات)
+ * استرجاع البيانات من LocalStorage
  */
 export function getFromLocal(key) {
     try {
@@ -70,4 +77,16 @@ export function getFromLocal(key) {
         console.error(`❌ خطأ في استرجاع البيانات المحلية لـ ${key}`, e);
         return null;
     }
+}
+
+/**
+ * مسح البيانات المحلية (مفيد عند تسجيل الخروج أو إعادة تعيين النظام)
+ */
+export function clearLocalData() {
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('admin_')) {
+            localStorage.removeItem(key);
+        }
+    });
+    console.log("🧹 تم مسح جميع البيانات المحلية للإدارة");
 }
