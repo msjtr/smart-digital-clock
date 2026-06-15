@@ -1,12 +1,12 @@
 // ============================================================================
-// Settings Manager - مدير الإعدادات (محدث ليدعم السيرفر)
+// Settings Manager - مدير الإعدادات (محدث ليدعم السيرفر والتوافق الكامل)
 // ============================================================================
 
 import {
     getFromLocal,
     saveToLocal,
     fetchJsonData,
-    saveJsonData // تمت إضافة الاستيراد الجديد للحفظ في السيرفر
+    saveJsonData
 } from "./storage.js";
 
 let currentSettings = null;
@@ -18,18 +18,30 @@ export async function initSettings() {
     console.log("⚙️ تم تشغيل نظام الإعدادات");
 
     try {
-        // 1. الأولوية لجلب الإعدادات من السيرفر (ملف JSON)
-        currentSettings = await fetchJsonData("settings");
-
-        // 2. إذا فشل السيرفر، جلبها من التخزين المحلي (Offline Fallback)
-        if (!currentSettings || Object.keys(currentSettings).length === 0) {
-            console.log("⚠️ تعذر جلب الإعدادات من السيرفر، جاري استخدام النسخة المحلية.");
+        // 1. محاولة جلب الإعدادات من السيرفر
+        const data = await fetchJsonData("settings");
+        
+        // التحقق من أن البيانات صالحة (قد تكون كائن فارغ أو هيكل {list:[]})
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+            currentSettings = data;
+        } else {
+            // 2. إذا فشل السيرفر أو كانت البيانات فارغة، جلب النسخة المحلية
+            console.log("⚠️ تعذر جلب إعدادات صالحة من السيرفر، جاري استخدام النسخة المحلية.");
             currentSettings = getFromLocal("system_settings");
         }
 
-        // 3. إذا لم توجد أي إعدادات، استخدام إعدادات افتراضية
+        // 3. إذا لم توجد أي إعدادات (سيرفر أو محلي)، استخدام إعدادات افتراضية
         if (!currentSettings) {
-            currentSettings = { theme: "dark" };
+            currentSettings = { 
+                theme: "dark", 
+                projectorMode: false,
+                features: {
+                    showClock: true, showDate: true, showWeather: true,
+                    showPrayers: true, showMessages: true, showOccasions: true,
+                    showCountdown: true, showContent: true, showNewsTicker: true,
+                    showQR: true, showLogos: true
+                }
+            };
             saveToLocal("system_settings", currentSettings);
         }
 
@@ -47,25 +59,21 @@ export async function initSettings() {
 export function applySettings(settings) {
     if (!settings) return;
 
-    // 1. تطبيق الثيم (Theme)
+    // تطبيق الثيم (Theme)
     document.body.setAttribute("data-theme", settings.theme || "dark");
 
-    // 2. وضع البروجيكتور
-    if (settings.projectorMode) {
-        document.body.classList.add("projector-mode");
-    } else {
-        document.body.classList.remove("projector-mode");
-    }
+    // تطبيق وضع البروجيكتور
+    document.body.classList.toggle("projector-mode", !!settings.projectorMode);
 
-    // 3. الألوان المخصصة (إذا تم تعديلها من لوحة الإدارة)
+    // تطبيق الألوان المخصصة
     if (settings.bgColor) document.documentElement.style.setProperty('--bg-color', settings.bgColor);
     if (settings.cardColor) document.documentElement.style.setProperty('--card-bg', settings.cardColor);
 
-    // 4. إظهار/إخفاء العناصر (يدعم النظام المسطح من admin.js والنظام المتداخل القديم)
+    // التحقق من ظهور العناصر (نظام هجين يدعم الهيكلين)
     const getVisibility = (key) => {
         if (settings[key] !== undefined) return settings[key];
         if (settings.features && settings.features[key] !== undefined) return settings.features[key];
-        return true; // الافتراضي إظهار
+        return true;
     };
 
     const elementsToToggle = {
@@ -86,53 +94,36 @@ export function applySettings(settings) {
         if (el) {
             el.style.transition = "opacity 0.4s ease-in-out";
             el.style.opacity = visible ? "1" : "0";
-            // استخدام setTimeout لضمان انتهاء تأثير الشفافية قبل إخفاء العنصر بالكامل
             setTimeout(() => {
                 el.style.display = visible ? "" : "none";
-            }, visible ? 0 : 400);
+            }, 400);
         }
     });
 
-    // 5. الشعارات
-    const universityLogo = document.getElementById("universityLogo");
-    const collegeLogo = document.getElementById("collegeLogo");
-
-    if (universityLogo) universityLogo.style.display = getVisibility('showLogos') ? "" : "none";
-    if (collegeLogo) collegeLogo.style.display = getVisibility('showLogos') ? "" : "none";
+    // إدارة الشعارات
+    const logos = [document.getElementById("universityLogo"), document.getElementById("collegeLogo")];
+    logos.forEach(logo => { if (logo) logo.style.display = getVisibility('showLogos') ? "" : "none"; });
 
     console.log("✅ تم تطبيق إعدادات العرض بنجاح");
 }
 
 // ============================================================================
-// Exported Functions (دوال الاستخدام الخارجي)
+// Exported Functions
 // ============================================================================
 
 export function getSettings() {
     return currentSettings;
 }
 
-/**
- * حفظ الإعدادات محلياً وفي السيرفر وتطبيقها
- */
 export async function saveSettings(settings) {
     currentSettings = settings;
-    
-    // حفظ محلي لضمان العمل Offline
     saveToLocal("system_settings", settings);
-    
-    // حفظ في السيرفر الفعلي
     await saveJsonData("settings", settings);
-    
-    // تطبيق التغييرات
     applySettings(settings);
 }
 
-/**
- * تحديث إعداد معين وحفظه
- */
 export async function updateSetting(key, value) {
     if (!currentSettings) currentSettings = {};
-    
     currentSettings[key] = value;
     await saveSettings(currentSettings);
 }
