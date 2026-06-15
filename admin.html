@@ -6,8 +6,6 @@
     <title>لوحة الإدارة - الشاشة الرقمية الذكية</title>
     
     <link rel="icon" href="assets/images/icons/icon-192x192.png" type="image/png">
-    <link rel="apple-touch-icon" href="assets/images/icons/icon-192x192.png">
-    
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/themes.css">
     <link rel="stylesheet" href="assets/css/admin.css">
@@ -15,83 +13,31 @@
 <body data-theme="dark">
 
     <div id="loginScreen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0f172a;">
-        <div style="background: #1e293b; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-align: center; width: 350px;">
-            
-            <img src="assets/images/logos/university-logo.jpg" alt="شعار النظام" onerror="this.src='assets/images/icons/icon-192x192.png'" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px; object-fit: cover; border: 3px solid #334155;">
-            
+        <div style="background: #1e293b; padding: 40px; border-radius: 10px; text-align: center; width: 350px;">
             <h2 style="color: #f8fafc; margin-bottom: 30px;">تسجيل الدخول للإدارة</h2>
-            
-            <input type="text" id="adminUsername" placeholder="اسم المستخدم" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: #fff; text-align: center;">
-            <input type="password" id="adminPassword" placeholder="كلمة المرور" style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: #fff; text-align: center;">
-            
-            <button id="loginBtn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem;">دخول</button>
-            
-            <div style="margin-top: 20px;">
-                <a href="index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.3s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'">العودة لشاشة العرض الرئيسية</a>
-            </div>
+            <input type="text" id="adminUsername" placeholder="اسم المستخدم" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 5px; background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center;">
+            <input type="password" id="adminPassword" placeholder="كلمة المرور" style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 5px; background: #0f172a; color: #fff; border: 1px solid #334155; text-align: center;">
+            <button id="loginBtn" class="btn-primary" style="width: 100%; padding: 12px;">دخول</button>
         </div>
     </div>
 
-    <div id="adminDashboard">
-        
+    <div id="adminDashboard" style="display: none;">
         <aside class="admin-sidebar">
-            <div style="text-align: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #334155;">
-                <img src="assets/images/logos/university-logo.jpg" alt="الشعار" onerror="this.style.display='none'" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; border: 2px solid #3b82f6;">
-                <h2 style="margin: 0; font-size: 1.2rem; color: #f8fafc;">الإدارة المركزية</h2>
-            </div>
-
             <ul class="sidebar-menu">
-                <li data-tab="mainDashboard" class="active">📊 الإحصائيات وحالة النظام</li>
-                
-                <li data-tab="displaySettings" data-permission="manage_display">🖥️ إدارة العرض</li>
-                <li data-tab="messagesSettings" data-permission="manage_messages">💬 الرسائل والمحتوى</li>
+                <li data-tab="mainDashboard" class="active">📊 الإحصائيات</li>
+                <li data-tab="messagesSettings" data-permission="manage_messages">💬 الرسائل</li>
                 <li data-tab="occasionsSettings" data-permission="manage_occasions">🎉 المناسبات</li>
-                <li data-tab="newsSettings" data-permission="manage_news">📰 الشريط الإخباري</li>
-                <li data-tab="contentSettings" data-permission="manage_content">📂 إدارة المحتوى</li>
-                <li data-tab="slidesSettings" data-permission="manage_slides">🖼️ الشرائح</li>
-                <li data-tab="countdownSettings" data-permission="manage_countdown">⏳ العد التنازلي</li>
-                
-                <li data-tab="weatherSettings" data-permission="toggle_weather">🌤️ الطقس</li>
-                <li data-tab="prayerSettings" data-permission="toggle_prayers">🕌 الصلاة</li>
-                <li data-tab="qrSettings" data-permission="edit_qr">📱 إدارة QR</li>
-                
-                <li data-tab="themeSettings" data-permission="manage_themes">🎨 الثيمات والألوان</li>
-                <li data-tab="usersSettings" data-permission="manage_users">👥 إدارة المستخدمين</li>
-                <li data-tab="logsSettings" data-permission="manage_logs">📋 سجلات النظام</li>
-                <li data-tab="systemSettings" data-permission="manage_settings">⚙️ إعدادات النظام</li>
-            </ul>
-            <button id="logoutBtn" style="margin-top: 20px; width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">تسجيل الخروج 🚪</button>
+                </ul>
+            <button id="logoutBtn" style="margin-top: 20px; width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 5px;">تسجيل الخروج</button>
         </aside>
 
         <main class="admin-content">
-            
-            <div id="mainDashboard" class="tab-pane active">
-                <div style="text-align: center; color: #94a3b8; margin-top: 50px;">
-                    <h3>جاري تحميل البيانات...</h3>
-                </div>
-            </div>
-
-            <div id="displaySettings" class="tab-pane"><h2>🖥️ إدارة العرض</h2><hr style="border-color:#334155;"></div>
-            <div id="messagesSettings" class="tab-pane"><h2>💬 إدارة الرسائل والمحتوى</h2><hr style="border-color:#334155;"></div>
-            <div id="occasionsSettings" class="tab-pane"><h2>🎉 إدارة المناسبات</h2><hr style="border-color:#334155;"></div>
-            <div id="newsSettings" class="tab-pane"><h2>📰 الشريط الإخباري</h2><hr style="border-color:#334155;"></div>
-            <div id="contentSettings" class="tab-pane"><h2>📂 إدارة المحتوى</h2><hr style="border-color:#334155;"></div>
-            <div id="slidesSettings" class="tab-pane"><h2>🖼️ إدارة الشرائح</h2><hr style="border-color:#334155;"></div>
-            <div id="countdownSettings" class="tab-pane"><h2>⏳ العد التنازلي</h2><hr style="border-color:#334155;"></div>
-            
-            <div id="weatherSettings" class="tab-pane"><h2>🌤️ إعدادات الطقس</h2><hr style="border-color:#334155;"></div>
-            <div id="prayerSettings" class="tab-pane"><h2>🕌 إعدادات الصلاة</h2><hr style="border-color:#334155;"></div>
-            <div id="qrSettings" class="tab-pane"><h2>📱 إدارة QR</h2><hr style="border-color:#334155;"></div>
-            
-            <div id="themeSettings" class="tab-pane"><h2>🎨 الثيمات والألوان</h2><hr style="border-color:#334155;"></div>
-            <div id="usersSettings" class="tab-pane"><h2>👥 إدارة المستخدمين</h2><hr style="border-color:#334155;"></div>
-            <div id="logsSettings" class="tab-pane"><h2>📋 سجلات النظام</h2><hr style="border-color:#334155;"></div>
-            <div id="systemSettings" class="tab-pane"><h2>⚙️ إعدادات النظام</h2><hr style="border-color:#334155;"></div>
-            
+            <div id="mainDashboard" class="tab-pane active"></div>
+            <div id="messagesSettings" class="tab-pane"></div>
+            <div id="occasionsSettings" class="tab-pane"></div>
         </main>
     </div>
 
     <script type="module" src="assets/js/admin.js"></script>
-
 </body>
 </html>
