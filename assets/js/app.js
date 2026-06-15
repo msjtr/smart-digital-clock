@@ -2,31 +2,31 @@
 // App Master Controller - المحرك المركزي لربط جميع ملفات النظام
 // ============================================================================
 
-import { showToast } from "./utils.js";
+import { showToast } from "./utils.js?v=2";
 
-// استيراد كافة وحدات النظام (مع ملاحظة: يجب التأكد أن جميع هذه الملفات موجودة في assets/js/)
-import { initClock } from "./clock.js";
-import { initDate } from "./date.js";
-import { initAuth } from "./auth.js";
-import { initWeather } from "./weather.js";
-import { initPrayers } from "./prayers.js";
-import { initMessages } from "./messages.js";
-import { initDashboard } from "./dashboard.js";
-import { initContent } from "./content.js";
-import { initCountdown } from "./countdown.js";
-import { initOccasions } from "./occasions.js";
-import { initQr } from "./qr.js";
-import { initProjector } from "./projector.js";
-import { initViewer } from "./viewer.js";
-import { initThemes } from "./themes.js";
-import { initFullscreen } from "./fullscreen.js";
-import { initNotifications } from "./notifications.js";
+// استيراد كافة وحدات النظام (تم إضافة ?v=2 لإجبار المتصفح على جلب النسخة الأحدث وتخطي الكاش)
+import { initClock } from "./clock.js?v=2";
+import { initDate } from "./date.js?v=2";
+import { initAuth } from "./auth.js?v=2";
+import { initWeather } from "./weather.js?v=2";
+import { initPrayers } from "./prayers.js?v=2";
+import { initMessages } from "./messages.js?v=2";
+import { initDashboard } from "./dashboard.js?v=2";
+import { initContent } from "./content.js?v=2";
+import { initCountdown } from "./countdown.js?v=2";
+import { initOccasions } from "./occasions.js?v=2";
+import { initQr } from "./qr.js?v=2";
+import { initProjector } from "./projector.js?v=2";
+import { initViewer } from "./viewer.js?v=2";
+import { initThemes } from "./themes.js?v=2";
+import { initFullscreen } from "./fullscreen.js?v=2";
+import { initNotifications } from "./notifications.js?v=2";
 
 /**
  * دالة التهيئة الشاملة للنظام (محدثة لتكون أكثر أماناً)
  */
 async function initApp() {
-    console.log("🚀 جاري تهيئة النظام بالكامل...");
+    console.log("🚀 جاري تهيئة النظام بالكامل (النسخة المحدثة)...");
 
     const modules = [
         { name: "Auth", init: initAuth },
