@@ -2,9 +2,11 @@
 // App Master Controller - المحرك المركزي لربط جميع ملفات النظام
 // ============================================================================
 
-// استيراد كافة وحدات النظام
+import { showToast } from "./utils.js";
+
+// استيراد كافة وحدات النظام (مع ملاحظة: يجب التأكد أن جميع هذه الملفات موجودة في assets/js/)
 import { initClock } from "./clock.js";
-import { initDate } from "./date.js"; // تم إضافة نظام التاريخ
+import { initDate } from "./date.js";
 import { initAuth } from "./auth.js";
 import { initWeather } from "./weather.js";
 import { initPrayers } from "./prayers.js";
@@ -19,19 +21,17 @@ import { initViewer } from "./viewer.js";
 import { initThemes } from "./themes.js";
 import { initFullscreen } from "./fullscreen.js";
 import { initNotifications } from "./notifications.js";
-import { showToast } from "./utils.js";
 
 /**
- * دالة التهيئة الشاملة للنظام
+ * دالة التهيئة الشاملة للنظام (محدثة لتكون أكثر أماناً)
  */
 async function initApp() {
     console.log("🚀 جاري تهيئة النظام بالكامل...");
 
-    // مصفوفة تحتوي على دوال التهيئة لجميع الملفات
     const modules = [
         { name: "Auth", init: initAuth },
         { name: "Clock", init: initClock },
-        { name: "Date", init: initDate }, // تم إضافة التاريخ للقائمة
+        { name: "Date", init: initDate },
         { name: "Weather", init: initWeather },
         { name: "Prayers", init: initPrayers },
         { name: "Messages", init: initMessages },
@@ -47,23 +47,24 @@ async function initApp() {
         { name: "Notifications", init: initNotifications }
     ];
 
-    // تشغيل دوال التهيئة بالتوازي مع معالجة الأخطاء الفردية
     for (const module of modules) {
         try {
-            if (typeof module.init === 'function') {
+            // التحقق من أن الـ init هي دالة فعلاً قبل استدعائها
+            if (module.init && typeof module.init === 'function') {
                 await module.init();
                 console.log(`✅ ${module.name} loaded.`);
+            } else {
+                console.warn(`⚠️ الوحدة ${module.name} غير معرفة أو ليست دالة.`);
             }
         } catch (err) {
             console.error(`❌ خطأ في تهيئة ${module.name}:`, err);
         }
     }
 
-    showToast("تم تشغيل جميع خدمات النظام بنجاح", "success");
-    console.log("🏁 تم الانتهاء من ربط كافة الملفات.");
+    showToast("تم تشغيل خدمات النظام بنجاح", "success");
 }
 
-// تنفيذ النظام عند تحميل الصفحة
+// تنفيذ النظام
 if (document.readyState === 'loading') {
     document.addEventListener("DOMContentLoaded", initApp);
 } else {
