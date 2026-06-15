@@ -1,56 +1,51 @@
 // ============================================================================
-// Countdown Manager - نظام العد التنازلي (الساعة والدقيقة والثانية)
+// 🎉 وحدة عرض المناسبات (شاشة العرض الرئيسية)
 // ============================================================================
 
-import { getOccasions } from './occasions.js';
-import { padZero } from './utils.js';
+import { fetchJsonData } from "./storage.js";
 
-export function initCountdown() {
-    // 1. تصحيح الـ ID ليتطابق مع ملف الـ HTML الخاص بك
-    const display = document.getElementById('countdown') || document.getElementById('countdownDisplay');
+/**
+ * وظيفة جلب وعرض المناسبات على الشاشة الرقمية
+ */
+export async function initOccasionsDisplay() {
+    console.log("📅 جاري تحميل المناسبات لشاشة العرض...");
     
-    if (!display) {
-        console.warn("⚠️ لم يتم العثور على عنصر العد التنازلي في الصفحة");
-        return;
-    }
+    // جلب البيانات من السيرفر
+    const data = await fetchJsonData("occasions");
+    const occasions = (data && data.list) ? data.list : [];
 
-    function update() {
-        const list = getOccasions() || [];
-        const now = new Date();
-        
-        // 2. دعم خاصية startDate بدلاً من date فقط لتتوافق مع ملف occasions.js
-        const next = list
-            .filter(o => {
-                const targetDate = new Date(o.startDate || o.date);
-                return targetDate > now;
-            })
-            .sort((a, b) => new Date(a.startDate || a.date) - new Date(b.startDate || b.date))[0];
-        
-        if (!next) { 
-            display.innerHTML = '<div style="font-size: 2rem; color: #94a3b8;">لا توجد فعاليات قادمة</div>'; 
-            return; 
+    if (occasions.length > 0) {
+        // ترتيب المناسبات لعرض القادم فقط
+        const upcoming = occasions
+            .filter(occ => new Date(occ.date) > new Date())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        if (upcoming.length > 0) {
+            displayNextOccasion(upcoming[0]);
         }
-        
-        const diff = new Date(next.startDate || next.date) - now;
-
-        // حساب الوحدات الزمنية
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-        // العرض بتنسيق: الأيام و الساعات:الدقائق:الثواني
-        display.innerHTML = `
-            <div class="countdown-label" style="font-size: 1.5rem; margin-bottom: 10px;">باقي على ${next.title}</div>
-            <div class="countdown-timer" style="font-size: 3.5rem; font-weight: bold; direction: ltr; color: var(--primary, #3b82f6);">
-                ${days > 0 ? `<span style="font-size: 2rem;">${days} يوم و </span>` : ''}
-                ${padZero(hours)}:${padZero(mins)}:${padZero(secs)}
-            </div>
-        `;
     }
-    
-    // تحديث كل ثانية لضمان حركة الثواني
-    setInterval(update, 1000);
-    update();
-    console.log("✅ نظام العد التنازلي مفعل.");
 }
+
+/**
+ * دالة تحديث واجهة المستخدم
+ */
+function displayNextOccasion(occ) {
+    const container = document.getElementById("occasion-container");
+    if (!container) return;
+
+    // حساب الأيام المتبقية
+    const diff = new Date(occ.date) - new Date();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    container.innerHTML = `
+        <div class="occasion-card" style="padding: 20px; border-radius: 15px; background: rgba(30, 41, 59, 0.8);">
+            <h2 style="margin: 0; color: #3b82f6;">${occ.title}</h2>
+            <div style="font-size: 1.5rem; margin-top: 10px;">
+                <span style="font-weight: bold; color: #10b981;">${days}</span> يوم متبقي
+            </div>
+        </div>
+    `;
+}
+
+// تشغيل الوظيفة عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", initOccasionsDisplay);
