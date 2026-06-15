@@ -26,7 +26,8 @@ const MIME_TYPES = {
 
 // التأكد من وجود المجلدات الأساسية قبل بدء السيرفر
 const ensureDirectories = () => {
-    const dirs = ["data", "assets/images", "assets/videos", "assets/pdfs", "assets/misc"];
+    // 💡 تم إضافة "assets/js/admin" للقائمة لضمان إنشاء المجلد حتى في بيئات الاستضافة السحابية
+    const dirs = ["data", "assets/images", "assets/videos", "assets/pdfs", "assets/misc", "assets/js/admin"];
     dirs.forEach(dir => {
         const fullPath = path.join(__dirname, dir);
         if (!fs.existsSync(fullPath)) {
@@ -143,6 +144,7 @@ const server = http.createServer((req, res) => {
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
+            // معالجة فقدان الملفات وإرجاع 404
             const notFoundPage = path.join(__dirname, "404.html");
             fs.readFile(notFoundPage, (notFoundErr, notFoundContent) => {
                 if (notFoundErr) {
