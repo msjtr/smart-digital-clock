@@ -2,22 +2,27 @@
 // 📊 وحدة الإحصائيات وحالة النظام (Dashboard)
 // ============================================================================
 
-import { hasPermission, applyPermissionsToContainer } from "../auth.js";
+import { applyPermissionsToContainer } from "../js/auth.js";
 
 export function renderDashboardStats(systemState) {
     const dashboardPane = document.getElementById("mainDashboard");
     if (!dashboardPane) return;
 
-    // جلب بيانات المستخدم الحالي من الجلسة
-    const sessionStr = sessionStorage.getItem("current_user_session");
-    const user = sessionStr ? JSON.parse(sessionStr) : { role: "viewer", username: "زائر" };
+    // جلب بيانات المستخدم الحالي من الجلسة بأمان
+    let user = { role: "viewer", username: "زائر" };
+    try {
+        const sessionStr = sessionStorage.getItem("current_user_session");
+        if (sessionStr) user = JSON.parse(sessionStr);
+    } catch (e) {
+        console.error("خطأ في قراءة بيانات الجلسة");
+    }
 
-    // تحويل مسار الصلاحية إلى اسم عربي مفهوم
+    // تحديد المسمى الوظيفي بناءً على الدور
     const roleName = 
         user.role === "super_admin" ? "مدير نظام أعلى (Super Admin)" :
         user.role === "admin" ? "مدير محتوى (Admin)" : "مشاهد (Viewer)";
 
-    // حساب الإحصائيات بأمان
+    // حساب الإحصائيات
     const messagesCount = systemState.messages ? systemState.messages.length : 0;
     const occasionsCount = systemState.occasions ? systemState.occasions.length : 0;
 
@@ -49,3 +54,12 @@ export function renderDashboardStats(systemState) {
         <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
             <h3 style="margin-top: 0; color: #f8fafc;">إجراءات سريعة ⚡</h3>
             <p style="color: #94a3b8; margin-bottom: 15px;">آخر تحديث للبيانات: <span dir="ltr">${new Date().toLocaleTimeString('ar-SA')}</span></p>
+            
+            <button class="btn-primary" onclick="location.reload()" style="padding: 10px 20px; cursor: pointer;">تحديث البيانات 🔄</button>
+            <button class="btn-danger" data-permission="manage_settings" style="padding: 10px 20px; margin-right:10px; cursor: pointer;">إعادة تشغيل النظام 🔌</button>
+        </div>
+    `;
+
+    // تطبيق الصلاحيات لإخفاء الأزرار للمشاهدين العاديين
+    applyPermissionsToContainer(dashboardPane);
+}
