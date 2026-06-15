@@ -6,7 +6,6 @@ import { saveJsonData } from "../storage.js";
 import { hasPermission, applyPermissionsToContainer } from "../auth.js";
 import { showToast } from "../utils.js";
 import { broadcastUpdate } from "../sync.js";
-import { renderDashboardStats } from "./dashboard.js";
 
 export function renderMessages(systemState) {
     const pane = document.getElementById("messagesSettings");
@@ -88,7 +87,6 @@ export function renderMessages(systemState) {
                 ${systemState.messages.length === 0 ? '<li style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد رسائل حالياً</li>' : ''}
                 
                 ${systemState.messages.map((msg, index) => {
-                    // دعم التوافقية: عرض الرسائل سواء كانت نصية (قديمة) أو كائنات متقدمة (جديدة)
                     let displayText = typeof msg === 'string' ? msg : `[${msg.type}] ${msg.title}`;
                     let bgCol = typeof msg === 'object' && msg.bgColor ? msg.bgColor : 'transparent';
                     
@@ -107,13 +105,11 @@ export function renderMessages(systemState) {
         </div>
     `;
 
-    // تطبيق فلتر الصلاحيات لإخفاء الأزرار عن الـ Viewer
     applyPermissionsToContainer(pane);
     bindAdvancedMessagesEvents(systemState);
 }
 
 function bindAdvancedMessagesEvents(systemState) {
-    // 1. ربط حقول الإدخال لتحديث شاشة المعاينة الحية
     const typeInput = document.getElementById("msgType");
     const priorityInput = document.getElementById("msgPriority");
     const titleInput = document.getElementById("msgTitle");
@@ -140,7 +136,6 @@ function bindAdvancedMessagesEvents(systemState) {
         previewPriority.style.backgroundColor = textColorInput.value + '20';
     }
 
-    // تفعيل التحديث اللحظي عند الكتابة أو التغيير
     [typeInput, priorityInput, titleInput, contentInput, bgColorInput, textColorInput].forEach(input => {
         if(input) {
             input.addEventListener("input", updatePreview);
@@ -148,7 +143,6 @@ function bindAdvancedMessagesEvents(systemState) {
         }
     });
 
-    // 2. منطق الحفظ والإضافة
     const saveBtn = document.getElementById("saveAdvancedMsgBtn");
     if (saveBtn) {
         saveBtn.addEventListener("click", async () => {
@@ -160,7 +154,6 @@ function bindAdvancedMessagesEvents(systemState) {
                 return;
             }
 
-            // إنشاء كائن بيانات الرسالة المتقدم (تمهيداً لدعمه لاحقاً في الشاشة الرئيسية)
             const advancedMsg = {
                 type: typeInput.value,
                 priority: priorityInput.value,
@@ -171,30 +164,18 @@ function bindAdvancedMessagesEvents(systemState) {
                 timestamp: Date.now()
             };
 
-            // دفع الكائن الجديد إلى مصفوفة الرسائل
             systemState.messages.push(advancedMsg);
-            
-            // الحفظ في التخزين بهيكل الـ list المعتمد
             await saveJsonData("messages", { list: systemState.messages });
             
-            // إرسال المزامنة الفورية للشاشة الرئيسية
             if(typeof broadcastUpdate === 'function') {
                 broadcastUpdate("UPDATE_MESSAGES", systemState.messages);
             }
             
             showToast("تم إضافة الرسالة ونشرها", "success");
-            
-            // تحديث الواجهات
             renderMessages(systemState); 
-            
-            // تحديث الإحصائيات (إذا كانت الوحدة مستدعاة)
-            if(document.getElementById("mainDashboard") && typeof renderDashboardStats === "function") {
-                 renderDashboardStats(systemState);
-            }
         });
     }
 
-    // 3. منطق الحذف
     const deleteButtons = document.querySelectorAll(".delete-msg-btn");
     deleteButtons.forEach(btn => {
         btn.addEventListener("click", async (e) => {
@@ -212,10 +193,6 @@ function bindAdvancedMessagesEvents(systemState) {
                 
                 showToast("تم الحذف بنجاح", "success");
                 renderMessages(systemState); 
-                
-                if(document.getElementById("mainDashboard") && typeof renderDashboardStats === "function") {
-                     renderDashboardStats(systemState);
-                }
             }
         });
     });
