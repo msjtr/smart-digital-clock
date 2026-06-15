@@ -2,7 +2,6 @@
 // 🎉 وحدة إدارة المناسبات والأحداث (Occasions Management)
 // ============================================================================
 
-// غيّر الاستيراد ليصبح هكذا:
 import { saveJsonData } from "../js/storage.js";
 import { hasPermission, applyPermissionsToContainer } from "../js/auth.js";
 import { showToast } from "../js/utils.js";
@@ -19,10 +18,8 @@ export function renderOccasions(systemState) {
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px;">
-            
             <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid #334155;">
                 <h3 style="margin-top: 0; color: #10b981; border-bottom: 1px solid #334155; padding-bottom: 10px;">إضافة مناسبة جديدة</h3>
-
                 <label style="display:block; margin-bottom:5px; color:#cbd5e1;">اسم المناسبة</label>
                 <input type="text" id="occTitle" placeholder="مثال: بداية الاختبارات النهائية..." 
                        style="width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border-radius: 5px; background: #0f172a; color: #fff; border: 1px solid #334155;" data-permission="manage_occasions">
@@ -38,25 +35,17 @@ export function renderOccasions(systemState) {
                 <div style="padding: 15px 20px; background: #0f172a; border-bottom: 1px solid #334155; font-weight: bold; color: #f8fafc;">📅 المناسبات المجدولة</div>
                 <ul id="occasionsList" style="list-style: none; padding: 0; margin: 0;">
                     ${systemState.occasions.length === 0 ? '<li style="padding: 20px; text-align: center; color: #94a3b8;">لا توجد مناسبات مجدولة حالياً</li>' : ''}
-                    
                     ${systemState.occasions.map((occ, index) => {
                         const title = typeof occ === 'string' ? occ : occ.title;
                         const dateStr = typeof occ === 'string' ? '' : occ.date;
-                        
-                        // حساب الأيام المتبقية
                         let timeBadge = '';
                         if (dateStr) {
                             const diff = new Date(dateStr) - new Date();
                             const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                            if (days > 0) {
-                                timeBadge = `<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">باقي ${days} يوم</span>`;
-                            } else if (days === 0) {
-                                timeBadge = `<span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">اليوم!</span>`;
-                            } else {
-                                timeBadge = `<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">منتهية</span>`;
-                            }
+                            if (days > 0) timeBadge = `<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">باقي ${days} يوم</span>`;
+                            else if (days === 0) timeBadge = `<span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">اليوم!</span>`;
+                            else timeBadge = `<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">منتهية</span>`;
                         }
-
                         return `
                         <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #334155;">
                             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">
@@ -64,16 +53,13 @@ export function renderOccasions(systemState) {
                                 ${timeBadge}
                                 ${dateStr ? `<span style="display: block; width: 100%; font-size: 0.85rem; color: #94a3b8; margin-top: 5px;">${new Date(dateStr).toLocaleString('ar-SA')}</span>` : ''}
                             </div>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn-danger delete-occ-btn" data-index="${index}" data-permission="manage_occasions" style="padding: 8px 12px; font-size: 0.9rem;">🗑️ حذف</button>
-                            </div>
+                            <button class="btn-danger delete-occ-btn" data-index="${index}" data-permission="manage_occasions" style="padding: 8px 12px; font-size: 0.9rem;">🗑️ حذف</button>
                         </li>
                     `}).join('')}
                 </ul>
             </div>
         </div>
     `;
-
     applyPermissionsToContainer(pane);
     bindOccasionsEvents(systemState);
 }
@@ -83,76 +69,27 @@ function bindOccasionsEvents(systemState) {
     const dateInput = document.getElementById("occDate");
     const saveBtn = document.getElementById("saveOccasionBtn");
 
-    if (saveBtn) {
-        saveBtn.addEventListener("click", async () => {
-            if (!hasPermission("manage_occasions")) return;
+    saveBtn?.addEventListener("click", async () => {
+        if (!hasPermission("manage_occasions")) return;
+        if (!titleInput.value || !dateInput.value) return showToast("الرجاء تعبئة البيانات", "error");
+        
+        saveBtn.disabled = true;
+        systemState.occasions.push({ title: titleInput.value, date: dateInput.value, timestamp: Date.now() });
+        systemState.occasions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        if (await saveJsonData("occasions", { list: systemState.occasions })) {
+            broadcastUpdate("UPDATE_OCCASIONS", systemState.occasions);
+            showToast("تم الحفظ", "success");
+            renderOccasions(systemState);
+        }
+    });
 
-            const title = titleInput.value.trim();
-            const dateVal = dateInput.value;
-
-            if (!title || !dateVal) {
-                showToast("الرجاء كتابة اسم المناسبة وتحديد التاريخ", "error");
-                return;
-            }
-
-            saveBtn.disabled = true;
-            saveBtn.textContent = "جاري الحفظ...";
-
-            const newOccasion = {
-                title: title,
-                date: dateVal,
-                timestamp: Date.now()
-            };
-
-            systemState.occasions.push(newOccasion);
-            
-            // ترتيب المناسبات زمنياً (الأقرب أولاً)
-            systemState.occasions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const isSaved = await saveJsonData("occasions", { list: systemState.occasions });
-            
-            if (isSaved) {
-                if(typeof broadcastUpdate === 'function') {
-                    broadcastUpdate("UPDATE_OCCASIONS", systemState.occasions);
-                }
-                showToast("تم جدولة المناسبة بنجاح", "success");
-                
-                titleInput.value = "";
-                dateInput.value = "";
-                
-                renderOccasions(systemState); 
-            } else {
-                showToast("حدث خطأ أثناء حفظ المناسبة", "error");
-                saveBtn.disabled = false;
-                saveBtn.textContent = "➕ حفظ المناسبة";
-            }
-        });
-    }
-
-    const deleteButtons = document.querySelectorAll(".delete-occ-btn");
-    deleteButtons.forEach(btn => {
+    pane.querySelectorAll(".delete-occ-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-            if (!hasPermission("manage_occasions")) return;
-
             const index = parseInt(e.target.getAttribute("data-index"));
-            if (confirm("هل أنت متأكد من حذف هذه المناسبة؟")) {
-                
-                const backupOccasions = [...systemState.occasions];
-                systemState.occasions.splice(index, 1);
-                
-                const isDeleted = await saveJsonData("occasions", { list: systemState.occasions });
-                
-                if (isDeleted) {
-                    if(typeof broadcastUpdate === 'function') {
-                        broadcastUpdate("UPDATE_OCCASIONS", systemState.occasions);
-                    }
-                    showToast("تم الحذف بنجاح", "success");
-                    renderOccasions(systemState); 
-                } else {
-                    systemState.occasions = backupOccasions;
-                    showToast("حدث خطأ أثناء الحذف", "error");
-                }
-            }
+            systemState.occasions.splice(index, 1);
+            await saveJsonData("occasions", { list: systemState.occasions });
+            renderOccasions(systemState);
         });
     });
 }
