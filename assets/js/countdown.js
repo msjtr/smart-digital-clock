@@ -8,7 +8,7 @@
 export async function initCountdown() {
     console.log("⏳ نظام العد التنازلي جاهز للعرض.");
     
-    // تشغيل العد التنازلي عند تحميل الصفحة
+    // تشغيل العد التنازلي
     updateCountdownDisplay();
     
     // تحديث العد التنازلي كل ثانية
@@ -20,9 +20,9 @@ export async function initCountdown() {
  */
 function updateCountdownDisplay() {
     const container = document.getElementById("countdownSection");
-    if (!container) return;
+    if (!container) return; // إذا لم يوجد العنصر في HTML، لا تقم بأي شيء لتجنب الأخطاء
 
-    // التاريخ المستهدف (يمكنك تغييره لاحقاً)
+    // التاريخ المستهدف (يمكنك تعديل التاريخ هنا)
     const targetDate = new Date("2026-07-01T08:00:00").getTime();
     const now = new Date().getTime();
     const distance = targetDate - now;
