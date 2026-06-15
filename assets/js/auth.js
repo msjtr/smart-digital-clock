@@ -4,7 +4,7 @@
 
 import { showToast } from "./utils.js";
 
-// قاعدة بيانات المستخدمين الافتراضية
+// قاعدة بيانات المستخدمين
 const USERS = [
     { username: "superadmin", password: "123456", role: "super_admin" },
     { username: "admin", password: "123456", role: "admin" },
@@ -13,7 +13,7 @@ const USERS = [
 
 // مفاتيح الصلاحيات لكل دور
 const ROLE_PERMISSIONS = {
-    super_admin: ["all"], // يملك كل الصلاحيات
+    super_admin: ["all"], 
     admin: [
         "view_stats", "manage_display", "manage_messages", "manage_news", 
         "manage_occasions", "manage_content", "manage_slides", "manage_countdown", 
@@ -30,7 +30,7 @@ export function initAuth() {
     console.log("🔒 محرك المصادقة والصلاحيات: بدء التهيئة...");
 
     const loginBtn = document.getElementById("loginBtn");
-    const usernameInput = document.getElementById("adminUsername"); 
+    const usernameInput = document.getElementById("adminUsername");
     const passwordInput = document.getElementById("adminPassword");
     const loginScreen = document.getElementById("loginScreen");
     const dashboard = document.getElementById("adminDashboard");
@@ -43,11 +43,9 @@ export function initAuth() {
 
     let currentUser = null;
     try {
-        // حماية النظام في حال تلف بيانات الجلسة في المتصفح
         const sessionData = sessionStorage.getItem(SESSION_KEY);
         if (sessionData) currentUser = JSON.parse(sessionData);
     } catch (e) {
-        console.warn("⚠️ خطأ في قراءة بيانات الجلسة، سيتم مسحها لضمان استقرار النظام.");
         sessionStorage.removeItem(SESSION_KEY);
     }
 
@@ -63,14 +61,11 @@ export function initAuth() {
             e.preventDefault();
             const username = usernameInput ? usernameInput.value.trim() : "";
             const password = passwordInput ? passwordInput.value.trim() : "";
-
             const user = USERS.find(u => u.username === username && u.password === password);
 
             if (user) {
-                // إزالة كلمة المرور من الجلسة للأمان
                 const sessionData = { username: user.username, role: user.role };
                 sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-                
                 showDashboard(loginScreen, dashboard, sessionData);
                 showToast(`أهلاً بك، ${user.username}`, "success");
             } else {
@@ -92,10 +87,6 @@ export function initAuth() {
     });
 }
 
-// ============================================================================
-// نظام إدارة الواجهة بناءً على الصلاحيات
-// ============================================================================
-
 function showDashboard(screen, dash, user) {
     if (screen) screen.style.display = "none";
     if (dash) {
@@ -105,65 +96,44 @@ function showDashboard(screen, dash, user) {
     }
 }
 
-/**
- * التحقق مما إذا كان الدور يملك صلاحية معينة
- */
 export function hasPermission(permissionKey) {
     let user = null;
     try {
         const sessionData = sessionStorage.getItem(SESSION_KEY);
         if (sessionData) user = JSON.parse(sessionData);
-    } catch (e) {
-        return false;
-    }
+    } catch (e) { return false; }
 
     if (!user) return false;
-    
     const rolePerms = ROLE_PERMISSIONS[user.role] || [];
     return rolePerms.includes("all") || rolePerms.includes(permissionKey);
 }
 
-/**
- * إخفاء أو تعطيل العناصر في واجهة المستخدم بناءً على الصلاحيات (عام)
- */
 function applyPermissionsToUI(role) {
     const elements = document.querySelectorAll("[data-permission]");
-    
     elements.forEach(el => {
         const requiredPerm = el.getAttribute("data-permission");
-        
         if (!hasPermission(requiredPerm)) {
-            // توحيد الحظر ليشمل جميع عناصر الإدخال
-            if (el.tagName === "BUTTON" || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA") {
+            if (["BUTTON", "INPUT", "SELECT", "TEXTAREA"].includes(el.tagName)) {
                 el.disabled = true;
                 el.style.opacity = "0.5";
                 el.style.cursor = "not-allowed";
-                el.title = "لا تملك صلاحية لهذا الإجراء";
             } else {
                 el.style.display = "none";
             }
         }
     });
-    
-    console.log(`🛡️ تم تطبيق صلاحيات دور: ${role}`);
 }
 
-// ============================================================================
-// دالة مساعدة لتطبيق الصلاحيات على أي حاوية (يتم استدعاؤها من ملفات الأقسام)
-// ============================================================================
 export function applyPermissionsToContainer(container) {
     if (!container) return;
     const elements = container.querySelectorAll("[data-permission]");
-    
     elements.forEach(el => {
         const requiredPerm = el.getAttribute("data-permission");
-        
         if (!hasPermission(requiredPerm)) {
-            if (el.tagName === "BUTTON" || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA") {
+            if (["BUTTON", "INPUT", "SELECT", "TEXTAREA"].includes(el.tagName)) {
                 el.disabled = true;
                 el.style.opacity = "0.5";
                 el.style.cursor = "not-allowed";
-                el.title = "لا تملك صلاحية للقيام بهذا الإجراء";
             } else {
                 el.style.display = "none";
             }
