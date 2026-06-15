@@ -30,7 +30,7 @@ export function initAuth() {
     console.log("🔒 محرك المصادقة والصلاحيات: بدء التهيئة...");
 
     const loginBtn = document.getElementById("loginBtn");
-    const usernameInput = document.getElementById("adminUsername"); // حقل جديد
+    const usernameInput = document.getElementById("adminUsername"); 
     const passwordInput = document.getElementById("adminPassword");
     const loginScreen = document.getElementById("loginScreen");
     const dashboard = document.getElementById("adminDashboard");
@@ -41,7 +41,15 @@ export function initAuth() {
         return;
     }
 
-    const currentUser = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+    let currentUser = null;
+    try {
+        // حماية النظام في حال تلف بيانات الجلسة في المتصفح
+        const sessionData = sessionStorage.getItem(SESSION_KEY);
+        if (sessionData) currentUser = JSON.parse(sessionData);
+    } catch (e) {
+        console.warn("⚠️ خطأ في قراءة بيانات الجلسة، سيتم مسحها لضمان استقرار النظام.");
+        sessionStorage.removeItem(SESSION_KEY);
+    }
 
     if (currentUser) {
         showDashboard(loginScreen, dashboard, currentUser);
@@ -101,7 +109,14 @@ function showDashboard(screen, dash, user) {
  * التحقق مما إذا كان الدور يملك صلاحية معينة
  */
 export function hasPermission(permissionKey) {
-    const user = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+    let user = null;
+    try {
+        const sessionData = sessionStorage.getItem(SESSION_KEY);
+        if (sessionData) user = JSON.parse(sessionData);
+    } catch (e) {
+        return false;
+    }
+
     if (!user) return false;
     
     const rolePerms = ROLE_PERMISSIONS[user.role] || [];
@@ -109,18 +124,17 @@ export function hasPermission(permissionKey) {
 }
 
 /**
- * إخفاء أو تعطيل العناصر في واجهة المستخدم بناءً على الصلاحيات
+ * إخفاء أو تعطيل العناصر في واجهة المستخدم بناءً على الصلاحيات (عام)
  */
 function applyPermissionsToUI(role) {
-    // البحث عن كل عنصر يحتوي على سمة data-permission
     const elements = document.querySelectorAll("[data-permission]");
     
     elements.forEach(el => {
         const requiredPerm = el.getAttribute("data-permission");
         
         if (!hasPermission(requiredPerm)) {
-            // تعطيل الأزرار أو إخفاء العناصر تماماً
-            if (el.tagName === "BUTTON" || el.tagName === "INPUT") {
+            // توحيد الحظر ليشمل جميع عناصر الإدخال
+            if (el.tagName === "BUTTON" || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA") {
                 el.disabled = true;
                 el.style.opacity = "0.5";
                 el.style.cursor = "not-allowed";
