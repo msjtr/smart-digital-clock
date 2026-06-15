@@ -1,24 +1,36 @@
-const CACHE_NAME = "hail-smart-clock-v27"; // تم تحديث الإصدار
+const CACHE_NAME = "hail-smart-clock-v28"; // تم تحديث الإصدار لتفعيل الكاش الجديد
 
-// تم إضافة جميع الملفات والوحدات اللازمة لتجنب كسر النظام أوفلاين
+// إضافة جميع ملفات النظام الحيوية لتجنب تعطل الشاشة أوفلاين
 const ASSETS_TO_CACHE = [
     "./",
     "./index.html",
     "./admin.html",
     "./404.html",
     "./manifest.json",
+    
+    // ملفات التنسيق
     "./assets/css/style.css",
     "./assets/css/themes.css",
     "./assets/css/animations.css",
     "./assets/css/responsive.css",
     "./assets/css/admin.css",
+    
+    // ملفات الجافاسكريبت الأساسية (تم إكمال القائمة)
     "./assets/js/app.js",
+    "./assets/js/admin.js",
     "./assets/js/utils.js",
     "./assets/js/storage.js",
-    "./assets/js/clock.js",
-    "./assets/js/countdown.js",
+    "./assets/js/sync.js",
     "./assets/js/auth.js",
-    "./assets/js/admin.js",
+    
+    // ملفات المحتوى والعرض
+    "./assets/js/clock.js",
+    "./assets/js/date.js",
+    "./assets/js/countdown.js",
+    "./assets/js/messages.js",
+    "./assets/js/occasions.js",
+    
+    // الصور والشعارات
     "./assets/images/logos/university-logo.jpg",
     "./assets/images/logos/college-logo.jpg"
 ];
@@ -51,7 +63,7 @@ self.addEventListener("activate", (event) => {
 
 // 3. استراتيجية Network First مع معالجة الأخطاء
 self.addEventListener("fetch", (event) => {
-    // تجاهل الطلبات التي ليست GET (مثل حفظ الإعدادات) أو التي ليست من نفس البروتوكول
+    // تجاهل الطلبات التي ليست GET أو التي ليست من نفس البروتوكول
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
         return;
     }
@@ -73,7 +85,7 @@ self.addEventListener("fetch", (event) => {
                 return response;
             })
             .catch(() => {
-                // إذا فشل الاتصال، جلب النسخة من الكاش
+                // إذا فشل الاتصال (أوفلاين)، جلب النسخة من الكاش
                 return caches.match(event.request).then((cachedResponse) => {
                     if (cachedResponse) {
                         return cachedResponse;
