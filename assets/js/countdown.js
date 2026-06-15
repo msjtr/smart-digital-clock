@@ -5,9 +5,9 @@
 import { fetchJsonData } from "./storage.js";
 
 /**
- * وظيفة جلب وعرض المناسبات على الشاشة الرقمية
+ * دالة التهيئة الموحدة (يجب أن يكون اسمها initOccasions لتطابق app.js)
  */
-export async function initOccasionsDisplay() {
+export async function initOccasions() {
     console.log("📅 جاري تحميل المناسبات لشاشة العرض...");
     
     // جلب البيانات من السيرفر
@@ -47,5 +47,5 @@ function displayNextOccasion(occ) {
     `;
 }
 
-// تشغيل الوظيفة عند تحميل الصفحة
-document.addEventListener("DOMContentLoaded", initOccasionsDisplay);
+// ملاحظة: لا تستدعِ initOccasions هنا لأن app.js سيقوم بذلك.
+// تم حذف addEventListener لأن app.js هو المسؤول عن تشغيل الموديولات.
