@@ -133,3 +133,26 @@ function applyPermissionsToUI(role) {
     
     console.log(`🛡️ تم تطبيق صلاحيات دور: ${role}`);
 }
+
+// ============================================================================
+// دالة مساعدة لتطبيق الصلاحيات على أي حاوية (يتم استدعاؤها من ملفات الأقسام)
+// ============================================================================
+export function applyPermissionsToContainer(container) {
+    if (!container) return;
+    const elements = container.querySelectorAll("[data-permission]");
+    
+    elements.forEach(el => {
+        const requiredPerm = el.getAttribute("data-permission");
+        
+        if (!hasPermission(requiredPerm)) {
+            if (el.tagName === "BUTTON" || el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA") {
+                el.disabled = true;
+                el.style.opacity = "0.5";
+                el.style.cursor = "not-allowed";
+                el.title = "لا تملك صلاحية للقيام بهذا الإجراء";
+            } else {
+                el.style.display = "none";
+            }
+        }
+    });
+}
