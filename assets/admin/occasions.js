@@ -2,10 +2,11 @@
 // 🎉 وحدة إدارة المناسبات والأحداث (Occasions Management)
 // ============================================================================
 
-import { saveJsonData } from "../storage.js";
-import { hasPermission, applyPermissionsToContainer } from "../auth.js";
-import { showToast } from "../utils.js";
-import { broadcastUpdate } from "../sync.js";
+// غيّر الاستيراد ليصبح هكذا:
+import { saveJsonData } from "../js/storage.js";
+import { hasPermission, applyPermissionsToContainer } from "../js/auth.js";
+import { showToast } from "../js/utils.js";
+import { broadcastUpdate } from "../js/sync.js";
 
 export function renderOccasions(systemState) {
     const pane = document.getElementById("occasionsSettings");
