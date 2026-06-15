@@ -5,7 +5,7 @@
 import { fetchJsonData } from "./storage.js";
 
 /**
- * دالة التهيئة الموحدة (يجب أن يكون اسمها initOccasions لتطابق app.js)
+ * دالة التهيئة الموحدة (يجب أن يكون اسمها initOccasions لتطابق ما في app.js)
  */
 export async function initOccasions() {
     console.log("📅 جاري تحميل المناسبات لشاشة العرض...");
