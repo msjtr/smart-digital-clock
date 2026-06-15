@@ -1,5 +1,5 @@
 // ============================================================================
-// Storage Manager - مدير البيانات والتواصل مع السيرفر
+// Storage Manager - مدير البيانات والتواصل مع السيرفر (النسخة المحصنة)
 // ============================================================================
 
 /**
@@ -12,16 +12,33 @@ export async function fetchJsonData(fileName) {
         const response = await fetch(`/data/${fileName}.json?v=${timestamp}`);
         
         if (!response.ok) {
-            throw new Error(`تعذر العثور على ملف ${fileName}.json`);
+            throw new Error(`تعذر العثور على ملف ${fileName}.json (كود: ${response.status})`);
         }
         
+        // حماية إضافية: التأكد من أن الرد بصيغة JSON لتجنب خطأ (SyntaxError)
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("الاستجابة من السيرفر ليست بصيغة JSON صالحة");
+        }
+
         const data = await response.json();
+        
         // حفظ نسخة محدثة محلياً عند نجاح الجلب من السيرفر
         saveToLocal(fileName, data);
         return data;
+
     } catch (error) {
-        console.warn(`⚠️ تنبيه: خطأ في قراءة ${fileName} من السيرفر، يتم المحاولة من التخزين المحلي...`, error);
-        return getFromLocal(fileName); 
+        console.warn(`⚠️ تنبيه: تعذر جلب ${fileName} من السيرفر. السبب: ${error.message}. سيتم المحاولة محلياً...`);
+        
+        const localData = getFromLocal(fileName);
+        
+        // حماية متقدمة: إرجاع هيكل فارغ آمن إذا لم توجد بيانات محلية لمنع توقف الشاشات
+        if (!localData) {
+            console.info(`ℹ️ إنشاء هيكل بيانات افتراضي لملف: ${fileName}`);
+            return { list: [] }; 
+        }
+        
+        return localData; 
     }
 }
 
@@ -40,6 +57,10 @@ export async function saveJsonData(fileName, content) {
             body: JSON.stringify({ filename: fileName, content: content })
         });
         
+        if (!response.ok) {
+            throw new Error(`فشل الاتصال بالسيرفر (كود: ${response.status})`);
+        }
+
         const result = await response.json();
         
         if (result.success) {
@@ -60,7 +81,7 @@ export async function saveJsonData(fileName, content) {
 export function saveToLocal(key, data) {
     try {
         localStorage.setItem(`admin_${key}`, JSON.stringify(data));
-        console.log(`⚡ تم الحفظ المحلي لـ ${key}`);
+        // console.log(`⚡ تم الحفظ المحلي لـ ${key}`); // مخفي لتخفيف السجلات
     } catch (e) {
         console.warn("⚠️ تعذر الحفظ في LocalStorage", e);
     }
