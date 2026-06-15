@@ -1,51 +1,52 @@
 // ============================================================================
-// ⏳ وحدة العد التنازلي - شاشة العرض الرئيسية
+// 🎉 وحدة عرض المناسبات (شاشة العرض الرئيسية)
 // ============================================================================
 
+import { fetchJsonData } from "./storage.js";
+
 /**
- * دالة التهيئة الموحدة (يتم استدعاؤها بواسطة app.js)
+ * دالة التهيئة الموحدة (يجب أن يكون اسمها initOccasions لتطابق app.js)
  */
-export async function initCountdown() {
-    console.log("⏳ نظام العد التنازلي جاهز للعرض.");
+export async function initOccasions() {
+    console.log("📅 جاري تحميل المناسبات لشاشة العرض...");
     
-    // تشغيل التحديث الأول فوراً
-    updateCountdownDisplay();
-    
-    // تحديث العد التنازلي كل ثانية
-    setInterval(updateCountdownDisplay, 1000);
+    try {
+        // جلب البيانات من السيرفر
+        const data = await fetchJsonData("occasions");
+        const occasions = (data && data.list) ? data.list : [];
+
+        if (occasions.length > 0) {
+            // ترتيب المناسبات لعرض القادم فقط
+            const upcoming = occasions
+                .filter(occ => new Date(occ.date) > new Date())
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (upcoming.length > 0) {
+                displayNextOccasion(upcoming[0]);
+            }
+        }
+    } catch (error) {
+        console.error("خطأ في جلب المناسبات:", error);
+    }
 }
 
 /**
- * وظيفة تحديث واجهة المستخدم للعد التنازلي
+ * دالة تحديث واجهة المستخدم
  */
-function updateCountdownDisplay() {
-    const container = document.getElementById("countdownSection");
-    if (!container) return; // تأمين ضد غياب العنصر في HTML
+function displayNextOccasion(occ) {
+    const container = document.getElementById("occasion-container");
+    if (!container) return;
 
-    // التاريخ المستهدف (تاريخ الاختبارات)
-    const targetDate = new Date("2026-07-01T08:00:00").getTime();
-    const now = new Date().getTime();
-    const distance = targetDate - now;
+    // حساب الأيام المتبقية
+    const diff = new Date(occ.date) - new Date();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
-    // حالة انتهاء الوقت
-    if (distance < 0) {
-        container.innerHTML = `<div class="countdown-finished" style="text-align: center; font-size: 1.5rem;">انتهى الوقت المجدول</div>`;
-        return;
-    }
-
-    // حساب الوحدات الزمنية
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    // تحديث الواجهة بتنسيق نظيف
     container.innerHTML = `
-        <div class="countdown-box" style="display: flex; gap: 15px; justify-content: center; font-family: sans-serif;">
-            <div class="time-unit" style="text-align: center;"><span>${days}</span><br><small>يوم</small></div>
-            <div class="time-unit" style="text-align: center;"><span>${hours}</span><br><small>ساعة</small></div>
-            <div class="time-unit" style="text-align: center;"><span>${minutes}</span><br><small>دقيقة</small></div>
-            <div class="time-unit" style="text-align: center;"><span>${seconds}</span><br><small>ثانية</small></div>
+        <div class="occasion-card" style="padding: 20px; border-radius: 15px; background: rgba(30, 41, 59, 0.8);">
+            <h2 style="margin: 0; color: #3b82f6;">${occ.title}</h2>
+            <div style="font-size: 1.5rem; margin-top: 10px;">
+                <span style="font-weight: bold; color: #10b981;">${days}</span> يوم متبقي
+            </div>
         </div>
     `;
 }
