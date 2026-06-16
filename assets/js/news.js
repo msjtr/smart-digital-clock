@@ -1,56 +1,46 @@
 // ============================================================================
-// 📰 وحدة الشريط الإخباري (شاشة العرض الرئيسية)
+// 📰 وحدة الشريط الإخباري - المحرك التنفيذي (شاشة العرض)
 // ============================================================================
 
 import { fetchJsonData } from "./storage.js";
 
 let currentNewsData = null;
 
-/**
- * دالة التهيئة الموحدة للشريط الإخباري
- */
 export async function initNews() {
-    console.log("📰 جاري تهيئة نظام الشريط الإخباري...");
-    
+    console.log("📰 جاري تهيئة نظام الشريط الإخباري الذكي...");
     await loadAndRenderTicker();
-    
-    // المزامنة المباشرة: التحقق من التحديثات كل 10 ثوانٍ ليعكس الإدارة فوراً
-    setInterval(loadAndRenderTicker, 10000);
+    setInterval(loadAndRenderTicker, 5000); // مزامنة مباشرة كل 5 ثوانٍ
 }
 
-/**
- * جلب البيانات وعرضها
- */
 async function loadAndRenderTicker() {
     try {
-        // يجلب البيانات من السيرفر أو من التخزين المؤقت (Offline)
         const data = await fetchJsonData("news");
-        
-        // منع إعادة الرسم إذا لم تتغير البيانات لتوفير موارد الشاشة (أداء 4K)
-        if (JSON.stringify(data) === JSON.stringify(currentNewsData)) return;
+        if (!data || JSON.stringify(data) === JSON.stringify(currentNewsData)) return;
         currentNewsData = data;
 
-        if (!data || data.settings.status !== "نشط") {
-            removeTicker();
-            return;
-        }
+        const { settings, list } = data;
+        const now = new Date();
 
-        const activeNews = data.list.filter(n => n.status === "نشط").sort((a, b) => a.order - b.order);
+        // فلترة الأخبار: (النشطة + الجدولة الزمنية + أيام التشغيل)
+        const activeNews = list.filter(n => {
+            if (n.status !== "نشط") return false;
+            if (n.startDate && new Date(n.startDate) > now) return false;
+            if (n.endDate && new Date(n.endDate) < now) return false;
+            return true;
+        }).sort((a, b) => a.order - b.order);
+
         if (activeNews.length === 0) {
             removeTicker();
             return;
         }
 
-        buildTickerUI(activeNews, data.settings);
+        buildTickerUI(activeNews, settings);
     } catch (error) {
-        console.error("❌ خطأ في جلب بيانات الشريط الإخباري:", error);
+        console.error("❌ خطأ في عرض الشريط الإخباري:", error);
     }
 }
 
-/**
- * بناء واجهة الشريط الإخباري (Glassmorphism & Branding)
- */
-function buildTickerUI(newsArray, settings) {
+function buildTickerUI(newsArray, s) {
     let container = document.getElementById("newsTickerContainer");
     if (!container) {
         container = document.createElement("div");
@@ -58,65 +48,48 @@ function buildTickerUI(newsArray, settings) {
         document.body.appendChild(container);
     }
 
-    // إعدادات التحكم الكاملة المطلوبة في المواصفات
-    const speedMap = { "بطيئة": 45, "متوسطة": 30, "سريعة": 15 };
-    const duration = speedMap[settings.speed] || 30;
+    // تطبيق المواصفات الحرفية للتحكم بالخط والنمط
+    const fontWeightMap = { 'خفيف': 300, 'عادي': 400, 'متوسط': 500, 'عريض': 700, 'عريض جداً': 900 };
     
-    const fontSizeMap = { "صغير جداً": "1rem", "صغير": "1.5rem", "متوسط": "2rem", "كبير": "2.5rem", "كبير جداً": "3.5rem" };
-    const fontSize = fontSizeMap[settings.fontSize] || "2rem";
-
-    // تطبيق الهوية البصرية وتأثيرات الشفافية
     container.style.cssText = `
         position: fixed;
-        ${settings.position === 'أعلى الشاشة' ? 'top: 0;' : 'bottom: 0;'}
-        left: 0;
-        width: 100%;
-        background: ${settings.backgroundColor};
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-top: 1px solid rgba(20, 184, 166, 0.4);
-        border-bottom: 1px solid rgba(20, 184, 166, 0.4);
-        color: ${settings.textColor};
-        font-family: '${settings.fontFamily}', sans-serif;
-        font-size: ${fontSize};
+        ${s.position === 'أعلى الشاشة' ? 'top:0;' : 'bottom:0;'}
+        left:0; width: ${s.width === 'نصف الشاشة' ? '50%' : '100%'};
+        height: ${s.height === 'صغير' ? '40px' : s.height === 'كبير' ? '120px' : '80px'};
+        background: ${s.bgType === 'خلفية شفافة' ? 'transparent' : s.bgColor};
+        border: 2px solid ${s.borderColor};
+        color: ${s.textColor};
+        font-family: '${s.fontFamily}', sans-serif;
+        font-size: ${s.fontSize === 'كبير' ? '3rem' : s.fontSize === 'صغير' ? '1.5rem' : '2.2rem'};
+        font-weight: ${fontWeightMap[s.fontWeight] || 400};
+        letter-spacing: ${s.letterSpacing}px;
+        word-spacing: ${s.wordSpacing}px;
         z-index: 9999;
         overflow: hidden;
         white-space: nowrap;
-        direction: ${settings.direction};
-        padding: 18px 0;
-        box-shadow: 0 ${settings.position === 'أعلى الشاشة' ? '10px' : '-10px'} 30px rgba(0, 0, 0, 0.4);
-        display: flex;
-        align-items: center;
+        display: flex; align-items: center;
+        backdrop-filter: blur(10px);
     `;
 
-    // فاصل بصري بين الأخبار
-    const separator = `<span style="color: #ffffff; margin: 0 40px; opacity: 0.5;"> • </span>`;
-    const newsString = newsArray.map(n => `<span style="font-weight: 500;">${n.text}</span>`).join(separator);
+    // معالجة الفواصل والأيقونات
+    const sep = s.separator === 'خط فاصل' ? '|' : s.separator === 'أيقونة' ? '🔸' : '';
+    const newsHTML = newsArray.map(n => `
+        <span style="display:inline-flex; align-items:center; margin: 0 50px;">
+            ${n.iconVal ? `<span style="color:${n.iconColor}; margin-left:10px; font-size:${n.iconSize}px;">${n.iconVal}</span>` : ''}
+            ${n.text}
+        </span>
+    `).join(`<span style="opacity:0.5;">${sep}</span>`);
 
-    // الرسوم المتحركة اللانهائية (CSS Animation)
     container.innerHTML = `
-        <div class="ticker-content" style="
-            display: inline-block; 
-            padding-right: 100%; 
-            animation: marquee ${duration}s linear infinite;
-        ">
-            ${newsString}${separator}${newsString}
+        <div style="display:inline-block; animation: marquee ${s.speed === 'بطيئة' ? 40 : 20}s linear infinite;">
+            ${newsHTML}
         </div>
         <style>
-            @keyframes marquee {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(${settings.direction === 'rtl' ? '100%' : '-100%'}); }
-            }
-            .ticker-content:hover {
-                animation-play-state: paused;
-            }
+            @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         </style>
     `;
 }
 
-/**
- * إزالة الشريط من الشاشة
- */
 function removeTicker() {
     const container = document.getElementById("newsTickerContainer");
     if (container) container.remove();
