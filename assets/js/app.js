@@ -2,31 +2,32 @@
 // App Master Controller - المحرك المركزي لربط جميع ملفات النظام
 // ============================================================================
 
-import { showToast } from "./utils.js?v=2";
+import { showToast } from "./utils.js?v=3";
 
-// استيراد كافة وحدات النظام (تم إضافة ?v=2 لإجبار المتصفح على جلب النسخة الأحدث وتخطي الكاش)
-import { initClock } from "./clock.js?v=2";
-import { initDate } from "./date.js?v=2";
-import { initAuth } from "./auth.js?v=2";
-import { initWeather } from "./weather.js?v=2";
-import { initPrayers } from "./prayers.js?v=2";
-import { initMessages } from "./messages.js?v=2";
-import { initDashboard } from "./dashboard.js?v=2";
-import { initContent } from "./content.js?v=2";
-import { initCountdown } from "./countdown.js?v=2";
-import { initOccasions } from "./occasions.js?v=2";
-import { initQr } from "./qr.js?v=2";
-import { initProjector } from "./projector.js?v=2";
-import { initViewer } from "./viewer.js?v=2";
-import { initThemes } from "./themes.js?v=2";
-import { initFullscreen } from "./fullscreen.js?v=2";
-import { initNotifications } from "./notifications.js?v=2";
+// استيراد كافة وحدات النظام (تم التحديث إلى v=3 لضمان جلب أحدث الأكواد وتخطي الكاش)
+import { initClock } from "./clock.js?v=3";
+import { initDate } from "./date.js?v=3";
+import { initAuth } from "./auth.js?v=3";
+import { initWeather } from "./weather.js?v=3";
+import { initPrayers } from "./prayers.js?v=3";
+import { initMessages } from "./messages.js?v=3";
+import { initDashboard } from "./dashboard.js?v=3";
+import { initContent } from "./content.js?v=3";
+import { initCountdown } from "./countdown.js?v=3";
+import { initOccasions } from "./occasions.js?v=3";
+import { initNews } from "./news.js?v=3"; // ⬅️ إضافة استيراد الشريط الإخباري
+import { initQr } from "./qr.js?v=3";
+import { initProjector } from "./projector.js?v=3";
+import { initViewer } from "./viewer.js?v=3";
+import { initThemes } from "./themes.js?v=3";
+import { initFullscreen } from "./fullscreen.js?v=3";
+import { initNotifications } from "./notifications.js?v=3";
 
 /**
  * دالة التهيئة الشاملة للنظام (محدثة لتكون أكثر أماناً)
  */
 async function initApp() {
-    console.log("🚀 جاري تهيئة النظام بالكامل (النسخة المحدثة)...");
+    console.log("🚀 جاري تهيئة النظام بالكامل (النسخة المحدثة v3)...");
 
     const modules = [
         { name: "Auth", init: initAuth },
@@ -39,6 +40,7 @@ async function initApp() {
         { name: "Content", init: initContent },
         { name: "Countdown", init: initCountdown },
         { name: "Occasions", init: initOccasions },
+        { name: "News", init: initNews }, // ⬅️ تسجيل وحدة الشريط الإخباري للتشغيل
         { name: "QR", init: initQr },
         { name: "Projector", init: initProjector },
         { name: "Viewer", init: initViewer },
