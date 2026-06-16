@@ -1,4 +1,4 @@
-const CACHE_NAME = "hail-smart-clock-v32"; // تم تحديث الإصدار لتفعيل الكاش الجديد
+const CACHE_NAME = "hail-smart-clock-v33"; // تم تحديث الإصدار لتفعيل الكاش الجديد وتضمين الأخبار
 
 // إضافة جميع ملفات النظام الحيوية لتجنب تعطل الشاشة أوفلاين
 const ASSETS_TO_CACHE = [
@@ -15,7 +15,7 @@ const ASSETS_TO_CACHE = [
     "./assets/css/responsive.css",
     "./assets/css/admin.css",
     
-    // ملفات الجافاسكريبت الأساسية (تم إكمال القائمة)
+    // ملفات الجافاسكريبت الأساسية
     "./assets/js/app.js",
     "./assets/js/admin.js",
     "./assets/js/utils.js",
@@ -23,12 +23,19 @@ const ASSETS_TO_CACHE = [
     "./assets/js/sync.js",
     "./assets/js/auth.js",
     
-    // ملفات المحتوى والعرض
+    // ملفات المحتوى والعرض الرئيسية
     "./assets/js/clock.js",
     "./assets/js/date.js",
     "./assets/js/countdown.js",
     "./assets/js/messages.js",
     "./assets/js/occasions.js",
+    "./assets/js/news.js", // ⬅️ إضافة محرك الشريط الإخباري للشاشة
+    
+    // ملفات لوحة الإدارة
+    "./assets/admin/news.js", // ⬅️ إضافة محرك إدارة الأخبار
+    "./assets/admin/messages.js",
+    "./assets/admin/occasions.js",
+    "./assets/admin/dashboard.js",
     
     // الصور والشعارات
     "./assets/images/logos/university-logo.jpg",
