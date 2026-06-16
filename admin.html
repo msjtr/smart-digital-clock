@@ -31,7 +31,8 @@
             <ul class="sidebar-menu">
                 <li data-tab="mainDashboard" class="active">📊 الإحصائيات</li>
                 <li data-tab="messagesSettings" data-permission="manage_messages">💬 الرسائل</li>
-                <li data-tab="newsSettings" data-permission="manage_news">📰 الشريط الإخباري</li> <li data-tab="occasionsSettings" data-permission="manage_occasions">🎉 المناسبات</li>
+                <li data-tab="newsSettings" data-permission="manage_news">📰 الشريط الإخباري</li> 
+                <li data-tab="occasionsSettings" data-permission="manage_occasions">🎉 المناسبات</li>
             </ul>
             
             <button id="logoutBtn" style="margin-top: 20px; width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s;">تسجيل الخروج</button>
@@ -44,33 +45,228 @@
             
             <div id="newsSettings" class="tab-pane">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="color: #f8fafc; margin: 0;">إدارة الشريط الإخباري</h2>
-                    <button onclick="document.getElementById('addNewsModal').style.display='flex'" style="background: #14b8a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">+ إضافة خبر جديد</button>
+                    <h2 style="color: #f8fafc; margin: 0;">إدارة الشريط الإخباري (تحكم شامل)</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="backupNewsData()" class="btn-primary" style="background: #3b82f6;">💾 نسخ احتياطي</button>
+                        <label style="background: #eab308; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                            📂 استعادة
+                            <input type="file" accept=".json" style="display: none;" onchange="restoreNewsData(event)">
+                        </label>
+                        <button onclick="openNewsModal()" style="background: #14b8a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">+ إضافة خبر جديد</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background: #0f172a; border-radius: 10px; border: 1px dashed #14b8a6;">
+                    <h4 style="color: #94a3b8; margin-top: 0; margin-bottom: 10px;">المعاينة المباشرة قبل النشر:</h4>
+                    <div id="livePreviewContainer" style="width: 100%; height: 60px; display: flex; align-items: center; overflow: hidden; position: relative;">
+                        <div id="livePreviewTicker" style="white-space: nowrap; position: absolute;"></div>
+                    </div>
+                </div>
+
+                <div style="background: #1e293b; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155;">
+                    <h3 style="color: #14b8a6; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px;">⚙️ إعدادات وتصميم الشريط (عام)</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div>
+                            <label class="form-label">مكان الشريط</label>
+                            <select id="gPosition" class="form-input" onchange="updateGlobalSettings()"><option>أعلى الشاشة</option><option>أسفل الشاشة</option><option>منتصف الشاشة</option><option>يمين الشاشة</option><option>يسار الشاشة</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">ارتفاع الشريط</label>
+                            <select id="gHeight" class="form-input" onchange="toggleCustomInput('gHeight', 'gHeightCustom'); updateGlobalSettings()"><option>صغير</option><option selected>متوسط</option><option>كبير</option><option value="custom">مخصص</option></select>
+                            <input type="text" id="gHeightCustom" placeholder="مثال: 80px" style="display:none; width:100%; margin-top:5px; padding:5px; background:#0f172a; color:#fff; border:1px solid #334155;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">عرض الشريط</label>
+                            <select id="gWidth" class="form-input" onchange="toggleCustomInput('gWidth', 'gWidthCustom'); updateGlobalSettings()"><option>كامل الشاشة</option><option>نصف الشاشة</option><option value="custom">عرض مخصص</option></select>
+                            <input type="text" id="gWidthCustom" placeholder="مثال: 70%" style="display:none; width:100%; margin-top:5px; padding:5px; background:#0f172a; color:#fff; border:1px solid #334155;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">طريقة العرض</label>
+                            <select id="gDisplayMode" class="form-input" onchange="updateGlobalSettings()"><option>خبر واحد</option><option selected>عدة أخبار</option><option>عرض دائري</option><option>عرض متزامن</option></select>
+                        </div>
+
+                        <div>
+                            <label class="form-label">نوع الخط</label>
+                            <select id="gFontFamily" class="form-input" onchange="updateGlobalSettings()"><option>Tajawal</option><option>Cairo</option><option>Almarai</option><option>Noto Kufi Arabic</option><option>Noto Naskh Arabic</option><option>DIN Next Arabic</option><option>Arial</option><option>Tahoma</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">حجم الخط</label>
+                            <select id="gFontSize" class="form-input" onchange="toggleCustomInput('gFontSize', 'gFontSizeCustom'); updateGlobalSettings()"><option>صغير</option><option selected>متوسط</option><option>كبير</option><option value="custom">مخصص</option></select>
+                            <input type="text" id="gFontSizeCustom" placeholder="مثال: 24px" style="display:none; width:100%; margin-top:5px; padding:5px; background:#0f172a; color:#fff; border:1px solid #334155;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">وزن الخط</label>
+                            <select id="gFontWeight" class="form-input" onchange="updateGlobalSettings()"><option>خفيف</option><option selected>عادي</option><option>متوسط</option><option>عريض</option><option>عريض جداً</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">تنسيق النص الإضافي</label>
+                            <select id="gFontStyle" class="form-input" onchange="updateGlobalSettings()"><option>عادي</option><option>مائل</option><option>تحته خط</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">تباعد الحروف</label>
+                            <input type="number" id="gLetterSpacing" value="0" class="form-input" onchange="updateGlobalSettings()" placeholder="بكسل">
+                        </div>
+                        <div>
+                            <label class="form-label">تباعد الكلمات</label>
+                            <input type="number" id="gWordSpacing" value="0" class="form-input" onchange="updateGlobalSettings()" placeholder="بكسل">
+                        </div>
+
+                        <div>
+                            <label class="form-label">لون النص</label>
+                            <input type="color" id="gTextColor" value="#14b8a6" style="width: 100%; height: 35px; border: none; background: transparent;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">لون الأيقونة العالمي</label>
+                            <input type="color" id="gIconColor" value="#ffffff" style="width: 100%; height: 35px; border: none; background: transparent;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">نوع الخلفية</label>
+                            <select id="gBgType" class="form-input" onchange="updateGlobalSettings()"><option>لون ثابت</option><option>لون متدرج</option><option>خلفية شفافة</option><option>صورة خلفية</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">اللون/التدرج للخلفية</label>
+                            <input type="color" id="gBgColor" value="#0f172a" style="width: 100%; height: 35px; border: none; background: transparent;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">لون الحدود</label>
+                            <input type="color" id="gBorderColor" value="#14b8a6" style="width: 100%; height: 35px; border: none; background: transparent;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">الفواصل</label>
+                            <select id="gSeparator" class="form-input" onchange="updateGlobalSettings()"><option>خط فاصل</option><option>أيقونة</option><option>شعار الجامعة</option><option>شعار الكلية</option><option>صورة</option><option>بدون فواصل</option></select>
+                        </div>
+
+                        <div>
+                            <label class="form-label">الحركة (الاتجاه)</label>
+                            <select id="gDirection" class="form-input" onchange="updateGlobalSettings()"><option>يمين إلى يسار</option><option>يسار إلى يمين</option><option>أعلى إلى أسفل</option><option>أسفل إلى أعلى</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">سرعة الحركة</label>
+                            <select id="gSpeed" class="form-input" onchange="toggleCustomInput('gSpeed', 'gSpeedCustom'); updateGlobalSettings()"><option>بطيئة جداً</option><option>بطيئة</option><option selected>متوسطة</option><option>سريعة</option><option>سريعة جداً</option><option value="custom">سرعة مخصصة</option></select>
+                            <input type="number" id="gSpeedCustom" placeholder="ثانية (مثال: 20)" style="display:none; width:100%; margin-top:5px; padding:5px; background:#0f172a; color:#fff; border:1px solid #334155;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">تأثيرات إضافية</label>
+                            <select id="gEffect" class="form-input" onchange="updateGlobalSettings()"><option>Slide</option><option>Fade</option><option>Zoom</option><option>Bounce</option><option>Glow</option><option>Pulse</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #ef4444; margin-top: 0;">🚨 إعدادات الشريط الطارئ</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div>
+                            <label class="form-label">تفعيل الطوارئ الدائم</label>
+                            <select id="emgOverride" class="form-input" onchange="updateGlobalSettings()"><option value="false">معطل (طبيعي)</option><option value="true">مفعل (يتجاوز الكل)</option></select>
+                        </div>
+                        <div>
+                            <label class="form-label">لون شريط الطوارئ</label>
+                            <input type="color" id="emgColor" value="#ef4444" style="width: 100%; height: 35px; border: none; background: transparent;" onchange="updateGlobalSettings()">
+                        </div>
+                        <div>
+                            <label class="form-label">صوت التنبيه للطوارئ</label>
+                            <select id="emgSound" class="form-input" onchange="updateGlobalSettings()"><option>بدون صوت</option><option>جرس</option><option>تنبيه</option><option>صفارة</option><option>صوت مخصص</option></select>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="background: #1e293b; border-radius: 10px; overflow: hidden; border: 1px solid #334155;">
+                    <div style="padding: 10px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; gap: 10px;">
+                        <button onclick="bulkDeleteNews()" style="background: #ef4444; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">🗑️ حذف جماعي</button>
+                        <button onclick="bulkArchiveNews()" style="background: #64748b; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">📦 نقل للأرشيف</button>
+                        <select id="autoSortSelect" onchange="autoSortNews(this.value)" style="padding: 5px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 5px;">
+                            <option value="">ترتيب تلقائي...</option><option value="priority">حسب الأولوية</option><option value="dateAdd">حسب تاريخ الإضافة</option><option value="datePub">حسب تاريخ النشر</option><option value="views">حسب مرات الظهور</option>
+                        </select>
+                    </div>
                     <table style="width: 100%; border-collapse: collapse; text-align: right; color: #f8fafc;">
                         <thead style="background: #0f172a; border-bottom: 2px solid #334155;">
                             <tr>
-                                <th style="padding: 15px; width: 50px;">الترتيب</th>
-                                <th style="padding: 15px;">نص الخبر</th>
-                                <th style="padding: 15px; width: 100px;">الحالة</th>
-                                <th style="padding: 15px; width: 150px;">الإجراءات</th>
+                                <th style="padding: 15px; width: 30px;"><input type="checkbox" id="selectAllNews" onchange="toggleSelectAllNews()"></th>
+                                <th style="padding: 15px; width: 90px;">ترتيب يدوي</th>
+                                <th style="padding: 15px;">تفاصيل الخبر</th>
+                                <th style="padding: 15px;">النوع والأولوية</th>
+                                <th style="padding: 15px;">الجدولة</th>
+                                <th style="padding: 15px;">الحالة</th>
+                                <th style="padding: 15px;">التحكم</th>
                             </tr>
                         </thead>
-                        <tbody id="adminNewsTableBody">
-                            </tbody>
+                        <tbody id="adminNewsTableBody"></tbody>
                     </table>
                 </div>
 
-                <div id="addNewsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
-                    <div style="background: #1e293b; padding: 30px; border-radius: 15px; width: 500px; border: 1px solid #334155;">
-                        <h3 style="color: #14b8a6; margin-top: 0; margin-bottom: 20px;">إضافة خبر عاجل جديد</h3>
-                        <textarea id="newNewsText" rows="4" placeholder="اكتب نص الخبر هنا..." style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 5px; background: #0f172a; color: #fff; border: 1px solid #334155; resize: vertical; font-family: inherit; font-size: 1rem;"></textarea>
+                <div id="addNewsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto;">
+                    <div style="background: #1e293b; padding: 30px; border-radius: 15px; width: 900px; max-height: 90vh; overflow-y: auto; border: 1px solid #334155;">
+                        <h3 style="color: #14b8a6; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px;">📝 تفاصيل الخبر الشاملة</h3>
                         
-                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="grid-column: 1 / -1;">
+                                <label class="form-label">عنوان الخبر</label><input type="text" id="nTitle" class="form-input">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label class="form-label">نص الخبر (إلزامي)</label><textarea id="nText" rows="3" class="form-input"></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">وصف مختصر</label><input type="text" id="nDesc" class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label">رابط خارجي (اختياري)</label><input type="url" id="nLink" class="form-input" placeholder="https://...">
+                            </div>
+
+                            <div style="background: #0f172a; padding: 15px; border-radius: 5px; border: 1px dashed #334155;">
+                                <h4 style="margin: 0 0 10px 0; color: #94a3b8;">⭐ إعدادات الأيقونة</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <select id="nIconLib" class="form-input"><option>Emoji</option><option>Font Awesome</option><option>Bootstrap Icons</option><option>Material Icons</option></select>
+                                    <input type="text" id="nIconVal" class="form-input" placeholder="أدخل الأيقونة (مثال: 📢 أو fa-bell)">
+                                    <div>
+                                        <label style="font-size: 0.8rem; color:#94a3b8;">لون الأيقونة</label>
+                                        <input type="color" id="nIconColor" value="#ffffff" style="width:100%; border:none; background:transparent;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8rem; color:#94a3b8;">تأثير/حركة</label>
+                                        <select id="nIconEffect" class="form-input"><option>بدون تأثير</option><option>نبض (Pulse)</option><option>وميض (Flash)</option><option>دوران (Spin)</option></select>
+                                    </div>
+                                    <div style="grid-column: 1/-1;">
+                                        <label style="font-size: 0.8rem; color:#94a3b8;">حجم الأيقونة (بكسل)</label>
+                                        <input type="number" id="nIconSize" value="30" class="form-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="background: #0f172a; padding: 15px; border-radius: 5px; border: 1px dashed #334155;">
+                                <h4 style="margin: 0 0 10px 0; color: #94a3b8;">🖼️ إدارة الصور</h4>
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                                    <input type="file" id="nImageInput" accept="image/*" class="form-input" style="flex:1;" onchange="handleImageUpload(event)">
+                                    <button onclick="document.getElementById('nImageBase64').value=''" style="background:#ef4444; color:white; border:none; border-radius:5px; padding:0 10px;">حذف</button>
+                                </div>
+                                <input type="hidden" id="nImageBase64">
+                                <label style="font-size: 0.8rem; color:#94a3b8;">طريقة عرض الصورة</label>
+                                <select id="nImageDisplay" class="form-input"><option>صورة مصغرة</option><option>صورة جانبية</option><option>صورة خلفية للخبر</option></select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">نوع الخبر</label>
+                                <select id="nType" class="form-input"><option>خبر عاجل</option><option>إعلان</option><option>تنبيه</option><option>تحذير</option><option>مناسبة</option><option>تهنئة</option><option>خبر أكاديمي</option><option>خبر إداري</option></select>
+                            </div>
+                            <div>
+                                <label class="form-label">الأولوية</label>
+                                <select id="nPriority" class="form-input"><option>منخفضة</option><option>متوسطة</option><option>عالية</option><option>عاجلة</option><option style="color:#ef4444; font-weight:bold;">حرجة</option></select>
+                            </div>
+
+                            <div style="grid-column: 1 / -1; border-top: 1px solid #334155; padding-top: 15px;">
+                                <h4 style="color: #94a3b8; margin: 0 0 10px 0;">📅 الجدولة الزمنية وأيام التشغيل</h4>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                    <div><label class="form-label">تاريخ ووقت الظهور</label><input type="datetime-local" id="nStart" class="form-input"></div>
+                                    <div><label class="form-label">تاريخ ووقت الإيقاف</label><input type="datetime-local" id="nEnd" class="form-input"></div>
+                                    <div><label class="form-label">أيام التشغيل</label><select id="nDays" class="form-input"><option>يومي</option><option>أيام محددة</option><option>أيام العمل</option><option>نهاية الأسبوع</option></select></div>
+                                    <div><label class="form-label">التكرار</label><select id="nRecur" class="form-input"><option>مرة واحدة</option><option>مستمر</option><option>كل ساعة</option><option>كل يوم</option><option>كل أسبوع</option><option>مخصص</option></select></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px; border-top: 1px solid #334155; padding-top: 20px;">
                             <button onclick="document.getElementById('addNewsModal').style.display='none'" style="background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">إلغاء</button>
-                            <button onclick="const txt = document.getElementById('newNewsText').value; if(txt) { addNewItem(txt); document.getElementById('newNewsText').value=''; document.getElementById('addNewsModal').style.display='none'; }" style="background: #14b8a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">حفظ ونشر</button>
+                            <button onclick="saveFullNewsItem()" style="background: #14b8a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 حفظ ونشر</button>
                         </div>
                     </div>
                 </div>
