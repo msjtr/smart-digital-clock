@@ -24,9 +24,8 @@ const MIME_TYPES = {
     ".webm": "video/webm"
 };
 
-// التأكد من وجود المجلدات الأساسية قبل بدء السيرفر
+// التأكد من وجود المجلدات الأساسية
 const ensureDirectories = () => {
-    // 💡 تم إضافة "assets/js/admin" للقائمة لضمان إنشاء المجلد حتى في بيئات الاستضافة السحابية
     const dirs = ["data", "assets/images", "assets/videos", "assets/pdfs", "assets/misc", "assets/js/admin"];
     dirs.forEach(dir => {
         const fullPath = path.join(__dirname, dir);
@@ -38,150 +37,96 @@ const ensureDirectories = () => {
 ensureDirectories();
 
 const server = http.createServer((req, res) => {
-    
-    // ========================================================================
-    // 💡 الإصلاح الجذري: فصل الرابط عن أي استعلامات (Query Strings)
-    // ========================================================================
-    const reqPath = req.url.split('?')[0]; // يحول "/data/settings.json?v=123" إلى "/data/settings.json"
+    const reqPath = req.url.split('?')[0];
 
-    // ========================================================================
-    // 1. نظام استقبال وحفظ بيانات الإعدادات والرسائل (JSON API)
-    // ========================================================================
+    // 1. API الحفظ
     if (req.method === "POST" && reqPath === "/api/save") {
         let body = "";
-        
-        req.on("data", chunk => {
-            body += chunk.toString();
-        });
-        
+        req.on("data", chunk => { body += chunk.toString(); });
         req.on("end", () => {
             try {
                 const data = JSON.parse(body);
                 const { filename, content } = data;
-                
                 if (!filename || !content) {
                     res.writeHead(400, { "Content-Type": "application/json" });
-                    return res.end(JSON.stringify({ error: "اسم الملف أو المحتوى مفقود" }));
+                    return res.end(JSON.stringify({ error: "بيانات مفقودة" }));
                 }
-
                 const safeFileName = path.basename(filename) + ".json";
                 const savePath = path.join(__dirname, "data", safeFileName);
-
                 fs.writeFile(savePath, JSON.stringify(content, null, 4), "utf8", (err) => {
                     if (err) {
                         res.writeHead(500, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "فشل في حفظ الملف" }));
+                        return res.end(JSON.stringify({ error: "فشل الحفظ" }));
                     }
                     res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ success: true, message: "تم الحفظ بنجاح" }));
+                    res.end(JSON.stringify({ success: true }));
                 });
-            } catch (error) {
+            } catch (e) {
                 res.writeHead(400, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ error: "بيانات JSON غير صالحة" }));
+                res.end(JSON.stringify({ error: "JSON غير صالح" }));
             }
         });
-        return; 
+        return;
     }
 
-    // ========================================================================
-    // 2. نظام رفع الملفات (صور، فيديو، PDF) للمحتوى (Upload API)
-    // ========================================================================
+    // 2. API الرفع
     if (req.method === "POST" && reqPath === "/api/upload") {
         const fileNameHeader = req.headers["x-file-name"];
-        
         if (!fileNameHeader) {
             res.writeHead(400, { "Content-Type": "application/json" });
-            return res.end(JSON.stringify({ error: "لم يتم العثور على اسم الملف في الهيدر" }));
+            return res.end(JSON.stringify({ error: "اسم الملف مفقود" }));
         }
-
-        // تنظيف اسم الملف وإضافة طابع زمني لمنع التكرار
         const originalName = path.basename(decodeURIComponent(fileNameHeader));
         const safeFileName = Date.now() + "_" + originalName.replace(/\s+/g, '-');
         const ext = path.extname(safeFileName).toLowerCase();
-
-        // الفرز الذكي للمجلدات بناءً على نوع الملف
         let folder = "misc";
         if ([".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(ext)) folder = "images";
         else if ([".mp4", ".webm"].includes(ext)) folder = "videos";
         else if (ext === ".pdf") folder = "pdfs";
 
         const savePath = path.join(__dirname, "assets", folder, safeFileName);
-        const fileUrl = `assets/${folder}/${safeFileName}`; // المسار الذي سيُحفظ في النظام
-
-        // كتابة الملف كـ Stream (يدعم رفع الفيديوهات الكبيرة بدون تعليق السيرفر)
         const writeStream = fs.createWriteStream(savePath);
         req.pipe(writeStream);
-
         writeStream.on("finish", () => {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ success: true, url: fileUrl }));
-        });
-
-        writeStream.on("error", (err) => {
-            console.error("Upload error:", err);
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "فشل في حفظ الملف المرفوع" }));
+            res.end(JSON.stringify({ success: true, url: `assets/${folder}/${safeFileName}` }));
         });
         return;
     }
 
-    // ========================================================================
-    // 3. نظام عرض الملفات الأساسي (Static File Server)
-    // ========================================================================
+    // 3. نظام عرض الملفات (Static File Server) المحدث
+    let safePath = path.normalize(decodeURIComponent(reqPath)).replace(/^(\.\.[\/\\])+/, '');
     
-    // استخدام reqPath بدلاً من req.url لتجنب مشكلة الـ Query Strings
-    const safePath = path.normalize(decodeURIComponent(reqPath)).replace(/^(\.\.[\/\\])+/, '');
-    let filePath = path.join(__dirname, safePath);
+    // إذا كان الطلب للجذر
+    if (reqPath === "/") safePath = "index.html";
 
-    if (reqPath === "/") {
-        filePath = path.join(__dirname, "index.html");
+    // محاولة البحث في المسار المباشر، إذا لم يوجد، ابحث داخل مجلد assets
+    let filePath = path.join(__dirname, safePath);
+    if (!fs.existsSync(filePath)) {
+        filePath = path.join(__dirname, "assets", safePath);
     }
 
+    // تأمين المسارات
     if (!filePath.startsWith(__dirname)) {
-        res.writeHead(403, { "Content-Type": "text/plain" });
+        res.writeHead(403);
         return res.end("403 Forbidden");
     }
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
-            // معالجة فقدان الملفات وإرجاع 404
-            const notFoundPage = path.join(__dirname, "404.html");
-            fs.readFile(notFoundPage, (notFoundErr, notFoundContent) => {
-                if (notFoundErr) {
-                    res.writeHead(404, { "Content-Type": "text/plain" });
-                    return res.end("404 Not Found");
-                }
-                res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
-                res.end(notFoundContent);
-            });
-            return;
+            res.writeHead(404, { "Content-Type": "text/html" });
+            return res.end("<h1>404 Not Found</h1>");
         }
-
         const ext = path.extname(filePath).toLowerCase();
-        
-        // إعدادات الكاش والمناطق الزمنية
-        const headers = {
-            "Content-Type": MIME_TYPES[ext] || "application/octet-stream"
-        };
-        
-        // منع تخزين بيانات JSON في المتصفح لضمان رؤية التحديثات اللحظية
+        const headers = { "Content-Type": MIME_TYPES[ext] || "application/octet-stream" };
         if (ext === ".json") {
-            headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
-            headers["Pragma"] = "no-cache";
-            headers["Expires"] = "0";
+            headers["Cache-Control"] = "no-store";
         }
-
         res.writeHead(200, headers);
         res.end(content);
     });
 });
 
 server.listen(PORT, () => {
-    console.log("=================================================");
-    console.log(`🚀 Smart Digital Clock System is ONLINE`);
-    console.log(`🌐 Server Address: http://localhost:${PORT}`);
-    console.log(`📡 API Endpoints:`);
-    console.log(`   - [JSON] POST /api/save`);
-    console.log(`   - [FILE] POST /api/upload`);
-    console.log("=================================================");
+    console.log(`🚀 System Online on port ${PORT}`);
 });
